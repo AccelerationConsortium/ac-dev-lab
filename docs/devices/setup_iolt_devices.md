@@ -63,7 +63,7 @@ Examples:
 ## Embedding into Gather Town
 
 Invite link: <REDACTED>
-Link to space: app.gather.town/app/XJWae5GrdpzD5HR7/ac-training-lab-room
+
 Password: <REDACTED>
 
 ![image](https://github.com/user-attachments/assets/0fade265-76f1-471d-a202-ad8c7ae847c1)
