@@ -38,92 +38,21 @@ Please upload the device code to an appropriate directory (you may need to creat
 
 ## Prefect workflow orchestration
 
-[Prefect](https://www.prefect.io/) is a modern workflow orchestration platform that can be used as an alternative or complement to MQTT-based orchestration. Prefect provides features like workflow scheduling, monitoring, error handling, and cloud-based management that make it particularly useful for complex laboratory automation workflows.
+[Prefect](https://www.prefect.io/) is a workflow orchestration platform that can be used as an alternative or complement to MQTT-based orchestration for laboratory automation.
 
-### Why use Prefect for lab automation?
+### Setup
 
-- **Workflow visualization**: See your lab processes as directed acyclic graphs (DAGs)
-- **Error handling**: Built-in retry logic and failure notifications
-- **Scheduling**: Run experiments at specific times or intervals
-- **Monitoring**: Real-time tracking of workflow execution
-- **Cloud integration**: Centralized management and deployment
+- **Account setup**: Create a free account at [app.prefect.cloud](https://app.prefect.cloud)
+- **Authentication**: Use `prefect cloud login` for interactive setup or see the [official connection guide](https://docs.prefect.io/v3/how-to-guides/cloud/connect-to-cloud)
+- **Additional setup resources**: See GitHub issues [#109](https://github.com/AccelerationConsortium/ac-training-lab/issues/109), [#250](https://github.com/AccelerationConsortium/ac-training-lab/issues/250), and [#408](https://github.com/AccelerationConsortium/ac-training-lab/issues/408) for lab-specific setup discussions
 
-### Setting up Prefect Cloud
-
-1. **Create a Prefect Cloud account** at [app.prefect.cloud](https://app.prefect.cloud)
-
-2. **Get your API key**:
-   - Click your workspace name in the top-left
-   - Select **API Keys** from the menu
-   - Click **+** to create a new key
-   - Copy and save the key securely
-
-3. **Get your API URL**:
-   - Copy your workspace URL from the browser address bar
-   - Convert it to API format: `https://api.prefect.cloud/api/accounts/{account-id}/workspaces/{workspace-id}`
-   - Replace `{account-id}` and `{workspace-id}` with the values from your URL
-
-4. **Authentication**: Set environment variables or use Prefect's login commands:
-   ```bash
-   export PREFECT_API_KEY="your-api-key"
-   export PREFECT_API_URL="your-api-url"
-   ```
-
-### Example implementation
-
-The AC Training Lab includes Prefect examples for OT-2 robot orchestration. Here's a simplified workflow structure:
-
-```python
-from prefect import flow, serve
-
-@flow
-def mix_color(R, Y, B, mix_well):
-    """Mix colored solutions in specified proportions"""
-    # Device control logic here
-    print(f"Mixed R:{R}, Y:{Y}, B:{B} in well {mix_well}")
-
-@flow  
-def move_sensor_to_measurement_position(mix_well):
-    """Position sensor for measurement"""
-    # Sensor positioning logic here
-    print("Sensor positioned for measurement")
-
-@flow
-def move_sensor_back():
-    """Return sensor to charging position"""
-    # Sensor return logic here
-    print("Sensor returned to charging position")
-
-if __name__ == "__main__":
-    # Deploy flows to Prefect Cloud
-    serve(
-        mix_color.to_deployment("mix-color"),
-        move_sensor_to_measurement_position.to_deployment("move-sensor-to-measurement-position"),
-        move_sensor_back.to_deployment("move-sensor-back"),
-    )
-```
-
-### Running Prefect workflows
-
-1. **Deploy workflows**: Run your Python script to register deployments with Prefect Cloud
-2. **Start a worker**: `prefect worker start --pool default-agent-pool`
-3. **Trigger runs**: Use the Prefect UI, CLI, or API to execute workflows
-
-### Examples in the repository
+### Repository examples
 
 - **OT-2 Prefect orchestration**: [`src/ac_training_lab/ot-2/_scripts/ot2_orchestrator_prefect.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/ot2_orchestrator_prefect.ipynb)
-- **OT-2 device control with Prefect**: [`src/ac_training_lab/ot-2/_scripts/ot2_device_prefect.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/ot2_device_prefect.ipynb)
-- **Standalone Prefect server**: [`src/ac_training_lab/ot-2/_scripts/prefect_serve_standalone.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/prefect_serve_standalone.ipynb)
+- **OT-2 device control**: [`src/ac_training_lab/ot-2/_scripts/ot2_device_prefect.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/ot2_device_prefect.ipynb)
+- **Standalone server**: [`src/ac_training_lab/ot-2/_scripts/prefect_serve_standalone.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/prefect_serve_standalone.ipynb)
 
-### Integration with other systems
-
-Prefect workflows can be integrated with:
-- **MQTT**: Trigger Prefect flows from MQTT messages or send MQTT messages from flows
-- **MongoDB**: Log workflow execution data and results
-- **Hugging Face Spaces**: Deploy workflow triggers as web applications
-- **Hardware devices**: Control laboratory instruments and sensors
-
-For more information, see the [official Prefect documentation](https://docs.prefect.io/).
+Prefect integrates with MQTT, MongoDB, Hugging Face Spaces, and hardware devices. For detailed documentation, see [docs.prefect.io](https://docs.prefect.io/).
 
 ## MongoDB logging setup
 
