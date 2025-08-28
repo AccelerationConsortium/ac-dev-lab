@@ -43,7 +43,7 @@ Please upload the device code to an appropriate directory (you may need to creat
 ### Setup
 
 - **Account setup**: Create a free account at [app.prefect.cloud](https://app.prefect.cloud)
-- **Authentication**: Use `prefect cloud login` for interactive setup or see the [official connection guide](https://docs.prefect.io/v3/how-to-guides/cloud/connect-to-cloud)
+- **Authentication**: Use `prefect cloud login` with a non-personal worker account for interactive setup or see the [official connection guide](https://docs.prefect.io/v3/how-to-guides/cloud/connect-to-cloud)
 - **Additional setup resources**: See GitHub issues [#109](https://github.com/AccelerationConsortium/ac-training-lab/issues/109), [#250](https://github.com/AccelerationConsortium/ac-training-lab/issues/250), and [#408](https://github.com/AccelerationConsortium/ac-training-lab/issues/408) for lab-specific setup discussions
 
 ### Repository examples
