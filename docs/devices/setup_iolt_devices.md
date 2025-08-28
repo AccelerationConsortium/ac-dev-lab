@@ -36,6 +36,24 @@ Device
 
 Please upload the device code to an appropriate directory (you may need to create a new one) within https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab. For MicroPython implementations, please include a `main.py` that should be run by the user and any dependencies that are required in a `lib` subdirectory. For non-MicroPython implementations (e.g., Python), please include a `device.py` (meant to be run by user), `__init__.py`, and `requirements.txt` file. You can include other modules at the same level as `device.py` or in subdirectories of your choice (e.g., `utils`, don't use `lib` so that we can avoid confusion). Special instructions can go in a `README.md` file.
 
+## Prefect workflow orchestration
+
+[Prefect](https://www.prefect.io/) is a workflow orchestration platform that can be used as an alternative or complement to MQTT-based orchestration for laboratory automation.
+
+### Setup
+
+- **Account setup**: Create a free account at [app.prefect.cloud](https://app.prefect.cloud)
+- **Authentication**: Use `prefect cloud login` with a non-personal worker account for interactive setup or see the [official connection guide](https://docs.prefect.io/v3/how-to-guides/cloud/connect-to-cloud)
+- **Additional setup resources**: See GitHub issues [#109](https://github.com/AccelerationConsortium/ac-training-lab/issues/109), [#250](https://github.com/AccelerationConsortium/ac-training-lab/issues/250), and [#408](https://github.com/AccelerationConsortium/ac-training-lab/issues/408) for lab-specific setup discussions
+
+### Repository examples
+
+- **OT-2 Prefect orchestration**: [`src/ac_training_lab/ot-2/_scripts/ot2_orchestrator_prefect.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/ot2_orchestrator_prefect.ipynb)
+- **OT-2 device control**: [`src/ac_training_lab/ot-2/_scripts/ot2_device_prefect.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/ot2_device_prefect.ipynb)
+- **Standalone server**: [`src/ac_training_lab/ot-2/_scripts/prefect_serve_standalone.ipynb`](https://github.com/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/ot-2/_scripts/prefect_serve_standalone.ipynb)
+
+Prefect integrates with MQTT, MongoDB, Hugging Face Spaces, and hardware devices. For detailed documentation, see [docs.prefect.io](https://docs.prefect.io/).
+
 ## MongoDB logging setup
 
 Typically, anything with data and timestamp-based actions will be logged to a database. These implementations will usually follow closely to https://ac-microcourses.readthedocs.io/en/latest/courses/hello-world/1.5-data-logging.html and the companion notebook.
