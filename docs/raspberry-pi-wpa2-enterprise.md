@@ -127,7 +127,31 @@ By following these steps, you should be able to connect your Raspberry Pi Zero 2
 
 Rebooting the device should still connect to the one most recently chosen.
 
-## Various resources during troubleshooting
+## WiFi Troubleshooting
+
+### WLAN Country Setting
+
+If your WiFi connection is being blocked or you see soft-blocked WiFi when running `rfkill list all`, you may need to set the appropriate WLAN country code for your region:
+
+```bash
+sudo rfkill list all
+```
+
+If WiFi shows as "Soft blocked: yes", you can temporarily unblock it with:
+
+```bash
+sudo rfkill unblock wifi
+```
+
+However, to prevent the WiFi from being blocked again after restarting NetworkManager, set the appropriate WLAN country code using `raspi-config`:
+
+```bash
+sudo raspi-config
+```
+
+Navigate to: **Localisation Options** > **WLAN Country** and select your country (e.g., US for United States, CA for Canada, DE for Germany).
+
+### Additional Resources
 
 Various resources during troubleshooting (see list in comment):
 - https://www.reddit.com/r/raspberry_pi/comments/18n47zi/comment/mhq1wdq/
