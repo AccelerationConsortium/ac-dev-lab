@@ -40,9 +40,9 @@ jobs:
       - name: Install package and dev dependencies
         run: |
           python -m pip install --upgrade pip
+          python -m pip install ax-platform prefect prefect-slack
           python -m pip install -e .
           # python -m pip install tox pre-commit
-          python -m pip install ax-platform prefect prefect-slack
           # pre-commit run --all-files
           # npx mint-mcp add docs.prefect.io
           # pre-commit install
