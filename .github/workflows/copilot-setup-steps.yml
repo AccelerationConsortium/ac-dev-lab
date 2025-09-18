@@ -37,4 +37,4 @@ jobs:
       - name: Install branch-specific dependencies
         if: ${{ github.ref_name == 'copilot/fix-382' }}
         run: |
-          python -m pip install ax-platform prefect prefect-slack
+          python -m pip install "ax-platform<1" prefect prefect-slack
