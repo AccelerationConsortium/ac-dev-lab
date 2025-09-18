@@ -19,7 +19,7 @@
 
 - Validate and access link content using available MCP tools (Playwright and/or Perplexity)
 - Search GitHub for relevant open-source alternatives to commercial tools
-- Prioritize official package documentation over inferred usage
+- Prioritize official package documentation over inferred usage by using Context7 MCP tool
 
 ## Communication Style
 
@@ -28,10 +28,16 @@
 - Ask clarifying questions when needed
 - Don't infer requirements or create workarounds unless asked
 - Put documentation content in comment replies, not separate files, unless asked
+- Comments should not leave a trace of the development process
 - Avoid sycophancy, favor objectiveness
 
-- ## Change Logging
+## Change Logging
 
 - Each time you generate code, note the changes in CHANGELOG.md
 - Follow semantic versioning guidelines
 - Include date and description of changes
+
+## Coding Agent
+
+- Set environment variables `PIP_TIMEOUT=600` and `PIP_RETRIES=2` prior to `conda` or `pip` installs
+- Include plots directly in your comment reply via `![image name](https://github.com/<user/org>/<repo>/blob/<shortened-commit-hash>/<filename>?raw=true)`. Truncate the commit hash to the first 7 characters only. For example, `https://github.com/AccelerationConsortium/evaluation-metrics/blob/52754e7/scripts/bo_benchmarks/demonstrations/branin_campaign_demonstration_results.png?raw=true`. For provenance, ensure you use the shortened (7-character) commit hash, not the branch name
