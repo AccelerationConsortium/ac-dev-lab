@@ -99,10 +99,9 @@ For the video demonstration, show:
 
 ## Troubleshooting
 
-- **Ax not installed**: Script will use mock implementation for development
-- **Slack block missing**: Script continues without Slack notifications
 - **Prefect server not running**: Start with `prefect server start`
-- **Dependencies missing**: Install with pip using timeout/retry settings
+- **Slack block missing**: Configure SlackWebhook block named "prefect-test"
+- **Dependencies missing**: Install with `pip install ax-platform prefect prefect-slack`
 
 ## References
 
