@@ -44,9 +44,9 @@ class ExperimentInput(RunInput):
     notes: str = ""
 
 
-def setup_ax_client() -> AxClient:
+def setup_ax_client(random_seed: int = 42) -> AxClient:
     """Initialize the Ax client with Branin function optimization setup using Service API"""
-    ax_client = AxClient()
+    ax_client = AxClient(random_seed=random_seed)
     
     # Define the optimization problem for the Branin function using Service API pattern
     ax_client.create_experiment(
@@ -82,7 +82,7 @@ def complete_experiment(ax_client: AxClient, trial_index: int, objective_value: 
 
 
 @flow(name="bo-hitl-slack-campaign")
-async def bo_hitl_slack_campaign(n_iterations: int = 5):
+async def bo_hitl_slack_campaign(n_iterations: int = 5, slack_block_name: str = "prefect-test", random_seed: int = 42):
     """
     Main BO campaign with human-in-the-loop evaluation via Slack
     
@@ -95,14 +95,16 @@ async def bo_hitl_slack_campaign(n_iterations: int = 5):
     
     Args:
         n_iterations: Number of BO iterations to run
+        slack_block_name: Name of the Slack webhook block to use
+        random_seed: Seed for Ax reproducibility
     """
     logger = get_run_logger()
     
     # Load the Slack webhook block
-    slack_block = SlackWebhook.load("prefect-test")
+    slack_block = SlackWebhook.load(slack_block_name)
     
-    # Initialize the Ax client using Service API
-    ax_client = setup_ax_client()
+    # Initialize the Ax client using Service API with seed
+    ax_client = setup_ax_client(random_seed=random_seed)
     
     logger.info(f"Starting BO campaign with {n_iterations} iterations")
     
@@ -130,24 +132,36 @@ Your Task:
 Trial: {trial_index}
         """.strip()
         
-        # Send Slack notification
+        # Send Slack notification with URL guard
         flow_run = get_run_context().flow_run
-        if flow_run and settings.PREFECT_UI_URL:
+        if flow_run and settings.PREFECT_UI_URL and settings.PREFECT_UI_URL.value():
             flow_run_url = f"{settings.PREFECT_UI_URL.value()}/flow-runs/flow-run/{flow_run.id}"
             message += f"\n\nResume Flow: <{flow_run_url}|Click here to resume>"
         
         await slack_block.notify(message)
         
-        # Pause for human input
-        experiment_result = await pause_flow_run(
-            wait_for_input=ExperimentInput,
-            timeout=600  # 10 minutes timeout
-        )
+        # Pause for human input with timeout handling
+        try:
+            experiment_result = await pause_flow_run(
+                wait_for_input=ExperimentInput,
+                timeout=600  # 10 minutes timeout
+            )
+            
+            # Validate objective value input
+            objective_value = experiment_result.objective_value
+            if not isinstance(objective_value, (int, float)) or objective_value < 0:
+                logger.warning(f"Invalid objective value: {objective_value}. Using absolute value.")
+                objective_value = abs(float(objective_value))
+            
+        except Exception as e:
+            logger.error(f"Timeout or error in human input: {e}")
+            logger.info("Skipping this iteration due to timeout or error")
+            continue
         
         # Complete the experiment using Service API
-        complete_experiment(ax_client, trial_index, experiment_result.objective_value)
+        complete_experiment(ax_client, trial_index, objective_value)
         
-        logger.info(f"Completed iteration {iteration + 1} with value {experiment_result.objective_value}")
+        logger.info(f"Completed iteration {iteration + 1} with value {objective_value}")
     
     logger.info("BO Campaign Completed!")
     await slack_block.notify(f"BO Campaign completed! Ran {n_iterations} iterations using Ax Service API.")
