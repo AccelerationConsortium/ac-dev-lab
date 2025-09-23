@@ -147,15 +147,25 @@ Trial: {trial_index}
                 timeout=600  # 10 minutes timeout
             )
             
-            # Validate objective value input
+            # Validate objective value input and ask for re-entry if invalid
             objective_value = experiment_result.objective_value
-            if not isinstance(objective_value, (int, float)) or objective_value < 0:
-                logger.warning(f"Invalid objective value: {objective_value}. Using absolute value.")
-                objective_value = abs(float(objective_value))
+            while not isinstance(objective_value, (int, float)) or objective_value < 0:
+                logger.warning(f"Invalid objective value: {objective_value}. Must be a non-negative number.")
+                await slack_block.notify(f"Invalid objective value entered: {objective_value}. Please enter a valid non-negative number.")
+                
+                # Request re-entry
+                experiment_result = await pause_flow_run(
+                    wait_for_input=ExperimentInput,
+                    timeout=600
+                )
+                objective_value = experiment_result.objective_value
             
         except Exception as e:
             logger.error(f"Timeout or error in human input: {e}")
-            logger.info("Skipping this iteration due to timeout or error")
+            logger.info(f"Marking trial {trial_index} as failed and continuing to next iteration")
+            
+            # Mark the trial as failed in Ax so it can move on cleanly
+            ax_client.log_trial_failure(trial_index=trial_index)
             continue
         
         # Complete the experiment using Service API
