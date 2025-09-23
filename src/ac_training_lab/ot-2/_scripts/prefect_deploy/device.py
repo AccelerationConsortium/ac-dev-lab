@@ -6,8 +6,14 @@ schemas change.
 """
 
 from prefect import flow, task
+import opentrons
 from prefect.runner.storage import GitRepository
 import time  # Simulating OT-2 operations
+
+
+# ------------------- OT-2 Setup -------------------
+protocol = opentrons.simulate.get_protocol_api("2.12")
+protocol.home()
 
 
 # Simulate OT-2 protocol API (in real implementation, this would be opentrons.simulate)
@@ -71,15 +77,15 @@ p300 = protocol.load_instrument("p300_single_gen2", "right", [tiprack_1])
 
 
 @flow(name="mix-color")
-def mix_color(R: int, Y: int, B: int, mix_well: str):
+def mix_color(R: int, Y: int, B: int, G: int, mix_well: str):
     """
     Mix colors with specified RGB values into a well.
 
     Parameters:
-    - R, Y, B: Volumes of Red, Yellow, Blue colors (0-300 ul total)
+    - R, Y, B, G: Volumes of Red, Yellow, Blue, Green colors (0-300 ul total)
     - mix_well: Well identifier (e.g., "B2")
     """
-    total = R + Y + B
+    total = R + Y + B + G
     if total > 300:
         raise ValueError("The sum of the proportions must be <= 300")
 
@@ -137,7 +143,8 @@ if __name__ == "__main__":
         work_queue_name="high-priority",  # High priority for color mixing
         description="Deployment for mixing colors on OT-2 device",
         tags=["ot2", "color-mixing", "high-priority"],
-    )
+    )  # NOTE: this would likely become a github actions workflow to auto-deploy on push
+    # NOTE: if doing this locally instead of with a git repo, in from_source, pass a filepath and entrypoint
 
     # # Deploy move_sensor_to_measurement_position flow to standard queue
     # move_sensor_to_measurement_position.deploy(
