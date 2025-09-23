@@ -108,7 +108,7 @@ def move_sensor_to_measurement_position(mix_well: str):
     - mix_well: Well identifier (e.g., "B2")
     """
     p300.pick_up_tip(tiprack_2["A2"])
-    p300.move_to(plate[mix_well].top(z=-1.3))
+    p300.move_to(plate[mix_well].top(z=-1))
     print("Sensor is now in position for measurement")
     return "Sensor positioned"
 
@@ -126,14 +126,12 @@ def move_sensor_back():
 # Deployment configuration - Run this section when setting up deployments
 if __name__ == "__main__":
     # Deploy mix_color flow to high-priority queue
-    mix_color_deployment = mix_color.from_source(
+    mix_color.from_source(
         source=GitRepository(
-            "https://github.com/AccelerationConsortium/ac-dev-lab.git"
+            "https://github.com/AccelerationConsortium/ac-training-lab.git"
         ),
-        entrypoint="src.ac_training_lab.ot-2._scripts.prefect_deploy.device:mix_color",
-    )
-
-    mix_color_deployment = mix_color.deploy(
+        entrypoint="src/ac_training_lab/ot-2/_scripts/prefect_deploy/device.py:mix_color",
+    ).deploy(
         name="mix-color",
         work_pool_name="ot2-device-pool",
         work_queue_name="high-priority",  # High priority for color mixing
@@ -141,25 +139,22 @@ if __name__ == "__main__":
         tags=["ot2", "color-mixing", "high-priority"],
     )
 
-    # Deploy move_sensor_to_measurement_position flow to standard queue
-    move_sensor_deployment = move_sensor_to_measurement_position.deploy(
-        name="move-sensor-to-measurement-position",
-        work_pool_name="ot2-device-pool",
-        work_queue_name="standard",  # Standard priority for sensor movement
-        description="Deployment for moving sensor to measurement position",
-        tags=["ot2", "sensor", "measurement"],
-    )
+    # # Deploy move_sensor_to_measurement_position flow to standard queue
+    # move_sensor_to_measurement_position.deploy(
+    #     name="move-sensor-to-measurement-position",
+    #     work_pool_name="ot2-device-pool",
+    #     work_queue_name="standard",  # Standard priority for sensor movement
+    #     description="Deployment for moving sensor to measurement position",
+    #     tags=["ot2", "sensor", "measurement"],
+    # )
 
-    # Deploy move_sensor_back flow to low-priority queue
-    move_sensor_back_deployment = move_sensor_back.deploy(
-        name="move-sensor-back",
-        work_pool_name="ot2-device-pool",
-        work_queue_name="low-priority",  # Low priority for sensor reset
-        description="Deployment for moving sensor back to charging position",
-        tags=["ot2", "sensor", "charging"],
-    )
+    # # Deploy move_sensor_back flow to low-priority queue
+    # move_sensor_back.deploy(
+    #     name="move-sensor-back",
+    #     work_pool_name="ot2-device-pool",
+    #     work_queue_name="low-priority",  # Low priority for sensor reset
+    #     description="Deployment for moving sensor back to charging position",
+    #     tags=["ot2", "sensor", "charging"],
+    # )
 
-    print("Deployments created:")
-    print(f"- {mix_color_deployment.name} in queue 'high-priority'")
-    print(f"- {move_sensor_deployment.name} in queue 'standard'")
-    print(f"- {move_sensor_back_deployment.name} in queue 'low-priority'")
+    print("Deployments created successfully!")
