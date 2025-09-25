@@ -26,32 +26,32 @@ This solution uses a square U-bolt to clamp around the handle, providing a secur
 #### Components List:
 
 **1. Square U-bolt Assembly**
-- **McMaster-Carr Part**: 3038T12
+- **McMaster-Carr Part**: [3038T12](https://www.mcmaster.com/3038T12/)
 - **Description**: Galvanized Steel Square U-Bolt, 1" ID × 1¾" Height, ¼"-20 Thread
 - **Justification**: 1" (25mm) internal width accommodates the 24mm handle width with minimal clearance
 
 **2. U-bolt Backing Plate**
-- **McMaster-Carr Part**: 3038T65  
+- **McMaster-Carr Part**: [3038T65](https://www.mcmaster.com/3038T65/)
 - **Description**: Galvanized Steel Mounting Plate for 1" ID U-Bolt, 1⅞" × ¾" × 3/32"
 - **Justification**: Distributes clamping force across handle surface, prevents deformation
 
 **3. Tie Rod (M4 System for Strength)**
-- **McMaster-Carr Part**: 99038A108
+- **McMaster-Carr Part**: [99038A108](https://www.mcmaster.com/99038A108/)
 - **Description**: Steel Threaded Rod, M4 × 1.0mm pitch, 1m length
 - **Justification**: M4 provides adequate strength for 35N forces while being compatible with standard hardware
 
 **4. Rod End Bearing (Actuator Side)**
-- **McMaster-Carr Part**: 6072K31
+- **McMaster-Carr Part**: [6072K31](https://www.mcmaster.com/6072K31/)
 - **Description**: Ball Joint Rod End, M4 thread, 3mm bore
 - **Justification**: 3mm bore accepts M3 bolt for actuator clevis connection, M4 thread fits tie rod
 
 **5. Rod End Bearing (Handle Side)**  
-- **McMaster-Carr Part**: 6072K31 (same as actuator side)
+- **McMaster-Carr Part**: [6072K31](https://www.mcmaster.com/6072K31/) (same as actuator side)
 - **Description**: Ball Joint Rod End, M4 thread, 3mm bore
 - **Justification**: Provides pivot connection to U-bolt assembly
 
 **6. Jam Nuts**
-- **McMaster-Carr Part**: 90480A110
+- **McMaster-Carr Part**: [90480A110](https://www.mcmaster.com/90480A110/)
 - **Description**: M4 × 0.7mm Jam Nut
 - **Justification**: Locks rod end positions on threaded tie rod
 
@@ -83,19 +83,19 @@ This solution uses heavy-duty cable ties for a simpler, less permanent connectio
 #### Components List:
 
 **1. Reusable Cable Ties**
-- **McMaster-Carr Part**: 7130K67
+- **McMaster-Carr Part**: [7130K67](https://www.mcmaster.com/7130K67/)
 - **Description**: Reusable Cable Tie, 21.7" length, 120 lb tensile strength
 - **Justification**: Reusable design allows adjustment/removal, 120 lb strength exceeds 8 lb requirement by 15x safety factor
 
 **2. Heavy-Duty Backup Cable Ties**
-- **McMaster-Carr Part**: 7113K87  
+- **McMaster-Carr Part**: [7113K87](https://www.mcmaster.com/7113K87/)
 - **Description**: UV-Resistant Cable Tie, 24" length, 250 lb tensile strength
 - **Justification**: Single-use but extremely strong, UV-resistant for outdoor use
 
 **3. Tie Rod Components** (Same as Solution 1)
-- Threaded rod: 99038A108 (M4)
-- Rod end bearings: 6072K31 (both ends)
-- Jam nuts: 90480A110 (M4)
+- Threaded rod: [99038A108](https://www.mcmaster.com/99038A108/) (M4)
+- Rod end bearings: [6072K31](https://www.mcmaster.com/6072K31/) (both ends)
+- Jam nuts: [90480A110](https://www.mcmaster.com/90480A110/) (M4)
 
 **4. Cable Tie Attachment Point**
 - **Small metal bracket** (can be fabricated or use standard L-bracket)
