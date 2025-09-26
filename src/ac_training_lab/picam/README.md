@@ -154,7 +154,7 @@ Controls the visibility of your YouTube live stream:
 - `"public"` - Anyone can find and view the stream
 - `"unlisted"` - Anyone with the link can view, but it won't appear in search results
 
-**Recommendation:** Use `"unlisted"` for lab monitoring - provides controlled access while keeping streams discoverable by your team.
+**Recommendation:** Use `"unlisted"` for lab monitoring - provides controlled access while keeping streams discoverable by your team. If using `private`, you will need to provide access by adding a Google account from each person. Each person added to the channel will be able to see all videos in the channel (compared with unlisted, where you can share specific playlists but not others).
 
 #### Camera Orientation Settings
 - `CAMERA_VFLIP` - Set to `True` to flip the camera image vertically
