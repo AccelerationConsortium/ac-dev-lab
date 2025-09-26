@@ -70,6 +70,52 @@ def show():
         st.write("Move complete")
         microscope.end_connection()
 
+    def start_recording_button():
+        microscope = MicroscopeDemo(
+            HIVEMQ_BROKER,
+            port,
+            microscopeselection + "clientuser",
+            access_key,
+            microscopeselection,
+        )
+        # Store microscope instance in session state for stopping later
+        st.session_state.recording_microscope = microscope
+        microscope.start_video_recording(fps=recording_fps)
+        st.success(f"Video recording started at {recording_fps} fps")
+        st.info("Use 'Stop Recording' button to end recording and save video")
+
+    def stop_recording_button():
+        if hasattr(st.session_state, 'recording_microscope'):
+            microscope = st.session_state.recording_microscope
+            video_path = microscope.stop_video_recording()
+            if video_path:
+                st.success(f"Recording stopped and saved: {video_path}")
+            else:
+                st.error("Failed to save recording")
+            microscope.end_connection()
+            del st.session_state.recording_microscope
+        else:
+            st.warning("No active recording found")
+
+    def record_duration_button():
+        microscope = MicroscopeDemo(
+            HIVEMQ_BROKER,
+            port,
+            microscopeselection + "clientuser",
+            access_key,
+            microscopeselection,
+        )
+        st.info(f"Recording for {recording_duration} seconds...")
+        video_path = microscope.record_video_for_duration(
+            duration_seconds=recording_duration, 
+            fps=recording_fps
+        )
+        if video_path:
+            st.success(f"Recording completed and saved: {video_path}")
+        else:
+            st.error("Recording failed")
+        microscope.end_connection()
+
     st.title("GUI control")
 
     microscopeselection = st.selectbox(
@@ -90,3 +136,17 @@ def show():
     xmove = st.number_input("X", min_value=-20000, max_value=20000, step=250, value=0)
     ymove = st.number_input("Y", min_value=-20000, max_value=20000, step=250, value=0)
     st.button("Move", on_click=move_button)
+    
+    st.write("")
+    st.markdown("### Video Recording")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        recording_fps = st.number_input("Recording FPS", min_value=1, max_value=10, value=2)
+        recording_duration = st.number_input("Duration (seconds)", min_value=5, max_value=300, value=30)
+    
+    with col2:
+        st.button("Start Recording", on_click=start_recording_button)
+        st.button("Stop Recording", on_click=stop_recording_button)
+        
+    st.button("Record for Duration", on_click=record_duration_button, help=f"Record for {recording_duration} seconds automatically")
