@@ -14,8 +14,13 @@ For running commands on your device during setup, you have several options:
 
 1. **Direct SSH (Same Network)**: If both your computer and the device are on the same WiFi network, you can SSH directly to the device using its local IP address. This is convenient for copy-pasting commands instead of typing them out. Find the device's IP address using:
    ```bash
+   # Using mDNS/Bonjour hostname (if supported):
    ssh pi@<hostname>.local
    # Example: ssh pi@rpi-zero2w-stream-cam-a1b2.local
+   
+   # Or using the device's local IP address:
+   ssh pi@192.168.1.100
+   # Replace 192.168.1.100 with your device's actual IP address
    ```
 
 2. **Physical Access**: Connect a keyboard and mouse directly to the device. This is especially useful when:
