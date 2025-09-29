@@ -14,16 +14,16 @@ For running commands on your device during setup, you have several options:
 
 1. **Direct SSH (Same Network)**: If both your computer and the device are on the same WiFi network, you can SSH directly to the device using its local IP address. This is convenient for copy-pasting commands instead of typing them out. Find the device's IP address using:
    ```bash
-   ssh pi@<device_local_ip>
-   # Example: ssh pi@192.168.1.100
+   ssh pi@<hostname>.local
+   # Example: ssh pi@rpi-zero2w-stream-cam-a1b2.local
    ```
 
 2. **Physical Access**: Connect a keyboard and mouse directly to the device. This is especially useful when:
    - You don't have SSH enabled yet
    - You're troubleshooting network connectivity issues
-   - You need to perform initial WiFi setup on the device
+   - You need to perform initial WiFi setup on the device (and couldn't when flashing using the Raspberry Pi Imager tool)
 
-3. **Headless Setup**: For devices without displays, consider using SSH over the same network or setting up WiFi credentials via the SD card before first boot.
+3. **Headless Setup**: For devices without displays, consider using SSH over the same network or setting up WiFi credentials via the Raspberry Pi Imager tool before first boot.
 
 You can see which RPi OS version you have (assuming you're using RPi OS) [by running](https://www.cyberciti.biz/faq/linux-command-print-raspberry-pi-os-version-on-raspberry-pi/) `hostnamectl` or using `cat /etc/os-release`. However, if you're using Ubuntu OS on your RPi, you'll [need to run](https://www.google.com/search?q=check+ubuntu+version) `lsb_release -a`.
 
