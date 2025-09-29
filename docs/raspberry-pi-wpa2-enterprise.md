@@ -20,6 +20,7 @@ First, let's check the current status of your wireless interface (`wlan0`) to un
 
 ```bash
 ip addr show wlan0
+iwgetid
 ```
 
 This command will display the IP address and connection status of `wlan0`.
@@ -102,6 +103,7 @@ Check if `wlan0` has obtained an IP address and is connected to the "UofT" netwo
 
 ```bash
 ip addr show wlan0
+iwgetid
 ```
 
 You can also check (example output also shown):
