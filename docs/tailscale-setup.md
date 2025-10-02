@@ -2,7 +2,7 @@
 
 [Tailscale](https://tailscale.com/) is a "mesh VPN" that allows secure access to devices across different networks. It simplifies remote access and management of devices.
 
-The following covers [tailscale setup](#general-setup-instructions) for general-purpose machines (Linux, macOS, Windows, RPi OS) and SSH access, [instructions for remote desktop and SSH](#remote-desktop-and-ssh-on-windows) on Windows, [VS Code configuration](#vs-code-configuration) tips, and [setup for an OT-2 environment](#installing-and-auto-starting-tailscale-on-ot-2-opentrons) which requires special installation steps.
+The following covers [tailscale setup](#general-setup-instructions) for general-purpose Linux, macOS, and Raspberry Pi devices with SSH access, [instructions for remote desktop and SSH](#remote-desktop-and-ssh-on-windows) on Windows devices, and [setup for an OT-2 environment](#installing-and-auto-starting-tailscale-on-ot-2-opentrons) which requires special installation steps.
 
 ## General Setup Instructions
 
@@ -59,7 +59,20 @@ You also might want to ["disable key expiry"](https://tailscale.com/kb/1028/key-
 
 ![image](https://github.com/user-attachments/assets/23ad57b6-e39f-4694-86ee-7c5d685c763f)
 
+### VS Code Configuration
 
+Also, consider updating the default SSH username in VS Code settings (Ctrl+,), since it will be your PC's username by default (which may not correspond to the username on the device).
+
+Within the tailscale sidebar interface, I found it useful to try to connect to the terminal first, go through the prompts, then click the "Attach VS Code" button and follow any prompts again. I've had some issues (https://github.com/AccelerationConsortium/ac-training-lab/issues/184#issuecomment-2719179967) with getting VS Code errors when trying to go directly to "Attach VS Code" for a new device. If you click "details" while it's loading, you will likely find that it's waiting on you to authenticate by accessing a particular link.
+
+Additional resources:
+- https://www.reddit.com/r/Tailscale/comments/11c69q5/how_can_i_authenticate_a_headless_device/
+- https://tailscale.com/kb/1174/install-debian-bookworm
+- https://forums.raspberrypi.com/viewtopic.php?t=374609
+- https://tailscale.com/kb/1265/vscode-extension
+- https://tailscale.com/learn/how-to-ssh-into-a-raspberry-pi
+
+---
 ## Remote Desktop and SSH on Windows
 
 [Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh) isn't directly supported on Windows, and SSH on Windows machines can get a bit messy. However, you can still use Tailscale to set up remote desktop access or configure OpenSSH for VS Code compatibility.
@@ -145,21 +158,6 @@ Restart-Service sshd
 ```
 
 _Based on https://github.com/AccelerationConsortium/ac-training-lab/issues/376_
-
----
-
-## VS Code Configuration
-
-Also, consider updating the default SSH username in VS Code settings (Ctrl+,), since it will be your PC's username by default (which may not correspond to the username on the RPi).
-
-Within the tailscale sidebar interface, I found it useful to try to connect to the terminal first, go through the prompts, then click the "Attach VS Code" button and follow any prompts again. I've had some issues (https://github.com/AccelerationConsortium/ac-training-lab/issues/184#issuecomment-2719179967) with getting VS Code errors when trying to go directly to "Attach VS Code" for a new device. If you click "details" while it's loading, you will likely find that it's waiting on you to authenticate by accessing a particular link.
-
-Additional resources:
-- https://www.reddit.com/r/Tailscale/comments/11c69q5/how_can_i_authenticate_a_headless_device/
-- https://tailscale.com/kb/1174/install-debian-bookworm
-- https://forums.raspberrypi.com/viewtopic.php?t=374609
-- https://tailscale.com/kb/1265/vscode-extension
-- https://tailscale.com/learn/how-to-ssh-into-a-raspberry-pi
 
 ---
 
