@@ -163,8 +163,6 @@ Additional resources:
 
 ---
 
----
-
 ## Installing and Auto-starting Tailscale on OT-2 (Opentrons)
 
 **Note:** OT-2 runs a minimal [Buildroot-based system](https://github.com/Opentrons/buildroot) with a read-only root filesystem and limited network utilities. This guide works within those constraints.
