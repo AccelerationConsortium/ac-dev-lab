@@ -2,7 +2,7 @@
 
 [Tailscale](https://tailscale.com/) is a "mesh VPN" that allows secure access to devices across different networks. It simplifies remote access and management of devices.
 
-The following covers [tailscale setup](#general-setup-instructions) for general-purpose machines (Linux, macOS, Windows, RPi OS) and SSH access, [setup for an OT-2 environment](#installing-and-auto-starting-tailscale-on-ot-2-opentrons) which requires special installation steps, and [instructions for remote desktop and SSH](#remote-desktop-and-ssh-on-windows) on Windows.
+The following covers [tailscale setup](#general-setup-instructions) for general-purpose Linux, macOS, and Raspberry Pi devices with SSH access, [instructions for remote desktop and SSH](#remote-desktop-and-ssh-on-windows) on Windows devices, and [setup for an OT-2 environment](#installing-and-auto-starting-tailscale-on-ot-2-opentrons) which requires special installation steps.
 
 ## General Setup Instructions
 
@@ -59,9 +59,9 @@ You also might want to ["disable key expiry"](https://tailscale.com/kb/1028/key-
 
 ![image](https://github.com/user-attachments/assets/23ad57b6-e39f-4694-86ee-7c5d685c763f)
 
-## VS Code Configuration
+### VS Code Configuration
 
-Also, consider updating the default SSH username in VS Code settings (Ctrl+,), since it will be your PC's username by default (which may not correspond to the username on the RPi).
+Also, consider updating the default SSH username in VS Code settings (Ctrl+,), since it will be your PC's username by default (which may not correspond to the username on the device).
 
 Within the tailscale sidebar interface, I found it useful to try to connect to the terminal first, go through the prompts, then click the "Attach VS Code" button and follow any prompts again. I've had some issues (https://github.com/AccelerationConsortium/ac-training-lab/issues/184#issuecomment-2719179967) with getting VS Code errors when trying to go directly to "Attach VS Code" for a new device. If you click "details" while it's loading, you will likely find that it's waiting on you to authenticate by accessing a particular link.
 
@@ -71,6 +71,93 @@ Additional resources:
 - https://forums.raspberrypi.com/viewtopic.php?t=374609
 - https://tailscale.com/kb/1265/vscode-extension
 - https://tailscale.com/learn/how-to-ssh-into-a-raspberry-pi
+
+---
+## Remote Desktop and SSH on Windows
+
+[Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh) isn't directly supported on Windows, and SSH on Windows machines can get a bit messy. However, you can still use Tailscale to set up remote desktop access or configure OpenSSH for VS Code compatibility.
+
+### Remote Desktop Setup
+
+Note that you can only use remote desktop on Windows 10/11 Pro or Windows 10/11 Enterprise, not on Windows 10/11 Home.
+
+```{warning}
+[Install Tailscale for Windows](https://tailscale.com/kb/1022/install-windows).  
+We recommend using a private browser for the interactive login step if this is a non-personal device. You may need to copy the auto-opened URL to the private browser manually.
+
+Next, set up the "Remote Desktop Protocol" (RDP) [according to Tailscale's documentation](https://tailscale.com/kb/1095/secure-rdp-windows).
+```
+
+Finally, [enable Remote Desktop on your device](https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access):
+
+<img src=https://github.com/user-attachments/assets/050746cd-a4ff-4bf4-ae4a-5ad1d74f05c1 width=400 alt="Screenshot of enabling Remote Desktop on Windows">
+
+Then, on the device you're planning to use to access the remote device, use Windows' built-in remote desktop:
+
+<img width=350 alt="Image" src="https://github.com/user-attachments/assets/d43c2633-439a-4bd1-a914-c029cdd2ab61" />
+
+You'll enter your full domain:
+
+<img width=350 alt="Image" src="https://github.com/user-attachments/assets/6b947cda-e357-4ca4-a776-08ee7d023cb5" />
+
+Assuming you have access to the admin console, you can find full domain by clicking on the hostname of the corresponding machine within https://login.tailscale.com/admin/machines
+
+This is of the form: `<hostname>.<tailnet-id>.ts.net`
+
+Otherwise, as long as you know the hostname and tailnet ID, you can manually construct that full domain and enter it in. Then, you just need to log in as normal with the remote device's username and password.
+
+### Windows OpenSSH Setup, Including VS Code Compatibility
+
+Since **Tailscale SSH server is not supported on Windows**, you need to set up an OpenSSH Server. Run these commands on an administrator-level PowerShell terminal:
+
+#### Install and Configure OpenSSH Server:
+
+Install OpenSSH Server:
+```powershell
+Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+```
+
+Start the SSH service:
+```powershell
+Start-Service sshd
+```
+
+Set it to start automatically:
+```powershell
+Set-Service -Name sshd -StartupType 'Automatic'
+```
+
+Check if it's running:
+```powershell
+Get-Service sshd
+```
+
+Configure firewall (usually done automatically, but let's make sure):
+```powershell
+New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
+```
+
+#### Important: Configure SSH for VS Code compatibility
+
+After the service is running, you'll need to edit the SSH configuration:
+
+```powershell
+notepad C:\ProgramData\ssh\sshd_config
+```
+
+In the config file, make sure these lines are present and uncommented:
+```
+AllowTcpForwarding yes
+GatewayPorts no
+PermitTunnel no
+```
+
+Then restart the SSH service:
+```powershell
+Restart-Service sshd
+```
+
+_Based on https://github.com/AccelerationConsortium/ac-training-lab/issues/376_
 
 ---
 
@@ -233,83 +320,3 @@ Now, you can reboot OT-2 and see if the device on the admin page of Tailscale wi
 | `/data/start_tailscale.sh`                        | Startup script                       |
 | `/etc/systemd/system/tailscale-autostart.service` | Systemd autostart service definition |
 
-## Remote Desktop and SSH on Windows
-
-[Tailscale SSH](https://tailscale.com/kb/1193/tailscale-ssh) isn't directly supported on Windows, and SSH on Windows machines can get a bit messy. However, you can still use Tailscale to set up remote desktop access or configure OpenSSH for VS Code compatibility.
-
-### Remote Desktop Setup
-
-Note that you can only use remote desktop on Windows 10/11 Pro or Windows 10/11 Enterprise, not on Windows 10/11 Home.
-
-[Install tailscale for Windows](https://tailscale.com/kb/1022/install-windows). We recommend using a private browser for the interactive login step if this is a non-personal device. You may need to copy the auto-opened URL to the private browser manually. Next, set up the "Remote Desktop Protocol" (RDP) [according to tailscale's documentation](https://tailscale.com/kb/1095/secure-rdp-windows).
-
-Finally, [enable Remote Desktop on your device](https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access):
-
-<img src=https://github.com/user-attachments/assets/050746cd-a4ff-4bf4-ae4a-5ad1d74f05c1 width=400 alt="Screenshot of enabling Remote Desktop on Windows">
-
-Then, on the device you're planning to use to access the remote device, use Windows' built-in remote desktop:
-
-<img width=350 alt="Image" src="https://github.com/user-attachments/assets/d43c2633-439a-4bd1-a914-c029cdd2ab61" />
-
-You'll enter your full domain:
-
-<img width=350 alt="Image" src="https://github.com/user-attachments/assets/6b947cda-e357-4ca4-a776-08ee7d023cb5" />
-
-Assuming you have access to the admin console, you can find full domain by clicking on the hostname of the corresponding machine within https://login.tailscale.com/admin/machines
-
-This is of the form: `<hostname>.<tailnet-id>.ts.net`
-
-Otherwise, as long as you know the hostname and tailnet ID, you can manually construct that full domain and enter it in. Then, you just need to log in as normal with the remote device's username and password.
-
-### Windows OpenSSH Setup, Including VS Code Compatibility
-
-Since **Tailscale SSH server is not supported on Windows**, you need to set up an OpenSSH Server. Run these commands on an administrator-level PowerShell terminal:
-
-#### Install and Configure OpenSSH Server:
-
-Install OpenSSH Server:
-```powershell
-Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
-```
-
-Start the SSH service:
-```powershell
-Start-Service sshd
-```
-
-Set it to start automatically:
-```powershell
-Set-Service -Name sshd -StartupType 'Automatic'
-```
-
-Check if it's running:
-```powershell
-Get-Service sshd
-```
-
-Configure firewall (usually done automatically, but let's make sure):
-```powershell
-New-NetFirewallRule -Name sshd -DisplayName 'OpenSSH Server (sshd)' -Enabled True -Direction Inbound -Protocol TCP -Action Allow -LocalPort 22
-```
-
-#### Important: Configure SSH for VS Code compatibility
-
-After the service is running, you'll need to edit the SSH configuration:
-
-```powershell
-notepad C:\ProgramData\ssh\sshd_config
-```
-
-In the config file, make sure these lines are present and uncommented:
-```
-AllowTcpForwarding yes
-GatewayPorts no
-PermitTunnel no
-```
-
-Then restart the SSH service:
-```powershell
-Restart-Service sshd
-```
-
-_Based on https://github.com/AccelerationConsortium/ac-training-lab/issues/376_
