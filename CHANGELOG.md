@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## [1.2.0] - 2025-10-10
+### Added
+- Comprehensive objective lens bill of materials for OpenFlexure Delta Stage Microscope in `src/ac_training_lab/openflexure/objective-lens-bom.md`
+- Research-based recommendations for 160mm tube length (finite corrected) objective lenses
+- Detailed specifications, pricing, and purchasing information for Olympus LMPLFLN and SLMPLN series objectives
+- Budget-friendly alternatives documentation with working distance considerations
+
+### Notes
+- Primary recommendations: Olympus LMPLFLN 20X (12mm WD, $350-400) or LMPLFLN 50X (10.6mm WD, $500-600)
+- All recommendations meet 3mm+ working distance requirement for thick glass compatibility
+- Documentation includes RMS threading compatibility and 160mm tube length verification
+
 ## [1.1.0] - 2024-06-11
 ### Added
 - Imperial (10-32 thread) alternative design to SEM door automation bill of materials in `docs/sem-door-automation-components.md`.
