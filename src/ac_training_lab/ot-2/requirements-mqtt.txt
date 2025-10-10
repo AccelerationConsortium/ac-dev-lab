@@ -1,17 +1,5 @@
-# MQTT-based OT-2 Orchestration Requirements  
-# These packages are compatible with Opentrons pydantic v1 requirements
+# Sparkplug B MQTT orchestration requirements
+# Compatible with Opentrons (no pydantic/anyio/jsonschema conflicts)
 
-# Core MQTT dependencies
-paho-mqtt>=1.6.0,<3.0.0
-
-# Opentrons compatibility
-opentrons>=8.0.0,<9.0.0
-
-# Optional: for enhanced MQTT features
-aiomqtt>=1.2.0,<3.0.0  # Async MQTT client
-
-# Optional: for TLS/SSL support
-cryptography>=3.4.0,<42.0.0
-
-# Development dependencies (optional)
-pytest>=7.0.0,<8.0.0
+paho-mqtt>=1.6.1
+mqtt-spb-wrapper>=1.0.0
