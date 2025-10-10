@@ -1,0 +1,107 @@
+Skip to content
+Chat history
+
+This is a copy of a conversation between ChatGPT & Anonymous.
+
+Report conversation
+You said:
+Is there something like Prefect that uses decorator style easy syntax for communicating between distinct environments over the internet (prefect cloud) but has lighter weight dependencies and still has a cloud hosting option? (E.g., FastAPI or MQTT maybe?)
+ChatGPT said:
+
+Stopped thinking
+You said:
+Is there something like Prefect that uses decorator style easy syntax for communicating between distinct environments over the internet (prefect cloud) but has lighter weight dependencies and still has a cloud hosting option? (E.g., FastAPI or MQTT maybe?)
+ChatGPT said:
+
+Thought for 28s
+Short answer: yes. The closest “decorator-first, cloud-hosted, lighter than Prefect” options are Modal and Temporal. Also viable: Flyte (Union.ai), Dagster (Dagster+), Celery+hosted broker, Dask+Coiled, and Ray Serve+Anyscale.
+
+Best fits
+
+Modal — serverless Python with decorators (@app.function()), very small local deps; fully managed cloud. Good for RPC-like calls across environments. 
+Modal
++2
+Modal
++2
+
+Temporal — reliable distributed workflows with decorators (@workflow, activities). Managed Temporal Cloud; lightweight SDK on clients. Strong cross-env communication via task queues, signals, retries. 
+Temporal
++3
+Temporal
++3
+Temporal
++3
+
+Also consider
+
+Flyte (Union.ai) — Python decorators (@task, @workflow). Union.ai provides managed Flyte; OSS backend is heavier (Kubernetes) but the client code stays light. 
+Union
++3
+Flyte
++3
+Flyte
++3
+
+Dagster (Dagster+) — decorators (@op, @job). Dagster+ is managed. Heavier than Modal/Temporal but good DX. 
+Dagster
++3
+Dagster Docs
++3
+Dagster Docs
++3
+
+Celery — simple @app.task decorator; pair with hosted Redis/RabbitMQ (e.g., Redis Cloud, CloudAMQP). Light deps, but fewer orchestration features. 
+Celery Documentation
++1
+
+Dask + Coiled — @dask.delayed decorator; Coiled gives managed clusters; suited to parallel Python, less to workflow state. 
+Dask Documentation
++3
+Dask Documentation
++3
+Dask Documentation
++3
+
+Ray Serve + Anyscale — @serve.deployment decorator for microservices; Anyscale is the managed option. Heavier runtime than Modal. 
+Anyscale Docs
++3
+Ray
++3
+Ray
++3
+
+Quick pick guide
+
+Want the lightest “decorate and call in the cloud” experience → Modal. 
+Modal
+
+Need durable workflows with retries, signals, and cross-env task queues → Temporal Cloud. 
+Temporal
+
+Prefer OSS workflow semantics with managed control plane → Union.ai (Flyte) or Dagster+. 
+Union
++1
+
+Need ultra-minimal deps and you can run a hosted broker → Celery + Redis/RabbitMQ. 
+Celery Documentation
+
+If you want, I can sketch a 20-line example for Modal or Temporal matching your use case.
+
+
+
+
+
+Sources
+You said:
+Look up https://github.com/AccelerationConsortium/drug-surfactant/pull/17 so you can see some additional context
+ChatGPT said:
+I tried opening the PR link; got “Internal Error / 404 Not Found.”
+
+Do you have a cached version, a diff, or a gist of that PR? Or another link (branch, patch file)? I can analyze once I see the changes.
+
+
+
+
+
+No file chosenNo file chosen
+ChatGPT can make mistakes. Check important info. See Cookie Preferences.
