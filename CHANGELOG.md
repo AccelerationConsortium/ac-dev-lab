@@ -6,11 +6,14 @@
 - Research-based recommendations for 160mm tube length (finite corrected) objective lenses
 - Detailed specifications, pricing, and purchasing information for Olympus LMPLFLN and SLMPLN series objectives
 - Budget-friendly alternatives documentation with working distance considerations
+- Used/secondary market pricing and availability information from eBay and other sources
 
 ### Notes
-- Primary recommendations: Olympus LMPLFLN 20X (12mm WD, $350-400) or LMPLFLN 50X (10.6mm WD, $500-600)
+- Primary recommendations: Olympus LMPLFLN 20X (12mm WD, $350-400 new, ~$235-760 used) or LMPLFLN 50X (10.6mm WD, $500-600 new, ~$538-759 used)
+- Best value option: Used LMPLFLN 50X from eBay (~$538-759, 40-70% savings)
 - All recommendations meet 3mm+ working distance requirement for thick glass compatibility
 - Documentation includes RMS threading compatibility and 160mm tube length verification
+- Comprehensive used market section with buying tips and search recommendations
 
 ## [1.1.0] - 2024-06-11
 ### Added
