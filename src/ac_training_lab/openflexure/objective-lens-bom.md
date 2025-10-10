@@ -145,9 +145,15 @@ Reference: [OpenFlexure Discourse - Automated slide scanning and tiling](https:/
 - Both meet the 3mm working distance requirement
 - 160mm finite tube length (not infinity corrected)
 - RMS threading for compatibility
-- Reasonable pricing for the quality ($350-600)
+- Reasonable pricing for the quality ($350-600 new, ~$235-760 used on eBay)
 - Semi-apochromat optical quality
-- Available from reputable suppliers
+- Available from reputable suppliers and secondary markets
+
+**Best Value Option**: **Used LMPLFLN 50X from eBay** (~$538-759)
+- Meets all requirements (50x magnification, 10.6mm WD, 160mm tube length)
+- 40-70% cost savings compared to new
+- Often includes free shipping from Japanese sellers
+- Higher magnification than 20x option
 
 **Choice Between 20X and 50X**:
 - **Choose 20X if**: You need the best working distance (12mm), want a lower cost option, need a larger field of view, or are working with thicker specimens
@@ -157,23 +163,59 @@ Reference: [OpenFlexure Discourse - Automated slide scanning and tiling](https:/
 
 ## Where to Purchase
 
+### New/Authorized Dealers
+
 1. **Edmund Optics** - https://www.edmundoptics.com
    - Wide selection of Olympus objectives
    - Technical specifications clearly listed
    - Reliable shipping and support
+   - Full warranty coverage
 
 2. **Spach Optics** - https://www.spachoptics.com
    - Specialized microscopy components
    - Olympus authorized dealer
+   - Sometimes offers sale prices (e.g., LMPLFLN 50X for ~$2,500)
 
 3. **Authorized Olympus/Evident Scientific Dealers**
    - Contact Evident Scientific (formerly Olympus) for authorized dealers
    - May offer educational or research discounts
 
-4. **eBay/Secondary Market** (for budget options)
-   - Used objectives may be available
-   - Ensure compatibility and condition before purchasing
-   - Check return policies
+### Used/Secondary Market Options
+
+**eBay and other secondary marketplaces** offer significant cost savings for used Olympus objectives:
+
+**LMPLFLN 50X** (Primary Recommendation):
+- Used price range: ~$538-759 USD on eBay
+- Savings: ~40-70% compared to new ($500-600 retail, $2,500+ authorized dealer)
+- Example listing: Olympus LMPlanFL 50X/0.50 objectives from Japanese sellers with free shipping
+- **Best value option** - meets all requirements at budget-friendly price
+
+**LMPLFLN 20X**:
+- Used price range: ~$235-760 USD on eBay
+- Savings: ~30-50% compared to new ($350-400 retail)
+- Various condition grades available
+
+**SLMPLN 50X** (Premium option):
+- Used price range: ~$538-1,795 USD on eBay
+- Savings: ~60-88% compared to new ($4,500+ retail)
+- For applications requiring extreme working distance (18mm)
+
+**Important Notes for Used Purchases**:
+- ✓ Verify 160mm tube length (finite corrected, not infinity corrected)
+- ✓ Check for RMS threading compatibility
+- ✓ Inspect for scratches, fungus, or optical damage in photos
+- ✓ Confirm working distance and magnification specifications
+- ✓ Look for sellers with return policies and good ratings
+- ✓ Free shipping often available from international sellers (especially Japan)
+- ✓ Many listings offer "Buy It Now" and free returns
+- ⚠ Ensure authenticity - Olympus objectives should have clear markings
+- ⚠ Test functionality upon receipt if possible
+
+**Recommended Search Terms**:
+- "Olympus LMPLFLN 50X" or "Olympus LMPlanFL 50X"
+- "Olympus LMPLFLN 20X" or "Olympus LMPlanFL 20X"
+- "Olympus microscope objective 160mm"
+- Add "160" or "finite" to avoid infinity-corrected lenses
 
 ## Installation and Compatibility Notes
 
