@@ -8,41 +8,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- **OT-2 Orchestration Framework** (2024-12-19)
-  - FastAPI-based orchestration system compatible with Opentrons package
-  - MQTT-based orchestration system with decorator syntax
-  - Complete solution to Prefect/Opentrons pydantic version conflicts
-  - `@task` and `@mqtt_task` decorators for function registration
-  - Remote task execution capabilities over HTTP and MQTT
-  - Auto-generated API documentation via FastAPI
-  - JWT authentication and HTTPS/TLS security support
+- Minimal Sparkplug B over MQTT orchestration solution for OT-2
+- Three-file example: decorator.py, device.py, orchestrator.py
+- Auto-discovery of device capabilities via Sparkplug B Birth certificates
+- @sparkplug_task decorator for simple function registration
+- Complete example showing "Hello, {name}!" remote execution
 
-- **Cloud Deployment Solutions** (2024-12-19)
-  - Railway.app deployment configuration and examples
-  - Google Cloud Run deployment guide
-  - Complete security setup with HTTPS, JWT auth, SSL certificates
-  - Cost comparison analysis vs Prefect Cloud
-  - Production-ready Docker configurations
-
-- **MicroPython Integration** (2024-12-19)
-  - Native mqtt_as.py support for Pico W and ESP32 microcontrollers
-  - Complete device.py/orchestrator.py architecture examples
-  - Hybrid architecture recommendations (FastAPI + MQTT)
-  - Memory-efficient implementations for microcontroller environments
-
-- **Comprehensive Documentation** (2024-12-19)
-  - Security guide with HTTPS, VPN, and firewall configuration
-  - Migration guides from Prefect workflows
-  - Quick start guide and requirements files
-  - FastAPI vs MQTT technical comparison
-  - Verification tests with real communication protocols
+### Removed
+- FastAPI-based orchestration (has same dependency conflicts as Prefect)
+- Cloud deployment guides for Railway and Google Cloud Run  
+- Security guides for HTTPS/JWT (not applicable to MQTT-only solution)
+- All FastAPI examples and documentation
 
 ### Fixed
-- Resolved pydantic version incompatibility between Prefect v2 and Opentrons v1
-- Eliminated dependency conflicts for OT-2 laboratory automation workflows
+- Addressed FastAPI having same pydantic/anyio/jsonschema conflicts as Prefect
+- Confirmed Sparkplug B has minimal dependencies with no Opentrons conflicts
+
+## [0.1.0] - 2024-12-19
+
+### Added
+- Sparkplug B MQTT orchestration framework for OT-2
+- Minimal decorator-based task registration
+- Device and orchestrator example implementations
+- Compatible with Opentrons package (no dependency conflicts)
 
 ### Security
-- Added HTTPS/TLS encryption support for FastAPI deployments
-- Implemented JWT authentication with role-based access control
-- Added TLS/SSL encryption for MQTT communications
-- Included VPN integration guides for secure remote access
+- TLS/SSL encryption support via MQTT over TLS
+- Username/password authentication for MQTT broker
