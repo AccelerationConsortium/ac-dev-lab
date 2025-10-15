@@ -1,36 +1,55 @@
-# Minimal Sparkplug B MQTT Example for OT-2
+# Minimal MQTT Orchestration for OT-2
 
-This is a minimal three-file example showing how to use Sparkplug B over MQTT for OT-2 orchestration.
+Simple remote task execution for OT-2 devices. All MQTT complexity hidden in decorator.
 
-## Files
+## The Problem
 
-- `decorator.py` - Simple decorator for registering device tasks
-- `device.py` - Device code that runs on the OT-2
-- `orchestrator.py` - Orchestrator code that controls the device remotely
+Prefect and FastAPI can't run on OT-2 due to dependency conflicts (anyio, jsonschema versions).
+
+## The Solution  
+
+Three simple files:
+- `decorator.py` - Handles all MQTT communication
+- `device.py` - Runs on OT-2 (looks like normal Python)
+- `orchestrator.py` - Runs remotely (calls device functions)
+
+## Usage
+
+**Device (OT-2):**
+```python
+from decorator import sparkplug_task, start_device
+
+@sparkplug_task
+def greet(name):
+    return f"Hello, {name}!"
+
+start_device("ot2_001")
+```
+
+**Orchestrator (laptop/cloud):**
+```python  
+from decorator import sparkplug_task, start_orchestrator
+
+@sparkplug_task
+def greet(name):
+    pass  # Executes remotely on device
+
+start_orchestrator()
+result = greet(name="World")  # Remote call!
+print(result)  # "Hello, World!"
+```
 
 ## Installation
 
 ```bash
-pip install paho-mqtt mqtt-spb-wrapper
+pip install paho-mqtt
 ```
 
-## Usage
+Only one dependency - no conflicts with Opentrons.
 
-1. Start the device (on OT-2):
-```bash
-python device.py
-```
+## Running
 
-2. Run the orchestrator (from laptop/cloud):
-```bash
-python orchestrator.py
-```
+1. Start device: `python device.py`
+2. Run orchestrator: `python orchestrator.py`
 
-The orchestrator sends a name to the device, which responds with "Hello, {name}!".
-
-## Key Features
-
-- **Auto-discovery**: Device publishes Birth certificates declaring available tasks
-- **No manual sync**: Orchestrator discovers device capabilities automatically
-- **Compatible with Opentrons**: No pydantic/anyio conflicts
-- **Decorator-based**: Simple `@sparkplug_task` decorator like Prefect's `@flow`
+The decorator handles all MQTT communication automatically.
