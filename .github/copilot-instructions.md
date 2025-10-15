@@ -35,3 +35,5 @@
 - Each time you generate code, note the changes in CHANGELOG.md
 - Follow semantic versioning guidelines
 - Include date and description of changes
+
+- Use the following environment secrets: `HIVEMQ_HOST`, `HIVEMQ_USERNAME`, and `HIVEMQ_PASSWORD` for testing. Never echo or expose these, even in your logs
