@@ -2,3 +2,4 @@
 # Compatible with Opentrons (no pydantic/anyio/jsonschema conflicts)
 
 paho-mqtt>=1.6.1
+mqtt-spb-wrapper>=1.0.7

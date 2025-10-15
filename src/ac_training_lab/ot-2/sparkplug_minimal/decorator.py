@@ -5,17 +5,18 @@ Users just decorate functions and call them normally.
 """
 
 import json
+import os
 import time
 import threading
 from typing import Any, Callable, Dict
 import paho.mqtt.client as mqtt
 
-# Configuration - set these before starting device or orchestrator
-BROKER = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
-PORT = 8883
-USERNAME = "sgbaird"
-PASSWORD = "D.Pq5gYtejYbU#L"
-GROUP_ID = "lab"
+# Configuration - load from environment variables (credentials never exposed in logs)
+BROKER = os.getenv("HIVEMQ_HOST") or os.getenv("MQTT_BROKER", "localhost")
+PORT = int(os.getenv("MQTT_PORT", "1883"))
+USERNAME = os.getenv("HIVEMQ_USERNAME") or os.getenv("MQTT_USERNAME", "")
+PASSWORD = os.getenv("HIVEMQ_PASSWORD") or os.getenv("MQTT_PASSWORD", "")
+GROUP_ID = os.getenv("MQTT_GROUP_ID", "lab")
 DEVICE_ID = None  # Set in device.py
 ORCHESTRATOR_MODE = False  # Set to True in orchestrator.py
 
@@ -116,8 +117,10 @@ def start_device(device_id: str):
     DEVICE_ID = device_id
     
     _client = mqtt.Client()
-    _client.tls_set()
-    _client.username_pw_set(USERNAME, PASSWORD)
+    if PORT == 8883:  # Use TLS for secure port
+        _client.tls_set()
+    if USERNAME:  # Only set credentials if provided
+        _client.username_pw_set(USERNAME, PASSWORD)
     _client.on_message = _on_message
     
     _client.connect(BROKER, PORT)
@@ -131,6 +134,7 @@ def start_device(device_id: str):
     
     # Start background thread
     _client.loop_start()
+    print(f"Device {device_id} connected to broker")
 
 
 def start_orchestrator():
@@ -139,8 +143,10 @@ def start_orchestrator():
     ORCHESTRATOR_MODE = True
     
     _client = mqtt.Client()
-    _client.tls_set()
-    _client.username_pw_set(USERNAME, PASSWORD)
+    if PORT == 8883:  # Use TLS for secure port
+        _client.tls_set()
+    if USERNAME:  # Only set credentials if provided
+        _client.username_pw_set(USERNAME, PASSWORD)
     _client.on_message = _on_message
     
     _client.connect(BROKER, PORT)
@@ -148,6 +154,7 @@ def start_orchestrator():
     
     # Start background thread
     _client.loop_start()
+    print("Orchestrator connected to broker")
     
     # Wait for device capabilities
     time.sleep(2)
