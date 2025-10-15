@@ -8,27 +8,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Minimal Sparkplug B over MQTT orchestration solution for OT-2
-- Three-file example: decorator.py, device.py, orchestrator.py
-- Auto-discovery of device capabilities via Sparkplug B Birth certificates
-- @sparkplug_task decorator for simple function registration
-- Complete example showing "Hello, {name}!" remote execution
+- Ultra-minimal MQTT orchestration solution for OT-2 in `sparkplug_minimal/`
+- Single `decorator.py` file that handles all MQTT complexity internally
+- Simplified `device.py` and `orchestrator.py` with clean API (no MQTT boilerplate visible)
+- @sparkplug_task decorator that makes remote calls look like local calls
+- Only dependency: paho-mqtt (no Sparkplug B wrapper needed)
+
+### Changed
+- Completely rewrote decorator to hide all MQTT implementation details
+- Device code now looks like normal Python with just decorator usage
+- Orchestrator calls remote functions as if they were local
+- Removed mqtt-spb-wrapper dependency for maximum simplicity
 
 ### Removed
+- All extra files from examples/ directory
+- Extra documentation files (QUICK_START.md, MIGRATION_GUIDE.md, etc.)
+- Sparkplug B library dependency (using plain MQTT instead)
 - FastAPI-based orchestration (has same dependency conflicts as Prefect)
-- Cloud deployment guides for Railway and Google Cloud Run  
-- Security guides for HTTPS/JWT (not applicable to MQTT-only solution)
-- All FastAPI examples and documentation
+- Cloud deployment guides
+- All complex boilerplate from device and orchestrator files
 
 ### Fixed
 - Addressed FastAPI having same pydantic/anyio/jsonschema conflicts as Prefect
-- Confirmed Sparkplug B has minimal dependencies with no Opentrons conflicts
+- Simplified implementation to truly minimal three-file solution
+- Made code "look and feel" like normal Python instead of MQTT-heavy
 
 ## [0.1.0] - 2024-12-19
 
 ### Added
-- Sparkplug B MQTT orchestration framework for OT-2
-- Minimal decorator-based task registration
+- Initial MQTT orchestration framework for OT-2
+- Decorator-based task registration
 - Device and orchestrator example implementations
 - Compatible with Opentrons package (no dependency conflicts)
 
