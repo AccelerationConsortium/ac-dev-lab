@@ -1,15 +1,14 @@
-"""Simple decorator and infrastructure for remote task execution via MQTT.
+"""Simple decorator and infrastructure for remote task execution via Sparkplug B/MQTT.
 
-This module handles all the MQTT/Sparkplug B complexity internally.
+This module handles all the MQTT/Sparkplug B complexity internally using mqtt-spb-wrapper.
 Users just decorate functions and call them normally.
 """
 
-import json
+import inspect
 import os
 import time
-import threading
 from typing import Any, Callable, Dict
-import paho.mqtt.client as mqtt
+from mqtt_spb_wrapper import MqttSpbEntityDevice, MqttSpbEntityApplication
 
 # Configuration - load from environment variables (credentials never exposed in logs)
 BROKER = os.getenv("HIVEMQ_HOST") or os.getenv("MQTT_BROKER", "localhost")
@@ -19,25 +18,26 @@ PASSWORD = os.getenv("HIVEMQ_PASSWORD") or os.getenv("MQTT_PASSWORD", "")
 GROUP_ID = os.getenv("MQTT_GROUP_ID", "lab")
 DEVICE_ID = None  # Set in device.py
 ORCHESTRATOR_MODE = False  # Set to True in orchestrator.py
+USE_TLS = PORT == 8883  # Enable TLS for secure port
 
 # Internal state
 _task_registry: Dict[str, Callable] = {}
-_client = None
+_entity = None
 _results = {}
-_device_capabilities = []
+_device_capabilities = {}
 
 
 def sparkplug_task(func: Callable) -> Callable:
     """Decorator to register a device function for remote execution.
     
-    On device: function executes locally when called
+    On device: function executes locally when called, publishes signature via Birth
     From orchestrator: function sends command to device and waits for result
     """
     _task_registry[func.__name__] = func
     
     def wrapper(*args, **kwargs):
         if ORCHESTRATOR_MODE:
-            # Remote execution: send command to device
+            # Remote execution: send command to device via Sparkplug CMD message
             return _execute_remote(func.__name__, *args, **kwargs)
         else:
             # Local execution on device
@@ -48,120 +48,148 @@ def sparkplug_task(func: Callable) -> Callable:
     return wrapper
 
 
-def _on_message(client, userdata, msg):
-    """Handle incoming MQTT messages."""
-    try:
-        payload = json.loads(msg.payload.decode())
+def _handle_command(payload):
+    """Handle incoming command from orchestrator."""
+    if not ORCHESTRATOR_MODE and "task" in payload:
+        task_name = payload["task"]
+        task_id = payload.get("task_id")
+        params = payload.get("params", {})
         
-        if ORCHESTRATOR_MODE:
-            # Orchestrator receiving results from device
-            if "result" in payload:
-                task_id = payload.get("task_id")
-                if task_id:
-                    _results[task_id] = payload["result"]
-            elif "capabilities" in payload:
-                _device_capabilities.clear()
-                _device_capabilities.extend(payload["capabilities"])
-        else:
-            # Device receiving commands
-            if "task" in payload:
-                task_name = payload["task"]
-                task_id = payload.get("task_id")
-                params = payload.get("params", {})
-                
-                # Execute task
-                if task_name in _task_registry:
-                    result = _task_registry[task_name](**params)
-                    
-                    # Send result back
-                    _publish({
-                        "task_id": task_id,
-                        "result": result
-                    })
-    except Exception as e:
-        print(f"Error handling message: {e}")
+        # Execute task
+        if task_name in _task_registry:
+            try:
+                result = _task_registry[task_name](**params)
+                # Send result back via DATA message
+                _entity.data.set_value(f"result_{task_id}", result)
+                _entity.publish_data()
+            except Exception as e:
+                _entity.data.set_value(f"error_{task_id}", str(e))
+                _entity.publish_data()
 
 
-def _publish(payload: Dict[str, Any]):
-    """Publish message to MQTT broker."""
-    if _client:
-        topic = f"{GROUP_ID}/{DEVICE_ID}/data"
-        _client.publish(topic, json.dumps(payload))
+def _handle_data(payload):
+    """Handle incoming data from device."""
+    if ORCHESTRATOR_MODE:
+        # Orchestrator receiving results from device
+        for metric in payload.get("metrics", []):
+            name = metric.get("name", "")
+            value = metric.get("value")
+            
+            if name.startswith("result_"):
+                task_id = name.replace("result_", "")
+                _results[task_id] = value
+            elif name.startswith("error_"):
+                task_id = name.replace("error_", "")
+                _results[task_id] = Exception(value)
+
+
+def _handle_birth(payload):
+    """Handle device Birth message (capability announcement)."""
+    if ORCHESTRATOR_MODE:
+        # Parse device capabilities from Birth message
+        _device_capabilities.clear()
+        for metric in payload.get("metrics", []):
+            name = metric.get("name", "")
+            if name.startswith("task_"):
+                task_name = name.replace("task_", "")
+                _device_capabilities[task_name] = metric.get("value", {})
 
 
 def _execute_remote(task_name: str, *args, **kwargs) -> Any:
-    """Execute task on remote device and wait for result."""
+    """Execute task on remote device via Sparkplug CMD and wait for result."""
+    # Validate task exists on device
+    if task_name not in _device_capabilities:
+        raise ValueError(f"Task '{task_name}' not available on device. Available: {list(_device_capabilities.keys())}")
+    
     task_id = f"{task_name}_{time.time()}"
     
-    # Send command
-    _publish({
-        "task": task_name,
-        "task_id": task_id,
-        "params": kwargs
-    })
+    # Send command via Sparkplug CMD message
+    _entity.data.set_value("task", task_name)
+    _entity.data.set_value("task_id", task_id)
+    for key, value in kwargs.items():
+        _entity.data.set_value(f"param_{key}", value)
+    _entity.publish_data()
     
     # Wait for result
     timeout = 10
     start = time.time()
     while task_id not in _results:
         if time.time() - start > timeout:
-            raise TimeoutError(f"Task {task_name} timed out")
+            raise TimeoutError(f"Task {task_name} timed out after {timeout}s")
         time.sleep(0.1)
     
-    return _results.pop(task_id)
+    result = _results.pop(task_id)
+    if isinstance(result, Exception):
+        raise result
+    return result
 
 
 def start_device(device_id: str):
-    """Start device in background. Call this once at module import."""
-    global DEVICE_ID, _client
+    """Start device as Sparkplug Edge Node."""
+    global DEVICE_ID, _entity
     DEVICE_ID = device_id
     
-    _client = mqtt.Client()
-    if PORT == 8883:  # Use TLS for secure port
-        _client.tls_set()
-    if USERNAME:  # Only set credentials if provided
-        _client.username_pw_set(USERNAME, PASSWORD)
-    _client.on_message = _on_message
-    
-    _client.connect(BROKER, PORT)
-    _client.subscribe(f"{GROUP_ID}/{DEVICE_ID}/cmd")
-    
-    # Publish capabilities
-    _client.publish(
-        f"{GROUP_ID}/{DEVICE_ID}/data",
-        json.dumps({"capabilities": list(_task_registry.keys())})
+    # Create Sparkplug Device entity
+    _entity = MqttSpbEntityDevice(
+        GROUP_ID,
+        DEVICE_ID,
+        BROKER,
+        PORT,
+        USERNAME,
+        PASSWORD,
+        use_tls=USE_TLS
     )
     
-    # Start background thread
-    _client.loop_start()
-    print(f"Device {device_id} connected to broker")
+    # Register callbacks
+    _entity.on_command = lambda payload: _handle_command(payload)
+    
+    # Publish Birth certificate with task capabilities
+    for task_name, func in _task_registry.items():
+        sig = inspect.signature(func)
+        params = [param.name for param in sig.parameters.values()]
+        _entity.data.set_value(f"task_{task_name}", {
+            "parameters": params,
+            "doc": func.__doc__ or ""
+        })
+    
+    # Connect and start
+    _entity.connect()
+    print(f"Device {device_id} connected with Sparkplug B")
+    print(f"Available tasks: {list(_task_registry.keys())}")
 
 
 def start_orchestrator():
-    """Start orchestrator. Call this once at module import."""
-    global ORCHESTRATOR_MODE, _client
+    """Start orchestrator as Sparkplug Host Application."""
+    global ORCHESTRATOR_MODE, _entity
     ORCHESTRATOR_MODE = True
     
-    _client = mqtt.Client()
-    if PORT == 8883:  # Use TLS for secure port
-        _client.tls_set()
-    if USERNAME:  # Only set credentials if provided
-        _client.username_pw_set(USERNAME, PASSWORD)
-    _client.on_message = _on_message
+    # Create Sparkplug Application entity
+    _entity = MqttSpbEntityApplication(
+        GROUP_ID,
+        BROKER,
+        PORT,
+        USERNAME,
+        PASSWORD,
+        use_tls=USE_TLS
+    )
     
-    _client.connect(BROKER, PORT)
-    _client.subscribe(f"{GROUP_ID}/+/data")
+    # Register callbacks
+    _entity.on_message = lambda topic, payload: (
+        _handle_birth(payload) if "NBIRTH" in topic or "DBIRTH" in topic
+        else _handle_data(payload) if "NDATA" in topic or "DDATA" in topic
+        else None
+    )
     
-    # Start background thread
-    _client.loop_start()
-    print("Orchestrator connected to broker")
+    # Connect and start
+    _entity.connect()
+    print("Orchestrator connected with Sparkplug B")
     
-    # Wait for device capabilities
+    # Wait for device Birth messages
     time.sleep(2)
+    print(f"Discovered devices with tasks: {list(_device_capabilities.keys())}")
 
 
 def stop():
-    """Stop MQTT client."""
-    if _client:
-        _client.loop_stop()
-        _client.disconnect()
+    """Stop Sparkplug entity."""
+    if _entity:
+        _entity.disconnect()
