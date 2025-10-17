@@ -86,17 +86,22 @@ These items are optional and don't factor into the final price shown. They're us
 Ensure you connect the camera cable properly. Follow these steps:
 
 1. **Power off and disconnect your Raspberry Pi from any power source.**
-2. Orient the camera ribbon cable so that the metal contacts face the connector on the Pi.
-3. Carefully insert the ribbon cable fully into the camera connector.
+2. Orient the camera ribbon cable so that the metal contacts face the connector on the Pi (with Pi Zero 2W lying flat on its back, metal contacts should be facing down)
+3. Carefully insert the ribbon cable fully into the camera connector (with camera facing upside down, the metal contacts should be facing down as well)
 4. Lock the connector latch to secure the cable.
 5. Reconnect power and turn on your Raspberry Pi.
 
 > **Safety Note:** Always disconnect power from your Raspberry Pi before attaching or removing the camera to prevent hardware damage.
 
 The images below show the correct orientation and connection:
-<img width="1000" alt="image" src="https://github.com/user-attachments/assets/3447d543-afe4-49c7-978e-2383ca031973" />
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/3447d543-afe4-49c7-978e-2383ca031973" />
 
 <img width="800" alt="image" src="https://github.com/user-attachments/assets/c7e4afd4-7c6b-4d88-88a4-e2c6422b29fa" />
+
+The following shows an assembled camera setup, without any mounting hardware:
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/e3f9e17e-1876-4ac6-9ecd-7747bae4a1ad" />
 
 ## Codebase
 
