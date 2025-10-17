@@ -87,7 +87,7 @@ Ensure you connect the camera cable properly, shown below:
 
 <img width="1000" alt="image" src="https://github.com/user-attachments/assets/3447d543-afe4-49c7-978e-2383ca031973" />
 
-<img width="2997" height="878" alt="image" src="https://github.com/user-attachments/assets/c7e4afd4-7c6b-4d88-88a4-e2c6422b29fa" />
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/c7e4afd4-7c6b-4d88-88a4-e2c6422b29fa" />
 
 ## Codebase
 
