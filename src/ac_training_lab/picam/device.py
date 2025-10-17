@@ -169,14 +169,20 @@ if __name__ == "__main__":
         print("Starting stream..")
         p1, p2 = start_stream(ffmpeg_url)
         print("Stream started")
+        interrupted = False
         try:
             p2.wait()
         except KeyboardInterrupt:
-            pass
+            print("Received interrupt signal, exiting...")
+            interrupted = True
         except Exception as e:
             print(e)
         finally:
             print("Terminating processes..")
             p1.terminate()
             p2.terminate()
-            print("Processes terminated. Retrying..")
+            print("Processes terminated.")
+            if interrupted:
+                break
+            else:
+                print("Retrying..")
