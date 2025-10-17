@@ -1,5 +1,6 @@
 import json
 import subprocess
+import shutil
 
 import requests
 from my_secrets import (
@@ -12,15 +13,32 @@ from my_secrets import (
 )
 
 
+def get_camera_command():
+    """
+    Returns the available camera command: 'rpicam-vid' (trixie) or 'libcamera-vid' (bookworm).
+    """
+    if shutil.which("rpicam-vid"):
+        return "rpicam-vid"
+    elif shutil.which("libcamera-vid"):
+        return "libcamera-vid"
+    else:
+        raise RuntimeError(
+            "Neither 'rpicam-vid' nor 'libcamera-vid' command found on this system"
+        )
+
+
 def start_stream(ffmpeg_url):
     """
     Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
-      p1: libcamera-vid process
+      p1: camera process (rpicam-vid or libcamera-vid)
       p2: ffmpeg process
     """
-    # First: libcamera-vid command with core parameters
+    # Get the available camera command
+    camera_cmd = get_camera_command()
+
+    # First: camera command with core parameters
     libcamera_cmd = [
-        "libcamera-vid",
+        camera_cmd,
         "--inline",
         "--nopreview",
         "-t",
@@ -82,7 +100,7 @@ def start_stream(ffmpeg_url):
         ffmpeg_url,
     ]
 
-    # Start libcamera-vid, capturing its output in a pipe
+    # Start camera process, capturing its output in a pipe
     p1 = subprocess.Popen(
         libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
