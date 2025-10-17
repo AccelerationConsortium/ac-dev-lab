@@ -1,0 +1,10 @@
+# Custom nginx container with our content
+FROM nginx:alpine
+
+# Copy our custom HTML file
+COPY index.html /usr/share/nginx/html/index.html
+
+# Copy a custom nginx configuration if needed
+# COPY nginx.conf /etc/nginx/nginx.conf
+
+EXPOSE 80

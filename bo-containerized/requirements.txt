@@ -1,0 +1,17 @@
+# Containerized BO HITL System - Match working host environment exactly
+# Using exact versions that work on your Prefect server
+
+# Core BO and Workflow packages  
+ax-platform>=1.1.2,<2.0.0
+prefect==3.4.19
+prefect-slack==0.3.1
+
+# Match your working Pydantic version exactly
+pydantic==2.11.7
+pydantic-settings==2.10.1
+
+# Scientific computing
+numpy>=1.24.0,<2.0.0
+
+# Additional dependencies
+requests>=2.28.0,<3.0.0

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>BO Workflow Dashboard</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .container { 
+            background: rgba(255,255,255,0.1); 
+            padding: 30px; 
+            border-radius: 10px; 
+        }
+        h1 { color: #ffeb3b; }
+        .status { 
+            background: rgba(76, 175, 80, 0.3); 
+            padding: 15px; 
+            border-radius: 5px; 
+            margin: 20px 0; 
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔬 Bayesian Optimization Dashboard</h1>
+        <div class="status">
+            <h3>Status: Ready for Experiments</h3>
+            <p>Prefect workflows: <strong>Active</strong></p>
+            <p>Slack integration: <strong>Connected</strong></p>
+            <p>Docker environment: <strong>Running</strong></p>
+        </div>
+        <h3>Recent Experiments:</h3>
+        <ul>
+            <li>Experiment 1: Optimization completed ✅</li>
+            <li>Experiment 2: In progress... ⏳</li>
+            <li>Experiment 3: Pending approval 👥</li>
+        </ul>
+        <p><em>Powered by Docker + Nginx</em></p>
+    </div>
+</body>
+</html>

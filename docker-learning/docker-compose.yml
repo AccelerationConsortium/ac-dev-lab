@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  # Python application
+  app:
+    build: .
+    container_name: bo-python-app
+    environment:
+      - ENV=development
+    volumes:
+      - .:/app
+    depends_on:
+      - web
+    stdin_open: true
+    tty: true
+
+  # Web server
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: bo-web-server
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  # Database (for future BO experiment storage)
+  db:
+    image: postgres:13-alpine
+    container_name: bo-database
+    environment:
+      POSTGRES_DB: bo_experiments
+      POSTGRES_USER: bo_user
+      POSTGRES_PASSWORD: secure_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
