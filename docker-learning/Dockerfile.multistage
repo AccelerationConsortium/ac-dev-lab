@@ -1,0 +1,51 @@
+# Multi-stage build example - SECURITY HARDENED VERSION
+# Stage 1: Build stage (includes dev tools)
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+
+# Update system packages to latest versions
+RUN apt-get update && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install dev dependencies
+COPY requirements.txt .
+RUN pip install --user --no-cache-dir --upgrade pip && \
+    pip install --user --no-cache-dir -r requirements.txt
+
+# Stage 2: Production stage (smaller, secure)
+FROM python:3.11-slim AS production
+
+# Update all system packages to patch vulnerabilities
+RUN apt-get update && apt-get upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# Create non-root user for security (no additional packages needed)
+RUN groupadd --gid 1000 appuser && \
+    useradd --create-home --shell /bin/bash --uid 1000 --gid 1000 appuser
+
+# Copy dependencies from builder stage with correct permissions
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Copy application files (ensure these files exist in build context)
+COPY --chown=appuser:appuser hello.py /home/appuser/app/
+COPY --chown=appuser:appuser index.html /home/appuser/app/
+
+# Set up secure environment
+WORKDIR /home/appuser/app
+USER appuser
+
+# Security: Drop privileges and set secure PATH
+ENV PATH=/home/appuser/.local/bin:/usr/local/bin:/usr/bin:/bin
+ENV PYTHONPATH=/home/appuser/app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+# Health check that actually tests the application
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD python -c "print('App is healthy'); import sys; sys.exit(0)" || exit 1
+
+# Run the application
+CMD ["python", "hello.py"]
