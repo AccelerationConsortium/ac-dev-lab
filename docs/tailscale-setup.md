@@ -104,6 +104,12 @@ This is of the form: `<hostname>.<tailnet-id>.ts.net`
 
 Otherwise, as long as you know the hostname and tailnet ID, you can manually construct that full domain and enter it in. Then, you just need to log in as normal with the remote device's username and password.
 
+```{note}
+To ensure your device stays connected to Tailscale, even after several days, open the system tray icon and check "run unattended"
+```
+
+<img width="500" alt="image" src="https://github.com/user-attachments/assets/10b1ef90-7726-4dd9-8732-a04426e79ada" />
+
 ### Windows OpenSSH Setup, Including VS Code Compatibility
 
 Since **Tailscale SSH server is not supported on Windows**, you need to set up an OpenSSH Server. Run these commands on an administrator-level PowerShell terminal:
