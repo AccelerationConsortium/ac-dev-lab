@@ -10,16 +10,12 @@ Requirements:
   pip install ax-platform prefect prefect-slack gradio_client
 
 Setup:
-1. Register the Slack block:
-   prefect block register -m prefect_slack
-
-2. Create a Slack webhook block named 'prefect-test':
+1. Set up Slack notifications (optional):
    - Create a Slack app with an incoming webhook
-   - In the Prefect UI, create a new Slack Webhook block
-   - Name it 'prefect-test'
-   - Add your Slack webhook URL
-   
-3. Start the Prefect server if not running:
+   - Set the SLACK_WEBHOOK_URL environment variable with your webhook URL
+   - If not set, workflow will run without Slack notifications
+
+2. Start the Prefect server if not running:
    prefect server start
 
 Usage:
@@ -29,6 +25,7 @@ Usage:
 import sys
 import os
 import numpy as np
+import requests
 from typing import Dict, Tuple
 
 # Ensure we can import Ax
@@ -166,17 +163,17 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
     logger = get_run_logger()
     logger.info(f"Starting BO campaign with {n_iterations} iterations")
     
-    # Load the Slack webhook block
-    try:
-        slack_block = SlackWebhook.load("prefect-test")
-    except ValueError:
-        logger.error("Error loading Slack webhook. Make sure you've created a 'prefect-test' Slack webhook block.")
-        logger.info("Run this command to check available blocks:")
-        logger.info("prefect block ls")
-        logger.info("If none exists, create one with:")
-        logger.info("prefect block register -m prefect_slack")
-        logger.info("Then create a webhook in the UI or CLI")
-        return None, None
+    # Load the Slack webhook from environment (optional)
+    slack_webhook_url = None
+    import os
+    webhook_url = os.getenv('SLACK_WEBHOOK_URL')
+    if webhook_url and webhook_url != "https://hooks.slack.com/services/DEMO/WEBHOOK/URL":
+        slack_webhook_url = webhook_url
+        logger.info("Slack integration enabled for human-in-the-loop notifications")
+    else:
+        logger.warning("Slack webhook not configured - continuing without notifications")
+        logger.info("Use -SetupSlack flag in quick-start script to configure Slack")
+        # Continue without Slack - don't return early
     
     # Initialize the Ax client using Service API with seed
     ax_client = setup_ax_client(random_seed=random_seed)
@@ -212,8 +209,16 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
 When you've evaluated the function, please <{flow_run_url}|click here to resume the flow> and enter the objective value.
 """
         
-        # Send message to Slack
-        slack_block.notify(message)
+        # Send message to Slack (if configured)
+        if slack_webhook_url:
+            try:
+                payload = {"text": message}
+                requests.post(slack_webhook_url, json=payload)
+                logger.info("Slack notification sent for human evaluation")
+            except Exception as e:
+                logger.warning(f"Failed to send Slack notification: {e}")
+        else:
+            logger.info("Slack not configured - would send: " + message[:100] + "...")
         
         # Pause flow and wait for human input
         logger.info("Pausing flow, execution will continue when this flow run is resumed.")
@@ -260,7 +265,16 @@ When you've evaluated the function, please <{flow_run_url}|click here to resume 
 
 Thank you for participating in this human-in-the-loop optimization!
 """
-    slack_block.notify(final_message)
+    # Send final message to Slack (if configured)
+    if slack_webhook_url:
+        try:
+            payload = {"text": final_message}
+            requests.post(slack_webhook_url, json=payload)
+            logger.info("Final results sent to Slack")
+        except Exception as e:
+            logger.warning(f"Failed to send final Slack notification: {e}")
+    else:
+        logger.info("Campaign completed! Best objective value: " + str(best_values['branin']))
     
     return ax_client, results
 
