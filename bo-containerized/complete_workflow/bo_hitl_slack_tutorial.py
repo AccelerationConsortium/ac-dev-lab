@@ -198,10 +198,9 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
         # Prepare Slack message
         flow_run = get_run_context().flow_run
         flow_run_url = ""
-        if flow_run:
-            # Use localhost URL with correct Prefect 3 URL format
-            external_ui_url = "http://127.0.0.1:4200"  # localhost accessible Prefect UI URL
-            flow_run_url = f"{external_ui_url}/runs/{flow_run.id}"
+        if flow_run and settings.PREFECT_UI_URL:
+            # Use the configured Prefect UI URL (now properly set in Docker)
+            flow_run_url = f"{settings.PREFECT_UI_URL.value()}/runs/{flow_run.id}"
             
         message = f"""
 *Bayesian Optimization - Iteration {iteration + 1}/{n_iterations}*
