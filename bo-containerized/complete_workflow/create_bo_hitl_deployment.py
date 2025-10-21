@@ -35,7 +35,7 @@ if __name__ == "__main__":
             url="https://github.com/AccelerationConsortium/ac-dev-lab.git",
             branch="copilot/fix-382"  # Specify your branch explicitly
         ),
-        entrypoint="bo-containerized/complete_workflow/bo_hitl_slack_tutorial.py:run_bo_campaign",
+        entrypoint="scripts/prefect_scripts/bo_hitl_slack_tutorial.py:run_bo_campaign",
     ).deploy(
         name="bo-hitl-slack-deployment",
         description="Bayesian Optimization HITL workflow with Slack integration",
