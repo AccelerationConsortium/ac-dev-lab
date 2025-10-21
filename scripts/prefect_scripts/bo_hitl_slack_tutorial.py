@@ -175,12 +175,12 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
         # Get webhook URL from Prefect Variable
         from prefect.variables import Variable
         try:
-            webhook_url = Variable.get("SLACK_WEBHOOK_URL")
+            webhook_url = Variable.get("slack-webhook-url")
             slack_block = SlackWebhook(url=webhook_url)
             slack_block.save("prefect-test")
             logger.info("Successfully created Slack webhook block 'prefect-test'")
         except ValueError as e:
-            logger.error(f"SLACK_WEBHOOK_URL variable not found. Please set it with: prefect variable set SLACK_WEBHOOK_URL 'your-webhook-url'")
+            logger.error(f"slack-webhook-url variable not found. Please set it with: prefect variable set slack-webhook-url 'your-webhook-url'")
             logger.info("Skipping Slack notifications for this run.")
             slack_block = None
     
