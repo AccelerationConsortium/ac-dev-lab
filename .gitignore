@@ -72,3 +72,6 @@ src/ac_training_lab/apriltag_demo/tag25_09_00000.png
 src/ac_training_lab/apriltag_demo/tag36_11_00000.png
 src/ac_training_lab/apriltag_demo/tag49_12_00000.png
 scripts/playwright/sem-open-close/chat.json
+
+# Analog clock demo generated images
+examples/demo_clock_*.jpg
