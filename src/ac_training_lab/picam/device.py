@@ -36,18 +36,17 @@ def start_stream(ffmpeg_url):
     font = cv2.FONT_HERSHEY_SIMPLEX
     scale = 1
     thickness = 2
+    # Precompute text size for timestamp format (fixed width)
+    sample_timestamp = "2024-06-01 12:34:56"  # Matches "%Y-%m-%d %X"
+    text_size, _ = cv2.getTextSize(sample_timestamp, font, scale, thickness)
+    text_w, text_h = text_size
 
     def apply_timestamp(request):
         timestamp = time.strftime("%Y-%m-%d %X")
         with MappedArray(request, "main") as m:
-            text_size, _ = cv2.getTextSize(timestamp, font, scale, thickness)
-            text_w, text_h = text_size
             x, y = origin
             cv2.rectangle(m.array, (0, 0), (x + text_w, y + text_h), bg_colour, -1)
             cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
-
-    picam2.pre_callback = apply_timestamp
-
     # Create the ffmpeg command for streaming
     ffmpeg_cmd = [
         # Most options such as wallclock_for_timestamps, thread_queue_size, and audio are handled by Picamera2 https://github.com/raspberrypi/picamera2/blob/main/picamera2/outputs/ffmpegoutput.py
