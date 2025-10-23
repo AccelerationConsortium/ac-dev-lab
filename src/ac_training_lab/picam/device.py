@@ -1,8 +1,12 @@
 import json
-import subprocess
-import shutil
+import logging
+import socket
+import time
+from multiprocessing import Process
 
+import cv2
 import requests
+from libcamera import Transform
 from my_secrets import (
     CAM_NAME,
     CAMERA_HFLIP,
@@ -11,107 +15,59 @@ from my_secrets import (
     PRIVACY_STATUS,
     WORKFLOW_NAME,
 )
-
-
-def get_camera_command():
-    """
-    Returns the available camera command: 'rpicam-vid' (trixie) or 'libcamera-vid' (bookworm).
-    """
-    if shutil.which("rpicam-vid"):
-        return "rpicam-vid"
-    elif shutil.which("libcamera-vid"):
-        return "libcamera-vid"
-    else:
-        raise RuntimeError(
-            "Neither 'rpicam-vid' nor 'libcamera-vid' command found on this system"
-        )
+from picamera2 import MappedArray, Picamera2, Preview
+from picamera2.encoders import H264Encoder
+from picamera2.outputs import FfmpegOutput
 
 
 def start_stream(ffmpeg_url):
-    """
-    Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
-      p1: camera process (rpicam-vid or libcamera-vid)
-      p2: ffmpeg process
-    """
-    # Get the available camera command
-    camera_cmd = get_camera_command()
+    picam2 = Picamera2()
 
-    # First: camera command with core parameters
-    libcamera_cmd = [
-        camera_cmd,
-        "--inline",
-        "--nopreview",
-        "-t",
-        "0",
-        "--mode",
-        "1536:864",  # A known 16:9 sensor mode
-        "--width",
-        "854",  # Scale width
-        "--height",
-        "480",  # Scale height
-        "--framerate",
-        "15",  # Frame rate
-        "--codec",
-        "h264",  # H.264 encoding
-        "--bitrate",
-        "1000000",  # ~1 Mbps video
-    ]
+    picam2.configure(
+        picam2.create_video_configuration(
+            main={"size": (1280, 720)}, transform=Transform(hflip=CAMERA_HFLIP, vflip=CAMERA_VFLIP)
+        )
+    )
 
-    # Add flip parameters if needed
-    if CAMERA_VFLIP:
-        libcamera_cmd.extend(["--vflip"])
-    if CAMERA_HFLIP:
-        libcamera_cmd.extend(["--hflip"])
+    # Configure timestamp
+    bg_colour = (0, 0, 0)
+    colour = (255, 255, 255)
+    origin = (0, 30)
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    scale = 1
+    thickness = 2
 
-    # Add output parameters last
-    libcamera_cmd.extend(["-o", "-"])  # Output to stdout (pipe)
+    def apply_timestamp(request):
+        timestamp = time.strftime("%Y-%m-%d %X")
+        with MappedArray(request, "main") as m:
+            text_size, _ = cv2.getTextSize(timestamp, font, scale, thickness)
+            text_w, text_h = text_size
+            x, y = origin
+            cv2.rectangle(m.array, (0, 0), (x + text_w, y + text_h), bg_colour, -1)
+            cv2.putText(m.array, timestamp, origin, font, scale, colour, thickness)
 
-    # Second: ffmpeg command
+    picam2.pre_callback = apply_timestamp
+
+    # Create the ffmpeg command for streaming
     ffmpeg_cmd = [
-        "ffmpeg",
-        # Generate silent audio source
-        "-f",
-        "lavfi",
-        "-i",
-        "anullsrc=channel_layout=stereo:sample_rate=44100",
-        # Handle timestamps/threading
-        "-thread_queue_size",
-        "1024",
-        "-use_wallclock_as_timestamps",
-        "1",
-        # Read H.264 video from pipe
-        "-i",
-        "pipe:0",
-        # Copy the H.264 video directly
-        "-c:v",
-        "copy",
-        # Encode audio as AAC
-        "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
-        "-preset",
-        "fast",
-        "-strict",
-        "experimental",
-        # Output format is FLV, then final RTMP URL
+        # Most options such as wallclock_for_timestamps, thread_queue_size, and audio are handled by Picamera2 https://github.com/raspberrypi/picamera2/blob/main/picamera2/outputs/ffmpegoutput.py
+        # FLV is the livestream output file format
         "-f",
         "flv",
         ffmpeg_url,
     ]
 
-    # Start camera process, capturing its output in a pipe
-    p1 = subprocess.Popen(
-        libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-    )
+    ffmpeg_cmd = " ".join(ffmpeg_cmd)
 
-    # Start ffmpeg, reading from p1's stdout
-    p2 = subprocess.Popen(ffmpeg_cmd, stdin=p1.stdout, stderr=subprocess.STDOUT)
+    # Initialize FfmpegOutput to handle streaming
+    # Audio is required for youtube streaming. Since the rpi and rpi cameras don't have mics, the audio signal is blank
+    ffmpeg_output = FfmpegOutput(ffmpeg_cmd, audio=True)
+    YOUTUBE_720P_BITRATE = 1000000
+    h264_encoder = H264Encoder(bitrate=YOUTUBE_720P_BITRATE)
 
-    # Close p1's stdout in the parent process
-    p1.stdout.close()
+    picam2.start_recording(encoder=h264_encoder, output=ffmpeg_output)
 
-    return p1, p2
+    return picam2
 
 
 def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
@@ -165,24 +121,35 @@ if __name__ == "__main__":
 
     print(f"Streaming to: {ffmpeg_url}")
 
-    while True:
-        print("Starting stream..")
-        p1, p2 = start_stream(ffmpeg_url)
-        print("Stream started")
-        interrupted = False
+    # Gracefully terminate picamera2 on keyboard interrupt or on error.
+    # Reattempt if terminated due to error.
+    run = True
+    while run:
+        picam2 = None
         try:
-            p2.wait()
+            print("Starting stream...")
+            picam2 = start_stream(ffmpeg_url)
+            print("Stream started")
+
+            # Spin and wait for error.
+            while True:
+                time.sleep(1)
+
         except KeyboardInterrupt:
-            print("Received interrupt signal, exiting...")
-            interrupted = True
+            print("Keyboard Interrupt")
+            run = False
+
         except Exception as e:
-            print(e)
+            print(f"Stream crashed {e}")
         finally:
-            print("Terminating processes..")
-            p1.terminate()
-            p2.terminate()
-            print("Processes terminated.")
-            if interrupted:
-                break
-            else:
-                print("Retrying..")
+            if picam2:
+                try:
+                    print("Stopping stream")
+                    picam2.stop_recording()
+                    print("Stream stopped")
+                except Exception as e:
+                    print(f"Error stopping stream {e}")
+
+            if run:
+                print("Retrying in 3 seconds")
+                time.sleep(3)
