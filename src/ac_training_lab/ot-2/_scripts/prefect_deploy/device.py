@@ -5,11 +5,11 @@ to work pools and work queues. Run this when setting up deployments or when flow
 schemas change.
 """
 
-from prefect import flow, task
-import opentrons
-from prefect.runner.storage import GitRepository
 import time  # Simulating OT-2 operations
 
+import opentrons.simulate
+from prefect import flow, task
+from prefect.runner.storage import GitRepository
 
 # ------------------- OT-2 Setup -------------------
 protocol = opentrons.simulate.get_protocol_api("2.12")
