@@ -19,7 +19,12 @@ from inventory_utils import (
 
 MONGODB_PASSWORD = os.getenv("MONGODB_PASSWORD")
 blinded_connection_string = os.getenv("blinded_connection_string")
-connection_string = blinded_connection_string.replace("<db_password>", MONGODB_PASSWORD)
+
+# Handle case where environment variables are not set (e.g., during testing)
+if MONGODB_PASSWORD and blinded_connection_string:
+    connection_string = blinded_connection_string.replace("<db_password>", MONGODB_PASSWORD)
+else:
+    connection_string = None
 
 
 @task
@@ -34,6 +39,12 @@ def log_restock_operation(restock_data, operator="system"):
     Returns:
     - Inserted document ID
     """
+    if connection_string is None:
+        raise ValueError(
+            "MongoDB connection not configured. Please set MONGODB_PASSWORD and "
+            "blinded_connection_string environment variables."
+        )
+    
     client = MongoClient(connection_string)
     db = client["LCM-OT-2-SLD"]
     collection = db["restock_log"]
