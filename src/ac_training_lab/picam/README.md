@@ -81,6 +81,28 @@ These items are optional and don't factor into the final price shown. They're us
 
 > **Note:** Most electronic components have verified working links to PiShop.ca. Hardware components like screws and nuts are available at local hardware stores or McMaster-Carr.
 
+## Hardware Setup
+
+Ensure you connect the camera cable properly. Follow these steps:
+
+1. **Power off and disconnect your Raspberry Pi from any power source.**
+2. Orient the camera ribbon cable so that the metal contacts face the connector on the Pi (with Pi Zero 2W lying flat on its back, metal contacts should be facing down)
+3. Carefully insert the ribbon cable fully into the camera connector (with camera facing upside down, the metal contacts should be facing down as well)
+4. Lock the connector latch to secure the cable.
+5. Reconnect power and turn on your Raspberry Pi.
+
+> **Safety Note:** Always disconnect power from your Raspberry Pi before attaching or removing the camera to prevent hardware damage.
+
+The images below show the correct orientation and connection:
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/3447d543-afe4-49c7-978e-2383ca031973" />
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/c7e4afd4-7c6b-4d88-88a4-e2c6422b29fa" />
+
+The following shows an assembled camera setup, without any mounting hardware:
+
+<img width="800" alt="image" src="https://github.com/user-attachments/assets/e3f9e17e-1876-4ac6-9ecd-7747bae4a1ad" />
+
 ## Codebase
 
 Refresh the system's package list via:
@@ -115,6 +137,61 @@ cp my_secrets_example.py my_secrets.py
 ```
 
 Fill in the necessary information (e.g., via `nano my_secrets.py`). Keep in mind this will store the credentials in plain-text format, so try to keep your Pi login secure and restrict the access scope for the credentials as much as possible.
+
+### Required Configuration Variables
+
+#### `LAMBDA_FUNCTION_URL`
+The AWS Lambda Function URL for the YouTube streaming service. This Lambda function handles YouTube API authentication and stream management.
+
+**Setup Steps:**
+1. Deploy the [streamingLambda](https://github.com/AccelerationConsortium/streamingLambda) service to your AWS account
+2. The deployment will provide you with a Function URL that looks like: `https://your-unique-id.lambda-url.region.on.aws/`
+3. Use this URL as your `LAMBDA_FUNCTION_URL`
+
+**Note:** The Lambda function requires YouTube API credentials to be set up in AWS (stored in S3). See the streamingLambda repository for detailed deployment instructions.
+
+#### `CAM_NAME`
+A descriptive name for this specific camera device. This appears in YouTube broadcast titles and helps identify individual cameras when you have multiple devices.
+
+**Examples:** `"PiCam-01"`, `"LabCam-A"`, `"MainCamera"`
+
+#### `WORKFLOW_NAME`
+**CRITICAL:** This must be **unique** across all your streaming devices to prevent conflicts.
+
+The workflow name is used to:
+- Create and organize YouTube playlists
+- Identify which streams to end/restart
+- Group related video streams
+
+**Requirements:**
+- Must be unique across all devices (see [Issue #290](https://github.com/AccelerationConsortium/ac-dev-lab/issues/290))
+- Keep it concise due to YouTube character limits
+- Use descriptive names for your experimental setup or location
+
+**Examples:** `"SDLT-Toronto-001"`, `"MyLab-Setup-A"`, `"AC-Synthesis-Bench"`
+
+#### `PRIVACY_STATUS`
+Controls the visibility of your YouTube live stream:
+- `"private"` - Only you can view (requires YouTube account login)
+- `"public"` - Anyone can find and view the stream
+- `"unlisted"` - Anyone with the link can view, but it won't appear in search results
+
+**Recommendation:** 
+- Use `"unlisted"` for lab monitoring. This provides controlled access while keeping streams discoverable by your team.
+- If you use `"private"`, you must provide access by adding a Google account for each person.
+- Each person added to the channel will be able to see all videos in the channel.
+- With `"unlisted"`, you can share specific playlists or videos individually.
+
+#### Camera Orientation Settings
+- `CAMERA_VFLIP` - Set to `True` to flip the camera image vertically
+- `CAMERA_HFLIP` - Set to `True` to flip the camera image horizontally
+
+Adjust these based on your camera mounting orientation to ensure the video appears right-side-up.
+
+### Related Resources
+- [streamingLambda Repository](https://github.com/AccelerationConsortium/streamingLambda) - AWS Lambda service for YouTube streaming
+- [Issue #290](https://github.com/AccelerationConsortium/ac-dev-lab/issues/290) - Workflow name uniqueness requirements
+- [YouTube Hardware Streams](https://www.youtube.com/@ac-hardware-streams) - Example of equipment monitoring streams
 
 
 
