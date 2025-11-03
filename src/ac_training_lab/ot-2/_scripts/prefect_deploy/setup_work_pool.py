@@ -45,6 +45,16 @@ async def setup_work_pool():
             "priority": 3,
             "description": "Low priority queue for background tasks",
         },
+        {
+            "name": "maintenance",
+            "priority": 4,
+            "description": "Maintenance queue for restock and system operations",
+        },
+        {
+            "name": "monitoring",
+            "priority": 5,
+            "description": "Monitoring queue for inventory status checks",
+        },
     ]
 
     for queue_config in queues:
