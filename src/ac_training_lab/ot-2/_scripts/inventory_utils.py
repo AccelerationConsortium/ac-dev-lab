@@ -107,37 +107,39 @@ def get_current_inventory():
     """
     client, collection = get_inventory_collection()
     
-    current_time = datetime.utcnow()
-    inventory = {}
-    
-    for color_key in ["R", "Y", "B"]:
-        record = collection.find_one({"color_key": color_key})
+    try:
+        current_time = datetime.utcnow()
+        inventory = {}
         
-        if record is None:
-            # Initialize if not found
-            client.close()
-            initialize_inventory()
-            client, collection = get_inventory_collection()
+        for color_key in ["R", "Y", "B"]:
             record = collection.find_one({"color_key": color_key})
+            
+            if record is None:
+                # Initialize if not found
+                client.close()
+                initialize_inventory()
+                client, collection = get_inventory_collection()
+                record = collection.find_one({"color_key": color_key})
+            
+            # Calculate evaporation
+            last_updated = record["last_updated"]
+            hours_elapsed = (current_time - last_updated).total_seconds() / 3600
+            evaporation_amount = hours_elapsed * record["evaporation_rate_ul_per_hour"]
+            
+            current_volume = max(0, record["volume_ul"] - evaporation_amount)
+            
+            inventory[color_key] = {
+                "color": record["color"],
+                "position": record["position"],
+                "volume_ul": current_volume,
+                "evaporation_loss_ul": evaporation_amount,
+                "last_updated": record["last_updated"],
+            }
         
-        # Calculate evaporation
-        last_updated = record["last_updated"]
-        hours_elapsed = (current_time - last_updated).total_seconds() / 3600
-        evaporation_amount = hours_elapsed * record["evaporation_rate_ul_per_hour"]
-        
-        current_volume = max(0, record["volume_ul"] - evaporation_amount)
-        
-        inventory[color_key] = {
-            "color": record["color"],
-            "position": record["position"],
-            "volume_ul": current_volume,
-            "evaporation_loss_ul": evaporation_amount,
-            "last_updated": record["last_updated"],
-        }
+        return inventory
     
-    client.close()
-    
-    return inventory
+    finally:
+        client.close()
 
 
 @task
@@ -205,47 +207,54 @@ def subtract_stock(red_volume=0, yellow_volume=0, blue_volume=0):
     
     Returns:
     - Dictionary with updated inventory state
+    
+    Raises:
+    - ValueError if inventory not initialized
     """
     client, collection = get_inventory_collection()
     
-    current_time = datetime.utcnow()
-    volumes = {"R": red_volume, "Y": yellow_volume, "B": blue_volume}
-    updated_inventory = {}
-    
-    for color_key, used_volume in volumes.items():
-        record = collection.find_one({"color_key": color_key})
+    try:
+        current_time = datetime.utcnow()
+        volumes = {"R": red_volume, "Y": yellow_volume, "B": blue_volume}
+        updated_inventory = {}
         
-        if record is None:
-            client.close()
-            raise ValueError(f"Inventory not initialized for color {color_key}")
-        
-        # Calculate evaporation since last update
-        last_updated = record["last_updated"]
-        hours_elapsed = (current_time - last_updated).total_seconds() / 3600
-        evaporation_amount = hours_elapsed * record["evaporation_rate_ul_per_hour"]
-        
-        # Calculate new volume (subtract used volume and evaporation)
-        new_volume = max(0, record["volume_ul"] - used_volume - evaporation_amount)
-        
-        # Update database
-        update_data = {
-            "$set": {
-                "volume_ul": new_volume,
-                "last_updated": current_time,
+        for color_key, used_volume in volumes.items():
+            record = collection.find_one({"color_key": color_key})
+            
+            if record is None:
+                raise ValueError(
+                    f"Inventory not initialized for color {color_key}. "
+                    "Run initialize_inventory() first."
+                )
+            
+            # Calculate evaporation since last update
+            last_updated = record["last_updated"]
+            hours_elapsed = (current_time - last_updated).total_seconds() / 3600
+            evaporation_amount = hours_elapsed * record["evaporation_rate_ul_per_hour"]
+            
+            # Calculate new volume (subtract used volume and evaporation)
+            new_volume = max(0, record["volume_ul"] - used_volume - evaporation_amount)
+            
+            # Update database
+            update_data = {
+                "$set": {
+                    "volume_ul": new_volume,
+                    "last_updated": current_time,
+                }
             }
-        }
-        collection.update_one({"color_key": color_key}, update_data)
+            collection.update_one({"color_key": color_key}, update_data)
+            
+            updated_inventory[color_key] = {
+                "color": record["color"],
+                "volume_ul": new_volume,
+                "used_ul": used_volume,
+                "evaporation_ul": evaporation_amount,
+            }
         
-        updated_inventory[color_key] = {
-            "color": record["color"],
-            "volume_ul": new_volume,
-            "used_ul": used_volume,
-            "evaporation_ul": evaporation_amount,
-        }
+        return updated_inventory
     
-    client.close()
-    
-    return updated_inventory
+    finally:
+        client.close()
 
 
 @task
@@ -260,52 +269,59 @@ def restock_inventory(red_volume=0, yellow_volume=0, blue_volume=0):
     
     Returns:
     - Dictionary with updated inventory state
+    
+    Raises:
+    - ValueError if inventory not initialized
     """
     client, collection = get_inventory_collection()
     
-    current_time = datetime.utcnow()
-    volumes = {"R": red_volume, "Y": yellow_volume, "B": blue_volume}
-    restocked_inventory = {}
-    
-    for color_key, add_volume in volumes.items():
-        if add_volume == 0:
-            continue
+    try:
+        current_time = datetime.utcnow()
+        volumes = {"R": red_volume, "Y": yellow_volume, "B": blue_volume}
+        restocked_inventory = {}
+        
+        for color_key, add_volume in volumes.items():
+            if add_volume == 0:
+                continue
+                
+            record = collection.find_one({"color_key": color_key})
             
-        record = collection.find_one({"color_key": color_key})
-        
-        if record is None:
-            client.close()
-            raise ValueError(f"Inventory not initialized for color {color_key}")
-        
-        # Calculate evaporation since last update
-        last_updated = record["last_updated"]
-        hours_elapsed = (current_time - last_updated).total_seconds() / 3600
-        evaporation_amount = hours_elapsed * record["evaporation_rate_ul_per_hour"]
-        
-        # Calculate new volume (add restock volume, subtract evaporation)
-        current_volume = max(0, record["volume_ul"] - evaporation_amount)
-        new_volume = current_volume + add_volume
-        
-        # Update database
-        update_data = {
-            "$set": {
-                "volume_ul": new_volume,
-                "last_updated": current_time,
+            if record is None:
+                raise ValueError(
+                    f"Inventory not initialized for color {color_key}. "
+                    "Run initialize_inventory() first."
+                )
+            
+            # Calculate evaporation since last update
+            last_updated = record["last_updated"]
+            hours_elapsed = (current_time - last_updated).total_seconds() / 3600
+            evaporation_amount = hours_elapsed * record["evaporation_rate_ul_per_hour"]
+            
+            # Calculate new volume (add restock volume, subtract evaporation)
+            current_volume = max(0, record["volume_ul"] - evaporation_amount)
+            new_volume = current_volume + add_volume
+            
+            # Update database
+            update_data = {
+                "$set": {
+                    "volume_ul": new_volume,
+                    "last_updated": current_time,
+                }
             }
-        }
-        collection.update_one({"color_key": color_key}, update_data)
+            collection.update_one({"color_key": color_key}, update_data)
+            
+            restocked_inventory[color_key] = {
+                "color": record["color"],
+                "previous_volume_ul": current_volume,
+                "added_ul": add_volume,
+                "new_volume_ul": new_volume,
+                "evaporation_ul": evaporation_amount,
+            }
         
-        restocked_inventory[color_key] = {
-            "color": record["color"],
-            "previous_volume_ul": current_volume,
-            "added_ul": add_volume,
-            "new_volume_ul": new_volume,
-            "evaporation_ul": evaporation_amount,
-        }
+        return restocked_inventory
     
-    client.close()
-    
-    return restocked_inventory
+    finally:
+        client.close()
 
 
 if __name__ == "__main__":
