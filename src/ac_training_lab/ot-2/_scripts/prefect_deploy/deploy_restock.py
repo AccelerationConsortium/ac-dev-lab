@@ -29,7 +29,7 @@ if __name__ == "__main__":
         source=GitRepository(
             "https://github.com/AccelerationConsortium/ac-training-lab.git"
         ),
-        entrypoint="src/ac_training_lab/ot-2/_scripts/prefect_deploy/restock_flow.py:restock_maintenance_flow",
+        entrypoint="src/ac_training_lab/ot-2/_scripts/restock_flow.py:restock_maintenance_flow",
     ).deploy(
         name="restock-maintenance",
         work_pool_name="ot2-device-pool",
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         source=GitRepository(
             "https://github.com/AccelerationConsortium/ac-training-lab.git"
         ),
-        entrypoint="src/ac_training_lab/ot-2/_scripts/prefect_deploy/restock_flow.py:initialize_inventory_flow",
+        entrypoint="src/ac_training_lab/ot-2/_scripts/restock_flow.py:initialize_inventory_flow",
     ).deploy(
         name="initialize-inventory",
         work_pool_name="ot2-device-pool",
@@ -59,7 +59,7 @@ if __name__ == "__main__":
         source=GitRepository(
             "https://github.com/AccelerationConsortium/ac-training-lab.git"
         ),
-        entrypoint="src/ac_training_lab/ot-2/_scripts/prefect_deploy/restock_flow.py:check_inventory_status_flow",
+        entrypoint="src/ac_training_lab/ot-2/_scripts/restock_flow.py:check_inventory_status_flow",
     ).deploy(
         name="check-inventory-status",
         work_pool_name="ot2-device-pool",

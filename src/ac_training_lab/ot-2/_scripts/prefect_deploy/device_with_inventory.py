@@ -4,18 +4,21 @@ device_with_inventory.py - OT-2 Device Operations with Inventory Tracking
 This file defines Prefect flows for OT-2 device operations with integrated
 inventory management. It tracks paint stock levels, checks availability before
 mixing, and subtracts used volumes after each operation.
+
+NOTE: This file uses a mock implementation for demonstration/testing purposes.
+For production use on a real OT-2, replace MockProtocol with opentrons.execute API.
 """
 
+import os
 import sys
 import time
 from pathlib import Path
 
-import opentrons.simulate
 from prefect import flow, task
 from prefect.runner.storage import GitRepository
 
 # Add the scripts directory to path for imports
-scripts_dir = Path(__file__).parent
+scripts_dir = Path(__file__).parent.parent  # Go up to _scripts directory
 sys.path.insert(0, str(scripts_dir))
 
 from inventory_utils import (
@@ -25,12 +28,23 @@ from inventory_utils import (
 )
 
 # ------------------- OT-2 Setup -------------------
-protocol = opentrons.simulate.get_protocol_api("2.12")
-protocol.home()
+# Determine if we're running on a real OT-2 or in simulation mode
+USE_REAL_OPENTRONS = os.getenv("USE_REAL_OPENTRONS", "false").lower() == "true"
+
+if USE_REAL_OPENTRONS:
+    try:
+        import opentrons.execute
+        protocol = opentrons.execute.get_protocol_api("2.16")
+        protocol.home()
+        print("Using real Opentrons API")
+    except ImportError:
+        print("Warning: opentrons module not available, falling back to mock")
+        USE_REAL_OPENTRONS = False
 
 
-# Simulate OT-2 protocol API (in real implementation, this would be opentrons.simulate)
+# Mock implementation for testing/demonstration
 class MockProtocol:
+    """Mock OT-2 protocol for testing when opentrons library is not available."""
     def home(self):
         print("Homing OT-2 robot")
 
@@ -76,17 +90,40 @@ class MockInstrument:
         print(f"Moving to {position}")
 
 
-# Initialize mock protocol (replace with real opentrons.simulate in production)
-protocol = MockProtocol()
-protocol.home()
-
-# Load mock labware (replace with real definitions in production)
-tiprack_2 = protocol.load_labware("mock_definition", 10)
-reservoir = protocol.load_labware("mock_definition", 3)
-plate = protocol.load_labware("mock_definition", 1)
-tiprack_1 = protocol.load_labware("mock_definition", 9)
-
-p300 = protocol.load_instrument("p300_single_gen2", "right", [tiprack_1])
+# Initialize protocol based on environment
+if not USE_REAL_OPENTRONS:
+    print("Using mock Opentrons implementation for testing")
+    protocol = MockProtocol()
+    protocol.home()
+    
+    # Load mock labware
+    tiprack_2 = protocol.load_labware("mock_definition", 10)
+    reservoir = protocol.load_labware("mock_definition", 3)
+    plate = protocol.load_labware("mock_definition", 1)
+    tiprack_1 = protocol.load_labware("mock_definition", 9)
+    
+    p300 = protocol.load_instrument("p300_single_gen2", "right", [tiprack_1])
+else:
+    # For real OT-2, load actual labware definitions
+    # This would need to be adapted based on your actual setup
+    # See OT2mqtt.py for reference
+    import json
+    
+    with open("/var/lib/jupyter/notebooks/ac_color_sensor_charging_port.json") as labware_file1:
+        labware_def1 = json.load(labware_file1)
+        tiprack_2 = protocol.load_labware_from_definition(labware_def1, 10)
+    
+    with open("/var/lib/jupyter/notebooks/ac_6_tuberack_15000ul.json") as labware_file2:
+        labware_def2 = json.load(labware_file2)
+        reservoir = protocol.load_labware_from_definition(labware_def2, 3)
+    
+    plate = protocol.load_labware(load_name="corning_96_wellplate_360ul_flat", location=1)
+    tiprack_1 = protocol.load_labware(load_name="opentrons_96_tiprack_300ul", location=9)
+    
+    p300 = protocol.load_instrument(
+        instrument_name="p300_single_gen2", mount="right", tip_racks=[tiprack_1]
+    )
+    p300.well_bottom_clearance.dispense = 8
 
 
 @flow(name="mix-color-with-inventory")
