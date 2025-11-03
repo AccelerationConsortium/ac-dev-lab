@@ -98,13 +98,13 @@ The AC Training Lab provides a comprehensive set of unit operations for material
 
 - **Solid dispensing (trickler-based)** - Large volumes with 1 mg and 0.1 mg accuracy ([AutoTrickler v4, ChargeMaster Supreme, Ingenuity Powder System](#equipment-table))
 - **Solid dispensing (Mettler Toledo)** - XPR autodoser system with 0.01 mg accuracy ([MT Powder Doser](#equipment-table))
-- **Liquid handling** - Precision liquid handling via [OT-2](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/ot-2), [OT-Flex](#equipment-table), Digital Pipette, and peristaltic pumps
+- **Liquid handling** - Precision liquid handling via [OT-2](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/ot-2), [OT-Flex](#equipment-table), Digital Pipette, and peristaltic pumps
 - **Viscosity estimation** - OT-Flex pipette pressure sensor with custom algorithm
 
 ### Synthesis and Processing
 
-- **Bioreactor chamber** - Heating, stirring, media exchange, gas flow, optical measurements ([Pioreactor](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/pioreactor), [Chi.Bio](#equipment-table))
-- **FDM 3D printing** - High-performance multi-material filament printing ([Bambu Lab X1E](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/bambu_a1_mini))
+- **Bioreactor chamber** - Heating, stirring, media exchange, gas flow, optical measurements ([Pioreactor](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/pioreactor), [Chi.Bio](#equipment-table))
+- **FDM 3D printing** - High-performance multi-material filament printing ([Bambu Lab A1 Mini](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/bambu_a1_mini))
 - **SLA 3D printing** - Stereolithography resin printing ([Formlabs 3L, Form Auto](#equipment-table))
 - **Chocolate 3D printing** - Food-safe 3D printing ([Cocoa Press](#equipment-table))
 - **Laser powder bed fusion (LPBF)** - Metal 3D printing ([AO A30 Metal 3D Printer](#planned-equipment))
@@ -112,15 +112,15 @@ The AC Training Lab provides a comprehensive set of unit operations for material
 ### Characterization
 
 - **Electrolyte conductivity** - Mettler Toledo sensor for ionic conductivity measurements
-- **Automated transmission microscopy** - High-resolution imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/openflexure))
-- **Automated reflection microscopy** - Surface imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/openflexure))
+- **Automated transmission microscopy** - High-resolution imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure))
+- **Automated reflection microscopy** - Surface imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure))
 - **Scanning electron microscopy** - Sub-micron imaging (Hitachi TM-4000II)
-- **Potentiostat measurements** - Electrochemical characterization including chronoamperometry, constant voltage voltammetry ([Rodeostat](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/squidstat), Squidstat)
+- **Potentiostat measurements** - Electrochemical characterization including chronoamperometry, constant voltage voltammetry ([Squidstat](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/squidstat), Rodeostat)
 
 ### Robotics and Automation
 
 - **Automated vial capping/decapping** - DH Robotics capper/decapper demo
-- **Vision-enabled 6DOF arm and gripper** - Manipulation and pick-and-place ([Elephant Robotics](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/cobot280pi))
+- **Vision-enabled 6DOF arm and gripper** - Manipulation and pick-and-place ([Elephant Robotics](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/cobot280pi))
 - **Automated vial turntables** - Sample positioning and imaging (FluxGarage)
 - **Equipment monitoring** - Livestream cameras for remote observation
 
@@ -135,15 +135,15 @@ Educational workflows designed to teach key concepts in materials acceleration a
 | Name | Description | Hardware |
 | ---- | ----------- | -------- |
 | Hello World RGB color matching | Light-mixing kits with microcontroller to teach basic optimization concepts | LED controller, color sensor |
-| Liquid RYB color matching | Food coloring mixing with wireless charging color sensor | [OT-2](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/ot-2), wireless color sensor tool |
+| Liquid RYB color matching | Food coloring mixing with wireless charging color sensor | [OT-2](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/ot-2), wireless color sensor tool |
 | Titration using baking soda and citric acid | Acid-base titration workflow | Atlas Scientific pH meter, liquid handler |
-| Yeast growth optimization | Biological optimization with optical density feedback | [Pioreactor](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/pioreactor) |
-| Vision-enabled filament print parameter optimization | FDM printing with real-time monitoring | [BambuLab A1 Mini](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/bambu_a1_mini) with custom toolhead camera |
+| Yeast growth optimization | Biological optimization with optical density feedback | [Pioreactor](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/pioreactor) |
+| Vision-enabled filament print parameter optimization | FDM printing with real-time monitoring | [BambuLab A1 Mini](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/bambu_a1_mini) with custom toolhead camera |
 | Vision-enabled chocolate 3D print optimization | Food printing with custom vision modules | Cocoa Press with toolhead camera / 3D reconstruction |
 | Mechanical property optimization of resin lattices | SLA printing with tensile testing | Formlabs Form Auto with custom tensile testing module |
 | Mechanical property optimization of 3D printed alloys | Metal powder processing and testing | Powder dosing, atomization [external], AO A30 metal printer, tensile testing [external] |
-| Large-scale image stitching of heart tissue | Automated microscopy and image processing | [OpenFlexure](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/openflexure) transmission microscope with biology slides |
-| AprilTag image recognition for robot path planning | Computer vision for robotic manipulation | [Elephant Robotics arm](https://github.com/AccelerationConsortium/ac-dev-lab/tree/main/src/ac_training_lab/cobot280pi), camera, label printer |
+| Large-scale image stitching of heart tissue | Automated microscopy and image processing | [OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure) transmission microscope with biology slides |
+| AprilTag image recognition for robot path planning | Computer vision for robotic manipulation | [Elephant Robotics arm](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/cobot280pi), camera, label printer |
 
 ### Research Workflows
 
