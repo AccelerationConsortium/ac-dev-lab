@@ -92,7 +92,7 @@ Here are some of the modules we have procured and are in the process of setting 
 
 ## Unit Operations
 
-The AC Training Lab provides a comprehensive set of unit operations for materials acceleration research and education. These operations span dispensing, liquid handling, characterization, synthesis, and automation capabilities:
+The AC Training Lab provides a comprehensive set of unit operations for materials research and education. These operations span dispensing, liquid handling, characterization, synthesis, and automation capabilities:
 
 ### Dispensing and Material Handling
 
@@ -115,7 +115,7 @@ The AC Training Lab provides a comprehensive set of unit operations for material
 - **Automated transmission microscopy** - High-resolution imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure))
 - **Automated reflection microscopy** - Surface imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure))
 - **Scanning electron microscopy** - Sub-micron imaging (Hitachi TM-4000II)
-- **Potentiostat measurements** - Electrochemical characterization including chronoamperometry, constant voltage voltammetry ([Squidstat](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/squidstat), Rodeostat)
+- **Potentiostat measurements** - Electrochemical characterization including chronoamperometry, constant voltage voltammetry ([Squidstat](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/squidstat), [Rodeostat](https://iorodeo.com/products/rodeostat))
 
 ### Robotics and Automation
 
@@ -161,12 +161,8 @@ While the equipment is not restricted to particular workflows, we are actively d
 
 | Name                                                                                | Diagram                                                  | Description                                                                                                                                                | Status      |
 | ----------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Light-based color matching                                                          | <img src="./_static/images/clslab-light.png" height=50>  | Adjust red, green, and blue LED power levels to match a target color                                                                                       | Ready       |
-| Liquid-based color matching                                                         | <img src="./_static/images/clslab-liquid.png" height=50> | Adjust diluted red, yellow, and blue food coloring pumping power to match a target color                                                                   | Ready       |
 | Solid-based color matching                                                          | <img src="./_static/images/clslab-solid.png" height=50>  | Adjust the composition of red, yellow, and blue powder (e.g., wax) and processing conditions to match a target color                                       | Development |
 | Chocolate tensile testing                                                           |                                                          | Adjust the composition and processing conditions of 3D printed chocolate tensile specimens to tune the microstructure for maximization of tensile strength | Development |
-| [Yeast growth](https://docs.pioreactor.com/experiments/yeast-growth-by-temperature) |                                                          | Adjust reactor temperature to maximize yeast growth and explore nonlinear effects                                                                          | Development |
-| Titration                                                                           |                                                          | Add a base of known concentration to an acid to find the equivalence point as determined by successive pH measurements                                     | Development |
 | Conductivity                                                                        |                                                          | Adjust the ratio of battery electrolyte reagents to maximize conductivity and redox potential for a target pH                                              | Planning    |
 | Polymer cross-linkage                                                               |                                                          |                                                                                                                                                            | Planning    |
 
