@@ -1,0 +1,48 @@
+# prefect.yaml - Deployment configuration file
+# Alternative deployment configuration using prefect.yaml.
+# This file defines deployments for the flows with work pool and queue settings.
+
+# Define the deployments
+deployments:
+  - name: mix-color
+    entrypoint: flows.py:mix_color
+    work_pool:
+      name: ot2-device-pool
+      work_queue_name: high-priority
+    parameters:
+      R: 120
+      Y: 50
+      B: 80
+      mix_well: "B2"
+    description: "High-priority deployment for color mixing operations"
+    tags: ["ot2", "color-mixing", "high-priority"]
+
+  - name: move-sensor-to-measurement-position
+    entrypoint: flows.py:move_sensor_to_measurement_position
+    work_pool:
+      name: ot2-device-pool
+      work_queue_name: standard
+    parameters:
+      mix_well: "B2"
+    description: "Standard priority deployment for sensor positioning"
+    tags: ["ot2", "sensor", "measurement"]
+
+  - name: move-sensor-back
+    entrypoint: flows.py:move_sensor_back
+    work_pool:
+      name: ot2-device-pool
+      work_queue_name: low-priority
+    description: "Low-priority deployment for sensor reset operations"
+    tags: ["ot2", "sensor", "charging"]
+
+# Build configuration (optional, for custom environments)
+build: null
+
+# Push configuration (optional, for remote deployments)
+push: null
+
+# Pull configuration (optional, for dynamic code retrieval)
+pull:
+  - prefect.deployments.steps.git_clone_project:
+      repository: https://github.com/AccelerationConsortium/ac-training-lab.git
+      branch: main
