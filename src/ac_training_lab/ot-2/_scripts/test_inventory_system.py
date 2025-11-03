@@ -6,9 +6,7 @@ It uses mocking to simulate database operations.
 """
 
 import sys
-from datetime import datetime
 from pathlib import Path
-from unittest.mock import MagicMock, patch
 
 # Add the scripts directory to path
 scripts_dir = Path(__file__).parent

@@ -46,20 +46,23 @@ def log_restock_operation(restock_data, operator="system"):
         )
     
     client = MongoClient(connection_string)
-    db = client["LCM-OT-2-SLD"]
-    collection = db["restock_log"]
     
-    log_entry = {
-        "timestamp": datetime.utcnow(),
-        "operator": operator,
-        "restock_data": restock_data,
-        "operation_type": "manual_restock",
-    }
+    try:
+        db = client["LCM-OT-2-SLD"]
+        collection = db["restock_log"]
+        
+        log_entry = {
+            "timestamp": datetime.utcnow(),
+            "operator": operator,
+            "restock_data": restock_data,
+            "operation_type": "manual_restock",
+        }
+        
+        result = collection.insert_one(log_entry)
+        return str(result.inserted_id)
     
-    result = collection.insert_one(log_entry)
-    client.close()
-    
-    return str(result.inserted_id)
+    finally:
+        client.close()
 
 
 @flow(name="restock-maintenance")
