@@ -10,9 +10,11 @@ This setup uses Prefect's work pool infrastructure to securely manage laboratory
 
 - **Work Pool**: `ot2-device-pool` (process type) - manages execution on OT-2 devices
 - **Work Queues**:
-  - `high-priority`: For urgent operations like color mixing
-  - `standard`: For regular measurements
-  - `low-priority`: For cleanup and reset operations
+  - `high-priority` (priority 1): For urgent operations like color mixing
+  - `standard` (priority 2): For regular measurements
+  - `low-priority` (priority 3): For cleanup and reset operations
+  - `maintenance` (priority 4): For restock and system maintenance
+  - `monitoring` (priority 5): For inventory status checks
 - **Workers**: Run on individual devices, poll the work pool for jobs
 - **Deployments**: Pre-configured flows assigned to specific queues
 
@@ -20,10 +22,17 @@ This setup uses Prefect's work pool infrastructure to securely manage laboratory
 
 ### 1. Install Dependencies
 ```bash
-pip install prefect
+pip install prefect pymongo pandas
 ```
 
-### 2. Set up Work Pool and Queues
+### 2. Set Environment Variables
+For inventory management features:
+```bash
+export MONGODB_PASSWORD="your_mongodb_password"
+export blinded_connection_string="your_connection_string_with_<db_password>_placeholder"
+```
+
+### 3. Set up Work Pool and Queues
 Run this once with appropriate permissions:
 ```bash
 python setup_work_pool.py
@@ -38,22 +47,34 @@ prefect work-pool create ot2-device-pool --type process --description "Work pool
 prefect work-queue create high-priority --pool ot2-device-pool --priority 1 --description "High priority queue"
 prefect work-queue create standard --pool ot2-device-pool --priority 2 --description "Standard priority queue"
 prefect work-queue create low-priority --pool ot2-device-pool --priority 3 --description "Low priority queue"
+prefect work-queue create maintenance --pool ot2-device-pool --priority 4 --description "Maintenance queue"
+prefect work-queue create monitoring --pool ot2-device-pool --priority 5 --description "Monitoring queue"
 ```
 
-### 3. Create Deployments
+### 4. Create Deployments
 Choose one method:
 
-**Option A: Python API**
+**Option A: Python API - Standard flows**
 ```bash
 python deploy.py
 ```
 
-**Option B: CLI with prefect.yaml**
+**Option B: Python API - Inventory management flows**
+```bash
+python deploy_restock.py
+```
+
+**Option C: Python API - Device flows with inventory**
+```bash
+python device_with_inventory.py
+```
+
+**Option D: CLI with prefect.yaml**
 ```bash
 prefect deploy
 ```
 
-### 4. Start Workers on Devices
+### 5. Start Workers on Devices
 On each OT-2 device, start a worker (run in background):
 ```bash
 # For high-priority operations
@@ -65,15 +86,40 @@ prefect worker start --pool ot2-device-pool --queue standard
 # For low-priority operations
 prefect worker start --pool ot2-device-pool --queue low-priority
 
+# For maintenance operations (restock)
+prefect worker start --pool ot2-device-pool --queue maintenance
+
+# For monitoring operations
+prefect worker start --pool ot2-device-pool --queue monitoring
+
 # Or start a worker that can handle all queues
 prefect worker start --pool ot2-device-pool
 ```
 
-### 5. Submit Jobs
+### 6. Submit Jobs
 Run the orchestrator to submit jobs:
+
+**Standard operations:**
 ```bash
 python orchestrator.py
 ```
+
+**Inventory management:**
+```bash
+# Check inventory status
+python orchestrator_restock.py check 5.0
+
+# Restock operation (volumes in ml)
+python orchestrator_restock.py restock 10 5 8 operator_name
+
+# Initialize inventory
+python orchestrator_restock.py initialize 15 15 15
+
+# Full maintenance workflow
+python orchestrator_restock.py maintenance
+```
+
+See [../INVENTORY_README.md](../INVENTORY_README.md) for detailed inventory management documentation.
 
 ## Security Benefits
 
