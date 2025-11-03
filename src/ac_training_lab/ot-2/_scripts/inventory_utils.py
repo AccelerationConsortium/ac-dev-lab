@@ -61,40 +61,42 @@ def initialize_inventory(
     """
     client, collection = get_inventory_collection()
     
-    timestamp = datetime.utcnow()
+    try:
+        timestamp = datetime.utcnow()
+        
+        inventory_data = {
+            "R": {
+                "color": "red",
+                "position": COLOR_POSITIONS["R"],
+                "volume_ul": red_volume,
+                "last_updated": timestamp,
+                "evaporation_rate_ul_per_hour": evaporation_rate,
+            },
+            "Y": {
+                "color": "yellow",
+                "position": COLOR_POSITIONS["Y"],
+                "volume_ul": yellow_volume,
+                "last_updated": timestamp,
+                "evaporation_rate_ul_per_hour": evaporation_rate,
+            },
+            "B": {
+                "color": "blue",
+                "position": COLOR_POSITIONS["B"],
+                "volume_ul": blue_volume,
+                "last_updated": timestamp,
+                "evaporation_rate_ul_per_hour": evaporation_rate,
+            },
+        }
+        
+        for color_key, data in inventory_data.items():
+            query = {"color_key": color_key}
+            update_data = {"$set": {**data, "color_key": color_key}}
+            collection.update_one(query, update_data, upsert=True)
+        
+        return inventory_data
     
-    inventory_data = {
-        "R": {
-            "color": "red",
-            "position": COLOR_POSITIONS["R"],
-            "volume_ul": red_volume,
-            "last_updated": timestamp,
-            "evaporation_rate_ul_per_hour": evaporation_rate,
-        },
-        "Y": {
-            "color": "yellow",
-            "position": COLOR_POSITIONS["Y"],
-            "volume_ul": yellow_volume,
-            "last_updated": timestamp,
-            "evaporation_rate_ul_per_hour": evaporation_rate,
-        },
-        "B": {
-            "color": "blue",
-            "position": COLOR_POSITIONS["B"],
-            "volume_ul": blue_volume,
-            "last_updated": timestamp,
-            "evaporation_rate_ul_per_hour": evaporation_rate,
-        },
-    }
-    
-    for color_key, data in inventory_data.items():
-        query = {"color_key": color_key}
-        update_data = {"$set": {**data, "color_key": color_key}}
-        collection.update_one(query, update_data, upsert=True)
-    
-    client.close()
-    
-    return inventory_data
+    finally:
+        client.close()
 
 
 @task

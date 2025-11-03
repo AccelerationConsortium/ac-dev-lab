@@ -11,7 +11,7 @@ from pathlib import Path
 from prefect.runner.storage import GitRepository
 
 # Add the scripts directory to path for imports
-scripts_dir = Path(__file__).parent
+scripts_dir = Path(__file__).parent.parent  # Go up to _scripts directory
 sys.path.insert(0, str(scripts_dir))
 
 from restock_flow import (
