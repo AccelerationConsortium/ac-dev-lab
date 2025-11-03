@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly OT-2 Demo - Concept Visualization</title>
+  <script src="https://unpkg.com/blockly@11.0.1/blockly.min.js"></script>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #4285f4;
+      color: white;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 80px);
+    }
+    #blocklyDiv {
+      flex: 1;
+      height: 100%;
+    }
+    #outputDiv {
+      flex: 0 0 400px;
+      background-color: #f5f5f5;
+      border-left: 2px solid #ddd;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #codeOutput {
+      background-color: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+    button {
+      background-color: #4285f4;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px 0;
+      cursor: pointer;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    button:hover {
+      background-color: #357ae8;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .info {
+      background-color: #e3f2fd;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blockly OT-2 Custom Functions Demo</h1>
+  <div class="container">
+    <div id="blocklyDiv"></div>
+    <div id="outputDiv">
+      <h2>Generated Python Code</h2>
+      <div class="info">
+        This demonstrates how Blockly blocks can generate Python code that calls custom functions from OT2mqtt.py
+      </div>
+      <button onclick="generateCode()">Generate Code</button>
+      <div id="codeOutput"># Python code will appear here...</div>
+    </div>
+  </div>
+
+  <xml xmlns="https://developers.google.com/blockly/xml" id="toolbox" style="display: none">
+    <category name="OT-2 Commands" colour="#5C81A6">
+      <block type="ot2_mix_color"></block>
+      <block type="ot2_move_sensor_back"></block>
+      <block type="ot2_home"></block>
+    </category>
+    <category name="Logic" colour="#5C68A6">
+      <block type="controls_if"></block>
+      <block type="logic_compare"></block>
+    </category>
+    <category name="Loops" colour="#5CA65C">
+      <block type="controls_repeat_ext">
+        <value name="TIMES">
+          <shadow type="math_number">
+            <field name="NUM">10</field>
+          </shadow>
+        </value>
+      </block>
+      <block type="controls_whileUntil"></block>
+    </category>
+    <category name="Math" colour="#5C68A6">
+      <block type="math_number"></block>
+      <block type="math_arithmetic"></block>
+    </category>
+    <category name="Text" colour="#5CA68A">
+      <block type="text"></block>
+      <block type="text_print"></block>
+    </category>
+    <category name="Variables" colour="#A65C81" custom="VARIABLE"></category>
+  </xml>
+
+  <script>
+    // Define custom blocks for OT-2 functions
+
+    // Block: mix_color
+    Blockly.Blocks['ot2_mix_color'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("OT-2: Mix Color");
+        this.appendValueInput("R")
+            .setCheck("Number")
+            .appendField("Red (µL)");
+        this.appendValueInput("Y")
+            .setCheck("Number")
+            .appendField("Yellow (µL)");
+        this.appendValueInput("B")
+            .setCheck("Number")
+            .appendField("Blue (µL)");
+        this.appendValueInput("WELL")
+            .setCheck("String")
+            .appendField("Well");
+        this.appendValueInput("SESSION_ID")
+            .setCheck("String")
+            .appendField("Session ID");
+        this.appendValueInput("EXPERIMENT_ID")
+            .setCheck("String")
+            .appendField("Experiment ID");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(230);
+        this.setTooltip("Mix RGB colors in a well using the OT-2 pipette");
+        this.setHelpUrl("");
+      }
+    };
+
+    Blockly.Python['ot2_mix_color'] = function(block) {
+      var value_r = Blockly.Python.valueToCode(block, 'R', Blockly.Python.ORDER_ATOMIC) || '0';
+      var value_y = Blockly.Python.valueToCode(block, 'Y', Blockly.Python.ORDER_ATOMIC) || '0';
+      var value_b = Blockly.Python.valueToCode(block, 'B', Blockly.Python.ORDER_ATOMIC) || '0';
+      var value_well = Blockly.Python.valueToCode(block, 'WELL', Blockly.Python.ORDER_ATOMIC) || '"A1"';
+      var value_session_id = Blockly.Python.valueToCode(block, 'SESSION_ID', Blockly.Python.ORDER_ATOMIC) || '"session_001"';
+      var value_experiment_id = Blockly.Python.valueToCode(block, 'EXPERIMENT_ID', Blockly.Python.ORDER_ATOMIC) || '"exp_001"';
+      
+      var code = `payload = {
+    "command": {
+        "R": ${value_r},
+        "Y": ${value_y},
+        "B": ${value_b},
+        "well": ${value_well}
+    },
+    "session_id": ${value_session_id},
+    "experiment_id": ${value_experiment_id}
+}
+mix_color(payload)
+`;
+      return code;
+    };
+
+    // Block: move_sensor_back
+    Blockly.Blocks['ot2_move_sensor_back'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("OT-2: Move Sensor Back");
+        this.appendValueInput("SENSOR_STATUS")
+            .setCheck("String")
+            .appendField("Sensor Status");
+        this.appendValueInput("SESSION_ID")
+            .setCheck("String")
+            .appendField("Session ID");
+        this.appendValueInput("EXPERIMENT_ID")
+            .setCheck("String")
+            .appendField("Experiment ID");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(230);
+        this.setTooltip("Move the sensor back to charging position");
+        this.setHelpUrl("");
+      }
+    };
+
+    Blockly.Python['ot2_move_sensor_back'] = function(block) {
+      var value_sensor_status = Blockly.Python.valueToCode(block, 'SENSOR_STATUS', Blockly.Python.ORDER_ATOMIC) || '"complete"';
+      var value_session_id = Blockly.Python.valueToCode(block, 'SESSION_ID', Blockly.Python.ORDER_ATOMIC) || '"session_001"';
+      var value_experiment_id = Blockly.Python.valueToCode(block, 'EXPERIMENT_ID', Blockly.Python.ORDER_ATOMIC) || '"exp_001"';
+      
+      var code = `payload = {
+    "command": {
+        "sensor_status": ${value_sensor_status}
+    },
+    "session_id": ${value_session_id},
+    "experiment_id": ${value_experiment_id}
+}
+move_sensor_back(payload)
+`;
+      return code;
+    };
+
+    // Block: home OT-2
+    Blockly.Blocks['ot2_home'] = {
+      init: function() {
+        this.appendDummyInput()
+            .appendField("OT-2: Home Robot");
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
+        this.setColour(230);
+        this.setTooltip("Home the OT-2 robot to its initial position");
+        this.setHelpUrl("");
+      }
+    };
+
+    Blockly.Python['ot2_home'] = function(block) {
+      var code = 'protocol.home()\n';
+      return code;
+    };
+
+    // Initialize Blockly
+    var workspace = Blockly.inject('blocklyDiv', {
+      toolbox: document.getElementById('toolbox'),
+      grid: {
+        spacing: 20,
+        length: 3,
+        colour: '#ccc',
+        snap: true
+      },
+      zoom: {
+        controls: true,
+        wheel: true,
+        startScale: 1.0,
+        maxScale: 3,
+        minScale: 0.3,
+        scaleSpeed: 1.2
+      },
+      trashcan: true
+    });
+
+    // Load initial workspace with example blocks
+    var xml = Blockly.Xml.textToDom(`
+      <xml xmlns="https://developers.google.com/blockly/xml">
+        <block type="ot2_home" x="50" y="50"></block>
+        <block type="controls_repeat_ext" x="50" y="120">
+          <value name="TIMES">
+            <shadow type="math_number">
+              <field name="NUM">3</field>
+            </shadow>
+          </value>
+          <statement name="DO">
+            <block type="ot2_mix_color">
+              <value name="R">
+                <shadow type="math_number">
+                  <field name="NUM">100</field>
+                </shadow>
+              </value>
+              <value name="Y">
+                <shadow type="math_number">
+                  <field name="NUM">50</field>
+                </shadow>
+              </value>
+              <value name="B">
+                <shadow type="math_number">
+                  <field name="NUM">75</field>
+                </shadow>
+              </value>
+              <value name="WELL">
+                <shadow type="text">
+                  <field name="TEXT">A1</field>
+                </shadow>
+              </value>
+              <value name="SESSION_ID">
+                <shadow type="text">
+                  <field name="TEXT">session_001</field>
+                </shadow>
+              </value>
+              <value name="EXPERIMENT_ID">
+                <shadow type="text">
+                  <field name="TEXT">exp_001</field>
+                </shadow>
+              </value>
+              <next>
+                <block type="ot2_move_sensor_back">
+                  <value name="SENSOR_STATUS">
+                    <shadow type="text">
+                      <field name="TEXT">complete</field>
+                    </shadow>
+                  </value>
+                  <value name="SESSION_ID">
+                    <shadow type="text">
+                      <field name="TEXT">session_001</field>
+                    </shadow>
+                  </value>
+                  <value name="EXPERIMENT_ID">
+                    <shadow type="text">
+                      <field name="TEXT">exp_001</field>
+                    </shadow>
+                  </value>
+                </block>
+              </next>
+            </block>
+          </statement>
+        </block>
+      </xml>
+    `);
+    Blockly.Xml.domToWorkspace(xml, workspace);
+
+    // Generate code function
+    function generateCode() {
+      var code = Blockly.Python.workspaceToCode(workspace);
+      
+      // Add header with imports
+      var fullCode = `# Generated from Blockly visual programming
+# This code uses functions from OT2mqtt.py
+
+from OT2mqtt import mix_color, move_sensor_back, protocol
+
+# Main workflow
+${code}
+`;
+      
+      document.getElementById('codeOutput').textContent = fullCode;
+    }
+
+    // Generate code on workspace change
+    workspace.addChangeListener(generateCode);
+    
+    // Generate initial code
+    generateCode();
+  </script>
+</body>
+</html>

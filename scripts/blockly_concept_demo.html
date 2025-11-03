@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly OT-2 Integration - Concept Demo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+    header {
+      background: #4285f4;
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      font-size: 1.1em;
+      opacity: 0.9;
+    }
+    .demo-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+    }
+    .visual-side {
+      padding: 30px;
+      background: #f8f9fa;
+      border-right: 2px solid #e0e0e0;
+    }
+    .code-side {
+      padding: 30px;
+      background: #ffffff;
+    }
+    h2 {
+      color: #333;
+      margin-bottom: 20px;
+      font-size: 1.4em;
+      border-bottom: 3px solid #4285f4;
+      padding-bottom: 10px;
+    }
+    .block {
+      background: white;
+      border: 2px solid #5b67a5;
+      border-radius: 8px;
+      padding: 15px;
+      margin: 15px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .block::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 8px;
+      height: 30px;
+      background: #5b67a5;
+      border-radius: 4px;
+    }
+    .block-title {
+      font-weight: bold;
+      color: #5b67a5;
+      margin-bottom: 10px;
+      font-size: 1.1em;
+    }
+    .block-param {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px;
+      background: #f0f0f0;
+      border-radius: 4px;
+      margin: 5px 0;
+    }
+    .param-label {
+      font-weight: 500;
+      color: #555;
+    }
+    .param-value {
+      background: #fff;
+      padding: 4px 12px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-family: 'Courier New', monospace;
+      color: #d73a49;
+    }
+    .control-block {
+      background: #e8f5e9;
+      border-color: #4caf50;
+    }
+    .control-block::before {
+      background: #4caf50;
+    }
+    .control-block .block-title {
+      color: #2e7d32;
+    }
+    .nested {
+      margin-left: 30px;
+      border-left: 3px dashed #4caf50;
+      padding-left: 15px;
+    }
+    code {
+      display: block;
+      background: #263238;
+      color: #aed581;
+      padding: 20px;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      overflow-x: auto;
+      margin-top: 15px;
+      white-space: pre;
+    }
+    .code-comment {
+      color: #7c8690;
+    }
+    .code-keyword {
+      color: #c792ea;
+    }
+    .code-function {
+      color: #82aaff;
+    }
+    .code-string {
+      color: #c3e88d;
+    }
+    .code-number {
+      color: #f78c6c;
+    }
+    .arrow {
+      text-align: center;
+      font-size: 3em;
+      color: #4285f4;
+      padding: 10px;
+      background: white;
+    }
+    .info-box {
+      background: #e3f2fd;
+      border-left: 4px solid #2196f3;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .info-box strong {
+      color: #1976d2;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      padding: 30px;
+      background: #f8f9fa;
+    }
+    .feature {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .feature h3 {
+      color: #4285f4;
+      margin-bottom: 10px;
+    }
+    footer {
+      background: #333;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    footer a {
+      color: #82b1ff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🧪 Blockly + OT-2 Integration</h1>
+      <p class="subtitle">Visual Programming for Laboratory Automation</p>
+    </header>
+
+    <div class="info-box" style="margin: 30px;">
+      <strong>Concept:</strong> This demonstrates how Blockly's visual programming blocks can be mapped one-to-one with Python functions from OT2mqtt.py. Users can drag and drop blocks to create workflows, and Blockly automatically generates the corresponding Python code.
+    </div>
+
+    <div class="demo-content">
+      <div class="visual-side">
+        <h2>📦 Visual Blocks (Blockly)</h2>
+        
+        <div class="block">
+          <div class="block-title">🏠 OT-2: Home Robot</div>
+          <div class="param-label" style="color: #888; font-size: 0.9em;">Reset robot to home position</div>
+        </div>
+
+        <div class="block control-block">
+          <div class="block-title">🔁 Repeat 3 times</div>
+          <div class="nested">
+            <div class="block">
+              <div class="block-title">🎨 OT-2: Mix Color</div>
+              <div class="block-param">
+                <span class="param-label">Red (µL):</span>
+                <span class="param-value">100</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Yellow (µL):</span>
+                <span class="param-value">50</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Blue (µL):</span>
+                <span class="param-value">75</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Well:</span>
+                <span class="param-value">"A1"</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Session ID:</span>
+                <span class="param-value">"session_001"</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Experiment ID:</span>
+                <span class="param-value">"exp_001"</span>
+              </div>
+            </div>
+
+            <div class="block">
+              <div class="block-title">↩️ OT-2: Move Sensor Back</div>
+              <div class="block-param">
+                <span class="param-label">Sensor Status:</span>
+                <span class="param-value">"complete"</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Session ID:</span>
+                <span class="param-value">"session_001"</span>
+              </div>
+              <div class="block-param">
+                <span class="param-label">Experiment ID:</span>
+                <span class="param-value">"exp_001"</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-side">
+        <h2>🐍 Generated Python Code</h2>
+        <div class="info-box">
+          <strong>One-to-one mapping:</strong> Each block directly corresponds to Python code that calls functions from OT2mqtt.py
+        </div>
+        <code><span class="code-comment"># Generated from Blockly visual programming</span>
+<span class="code-comment"># This code uses functions from OT2mqtt.py</span>
+
+<span class="code-keyword">from</span> OT2mqtt <span class="code-keyword">import</span> mix_color, move_sensor_back, protocol
+
+<span class="code-comment"># Main workflow</span>
+<span class="code-function">protocol.home</span>()
+
+<span class="code-keyword">for</span> count <span class="code-keyword">in</span> <span class="code-function">range</span>(<span class="code-number">3</span>):
+    payload = {
+        <span class="code-string">"command"</span>: {
+            <span class="code-string">"R"</span>: <span class="code-number">100</span>,
+            <span class="code-string">"Y"</span>: <span class="code-number">50</span>,
+            <span class="code-string">"B"</span>: <span class="code-number">75</span>,
+            <span class="code-string">"well"</span>: <span class="code-string">"A1"</span>
+        },
+        <span class="code-string">"session_id"</span>: <span class="code-string">"session_001"</span>,
+        <span class="code-string">"experiment_id"</span>: <span class="code-string">"exp_001"</span>
+    }
+    <span class="code-function">mix_color</span>(payload)
+    
+    payload = {
+        <span class="code-string">"command"</span>: {
+            <span class="code-string">"sensor_status"</span>: <span class="code-string">"complete"</span>
+        },
+        <span class="code-string">"session_id"</span>: <span class="code-string">"session_001"</span>,
+        <span class="code-string">"experiment_id"</span>: <span class="code-string">"exp_001"</span>
+    }
+    <span class="code-function">move_sensor_back</span>(payload)</code>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <h3>✨ Visual Programming</h3>
+        <p>Drag-and-drop interface makes it easy for non-programmers to create complex lab workflows</p>
+      </div>
+      <div class="feature">
+        <h3>🔗 Direct Mapping</h3>
+        <p>One-to-one correspondence between visual blocks and Python code ensures predictability</p>
+      </div>
+      <div class="feature">
+        <h3>🎓 Educational</h3>
+        <p>Users can learn Python by seeing how their visual programs translate to code</p>
+      </div>
+      <div class="feature">
+        <h3>🔧 Customizable</h3>
+        <p>Easy to create custom blocks for any function in OT2mqtt.py or other modules</p>
+      </div>
+      <div class="feature">
+        <h3>🚀 Production Ready</h3>
+        <p>Generated code can be saved, version controlled, and executed in production environments</p>
+      </div>
+      <div class="feature">
+        <h3>🔄 Reproducible</h3>
+        <p>Visual workflows ensure consistent execution and make it easy to share protocols</p>
+      </div>
+    </div>
+
+    <div style="padding: 30px; background: #f8f9fa;">
+      <h2 style="text-align: center; margin-bottom: 20px;">🛠️ Custom Blocks from OT2mqtt.py</h2>
+      <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <h3 style="color: #4285f4; margin-bottom: 15px;">Available Functions</h3>
+        <ul style="line-height: 2; color: #555;">
+          <li><strong>mix_color(payload)</strong> - Mix RGB colors in specified well (lines 87-142 in OT2mqtt.py)</li>
+          <li><strong>move_sensor_back(payload)</strong> - Return sensor to charging position (lines 144-162)</li>
+          <li><strong>protocol.home()</strong> - Home the OT-2 robot to initial position</li>
+        </ul>
+        <div class="info-box" style="margin-top: 20px;">
+          <strong>Extensibility:</strong> Additional functions from OT2mqtt.py or other modules can be easily wrapped as custom Blockly blocks following the same pattern.
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <p>
+        <strong>For a fully interactive demo:</strong> Open 
+        <a href="blockly_ot2_demo.html">blockly_ot2_demo.html</a> in a browser
+      </p>
+      <p style="margin-top: 10px; opacity: 0.8;">
+        Learn more: 
+        <a href="https://developers.google.com/blockly" target="_blank">Blockly Documentation</a> | 
+        <a href="https://blocklycodelabs.dev/codelabs/getting-started/index.html" target="_blank">Getting Started Tutorial</a> |
+        <a href="https://github.com/AccelerationConsortium/ac-dev-lab" target="_blank">AC Dev Lab Repository</a>
+      </p>
+    </footer>
+  </div>
+</body>
+</html>
