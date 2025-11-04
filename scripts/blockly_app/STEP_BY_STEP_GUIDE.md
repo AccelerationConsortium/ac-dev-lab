@@ -6,7 +6,7 @@ This guide demonstrates how to build an OT-2 automation workflow using Blockly's
 
 ### Step 1: Start with Empty Workspace
 
-![Empty Workspace - Coming Soon](https://via.placeholder.com/800x600/f0f0f0/666666?text=Step+1:+Empty+Workspace)
+![Empty Workspace](screenshots/step1_empty.png)
 
 - Open the Blockly application
 - The workspace is empty and ready for blocks
@@ -27,7 +27,7 @@ This guide demonstrates how to build an OT-2 automation workflow using Blockly's
 
 ### Step 2: Add "OT-2: Home Robot" Block
 
-![Adding Home Block - Coming Soon](https://via.placeholder.com/800x600/f0f0f0/666666?text=Step+2:+Home+Robot+Block)
+![Adding Home Block](screenshots/step2_home.png)
 
 1. Click on **"OT-2 Commands"** category in toolbox
 2. Drag the **"🏠 OT-2: Home Robot"** block to workspace
@@ -44,7 +44,7 @@ protocol.home()
 
 ### Step 3: Add "Repeat 3 Times" Loop
 
-![Adding Loop Block - Coming Soon](https://via.placeholder.com/800x600/f0f0f0/666666?text=Step+3:+Repeat+Loop)
+![Adding Loop Block](screenshots/step3_loop.png)
 
 1. Click on **"Loops"** category in toolbox
 2. Drag the **"repeat _ times"** block to workspace
@@ -65,7 +65,7 @@ for count in range(3):
 
 ### Step 4: Add "OT-2: Mix Color" Block Inside Loop
 
-![Adding Mix Color Block - Coming Soon](https://via.placeholder.com/800x600/f0f0f0/666666?text=Step+4:+Mix+Color+Block)
+![Adding Mix Color Block](screenshots/step4_mix.png)
 
 1. From **"OT-2 Commands"**, drag **"🎨 OT-2: Mix Color"** block
 2. Drop it inside the loop's "do" section
@@ -101,7 +101,7 @@ for count in range(3):
 
 ### Step 5: Add "OT-2: Move Sensor Back" Block
 
-![Adding Sensor Block - Coming Soon](https://via.placeholder.com/800x600/f0f0f0/666666?text=Step+5:+Move+Sensor+Back)
+![Adding Sensor Block](screenshots/step5_sensor.png)
 
 1. From **"OT-2 Commands"**, drag **"↩️ OT-2: Move Sensor Back"** block
 2. Attach it below the Mix Color block (still inside the loop)
@@ -213,4 +213,4 @@ Then open http://localhost:8080 and start building your own workflow!
 
 ---
 
-**Note:** Screenshots for steps 1-5 show placeholders. Real screenshots will be captured from the actual Blockly application showing the progressive building of the workflow.
+**Note:** Screenshots for steps 1-5 show placeholder paths. To generate actual screenshots, the Blockly application needs to be run interactively and screenshots captured after each block is added. Step 6 shows the actual complete workflow.

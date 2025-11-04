@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly OT-2 - Step Builder</title>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #5b7fc7;
+      color: white;
+    }
+    .step-indicator {
+      background-color: #fff8dc;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 3px solid: #b8860b;
+      font-weight: bold;
+      color: #8b4513;
+      font-size: 20px;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 150px);
+    }
+    #blocklyDiv {
+      flex: 1;
+      height: 100%;
+    }
+    #outputDiv {
+      flex: 0 0 400px;
+      background-color: #f5f5f5;
+      border-left: 2px solid #ddd;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #codeOutput {
+      background-color: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 400px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .info {
+      background-color: #e3f2fd;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blockly OT-2 Custom Functions - Building Workflow Step by Step</h1>
+  <div class="step-indicator" id="stepIndicator">Loading...</div>
+  <div class="container">
+    <div id="blocklyDiv"></div>
+    <div id="outputDiv">
+      <h2>Generated Python Code</h2>
+      <div class="info">
+        Watch as we build the workflow block by block
+      </div>
+      <div id="codeOutput"># Waiting for blocks...</div>
+    </div>
+  </div>
+  <script src="bundle.js"></script>
+  <script>
+    // Get step from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const step = parseInt(urlParams.get('step') || '0');
+    
+    setTimeout(() => {
+      const workspace = window.workspace;
+      if (!workspace) {
+        console.error('Workspace not found');
+        return;
+      }
+      
+      // Clear workspace
+      workspace.clear();
+      
+      const steps = [
+        {
+          title: "Step 1: Empty Workspace - Ready to Start",
+          build: () => {
+            // Empty - just show the toolbox
+          }
+        },
+        {
+          title: "Step 2: Adding 'OT-2: Home Robot' Block",
+          build: () => {
+            const block = workspace.newBlock('ot2_home');
+            block.initSvg();
+            block.render();
+            block.moveBy(200, 50);
+          }
+        },
+        {
+          title: "Step 3: Adding 'Repeat 3 Times' Loop Block",
+          build: () => {
+            // Add home block
+            const homeBlock = workspace.newBlock('ot2_home');
+            homeBlock.initSvg();
+            homeBlock.render();
+            homeBlock.moveBy(200, 50);
+            
+            // Add repeat block
+            const repeatBlock = workspace.newBlock('controls_repeat_ext');
+            repeatBlock.initSvg();
+            repeatBlock.render();
+            repeatBlock.moveBy(200, 150);
+            
+            // Set repeat count to 3
+            const numBlock = workspace.newBlock('math_number');
+            numBlock.initSvg();
+            numBlock.render();
+            numBlock.setFieldValue('3', 'NUM');
+            repeatBlock.getInput('TIMES').connection.connect(numBlock.outputConnection);
+          }
+        },
+        {
+          title: "Step 4: Adding 'OT-2: Mix Color' Block with Parameters",
+          build: () => {
+            // Home block
+            const homeBlock = workspace.newBlock('ot2_home');
+            homeBlock.initSvg();
+            homeBlock.render();
+            homeBlock.moveBy(200, 50);
+            
+            // Repeat block
+            const repeatBlock = workspace.newBlock('controls_repeat_ext');
+            repeatBlock.initSvg();
+            repeatBlock.render();
+            repeatBlock.moveBy(200, 150);
+            const numBlock = workspace.newBlock('math_number');
+            numBlock.initSvg();
+            numBlock.render();
+            numBlock.setFieldValue('3', 'NUM');
+            repeatBlock.getInput('TIMES').connection.connect(numBlock.outputConnection);
+            
+            // Mix color block
+            const mixBlock = workspace.newBlock('ot2_mix_color');
+            mixBlock.initSvg();
+            mixBlock.render();
+            
+            // R value
+            const rBlock = workspace.newBlock('math_number');
+            rBlock.initSvg();
+            rBlock.render();
+            rBlock.setFieldValue('100', 'NUM');
+            mixBlock.getInput('R').connection.connect(rBlock.outputConnection);
+            
+            // Y value
+            const yBlock = workspace.newBlock('math_number');
+            yBlock.initSvg();
+            yBlock.render();
+            yBlock.setFieldValue('50', 'NUM');
+            mixBlock.getInput('Y').connection.connect(yBlock.outputConnection);
+            
+            // B value
+            const bBlock = workspace.newBlock('math_number');
+            bBlock.initSvg();
+            bBlock.render();
+            bBlock.setFieldValue('75', 'NUM');
+            mixBlock.getInput('B').connection.connect(bBlock.outputConnection);
+            
+            // Well
+            const wellBlock = workspace.newBlock('text');
+            wellBlock.initSvg();
+            wellBlock.render();
+            wellBlock.setFieldValue('A1', 'TEXT');
+            mixBlock.getInput('WELL').connection.connect(wellBlock.outputConnection);
+            
+            // Session ID
+            const sessBlock = workspace.newBlock('text');
+            sessBlock.initSvg();
+            sessBlock.render();
+            sessBlock.setFieldValue('session_001', 'TEXT');
+            mixBlock.getInput('SESSION_ID').connection.connect(sessBlock.outputConnection);
+            
+            // Experiment ID
+            const expBlock = workspace.newBlock('text');
+            expBlock.initSvg();
+            expBlock.render();
+            expBlock.setFieldValue('exp_001', 'TEXT');
+            mixBlock.getInput('EXPERIMENT_ID').connection.connect(expBlock.outputConnection);
+            
+            // Connect to repeat block
+            repeatBlock.getInput('DO').connection.connect(mixBlock.previousConnection);
+          }
+        },
+        {
+          title: "Step 5: Adding 'OT-2: Move Sensor Back' Block",
+          build: () => {
+            // Home block
+            const homeBlock = workspace.newBlock('ot2_home');
+            homeBlock.initSvg();
+            homeBlock.render();
+            homeBlock.moveBy(200, 50);
+            
+            // Repeat block
+            const repeatBlock = workspace.newBlock('controls_repeat_ext');
+            repeatBlock.initSvg();
+            repeatBlock.render();
+            repeatBlock.moveBy(200, 150);
+            const numBlock = workspace.newBlock('math_number');
+            numBlock.initSvg();
+            numBlock.render();
+            numBlock.setFieldValue('3', 'NUM');
+            repeatBlock.getInput('TIMES').connection.connect(numBlock.outputConnection);
+            
+            // Mix color block
+            const mixBlock = workspace.newBlock('ot2_mix_color');
+            mixBlock.initSvg();
+            mixBlock.render();
+            
+            const rBlock = workspace.newBlock('math_number');
+            rBlock.initSvg();
+            rBlock.render();
+            rBlock.setFieldValue('100', 'NUM');
+            mixBlock.getInput('R').connection.connect(rBlock.outputConnection);
+            
+            const yBlock = workspace.newBlock('math_number');
+            yBlock.initSvg();
+            yBlock.render();
+            yBlock.setFieldValue('50', 'NUM');
+            mixBlock.getInput('Y').connection.connect(yBlock.outputConnection);
+            
+            const bBlock = workspace.newBlock('math_number');
+            bBlock.initSvg();
+            bBlock.render();
+            bBlock.setFieldValue('75', 'NUM');
+            mixBlock.getInput('B').connection.connect(bBlock.outputConnection);
+            
+            const wellBlock = workspace.newBlock('text');
+            wellBlock.initSvg();
+            wellBlock.render();
+            wellBlock.setFieldValue('A1', 'TEXT');
+            mixBlock.getInput('WELL').connection.connect(wellBlock.outputConnection);
+            
+            const sessBlock = workspace.newBlock('text');
+            sessBlock.initSvg();
+            sessBlock.render();
+            sessBlock.setFieldValue('session_001', 'TEXT');
+            mixBlock.getInput('SESSION_ID').connection.connect(sessBlock.outputConnection);
+            
+            const expBlock = workspace.newBlock('text');
+            expBlock.initSvg();
+            expBlock.render();
+            expBlock.setFieldValue('exp_001', 'TEXT');
+            mixBlock.getInput('EXPERIMENT_ID').connection.connect(expBlock.outputConnection);
+            
+            repeatBlock.getInput('DO').connection.connect(mixBlock.previousConnection);
+            
+            // Sensor block
+            const sensorBlock = workspace.newBlock('ot2_move_sensor_back');
+            sensorBlock.initSvg();
+            sensorBlock.render();
+            
+            const statusBlock = workspace.newBlock('text');
+            statusBlock.initSvg();
+            statusBlock.render();
+            statusBlock.setFieldValue('complete', 'TEXT');
+            sensorBlock.getInput('SENSOR_STATUS').connection.connect(statusBlock.outputConnection);
+            
+            const sessBlock2 = workspace.newBlock('text');
+            sessBlock2.initSvg();
+            sessBlock2.render();
+            sessBlock2.setFieldValue('session_001', 'TEXT');
+            sensorBlock.getInput('SESSION_ID').connection.connect(sessBlock2.outputConnection);
+            
+            const expBlock2 = workspace.newBlock('text');
+            expBlock2.initSvg();
+            expBlock2.render();
+            expBlock2.setFieldValue('exp_001', 'TEXT');
+            sensorBlock.getInput('EXPERIMENT_ID').connection.connect(expBlock2.outputConnection);
+            
+            mixBlock.nextConnection.connect(sensorBlock.previousConnection);
+          }
+        }
+      ];
+      
+      if (step >= 0 && step < steps.length) {
+        const currentStep = steps[step];
+        document.getElementById('stepIndicator').textContent = currentStep.title;
+        currentStep.build();
+        
+        if (window.generateCode) {
+          window.generateCode();
+        }
+      }
+    }, 500);
+  </script>
+</body>
+</html>
