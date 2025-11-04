@@ -3,12 +3,17 @@
 ## [Unreleased]
 ### Added
 - Support for both `rpicam-vid` (Raspberry Pi OS Trixie) and `libcamera-vid` (Raspberry Pi OS Bookworm) camera commands in `src/ac_training_lab/picam/device.py` to ensure compatibility across different OS versions.
-- Blockly integration demonstration showing how custom visual programming blocks can be created for OT-2 functions from `OT2mqtt.py`:
-  - `scripts/blockly_concept_demo.html`: Visual demonstration of block-to-code mapping
-  - `scripts/blockly_ot2_demo.html`: Interactive Blockly editor with custom OT-2 blocks
-  - `scripts/blockly_example.py`: Python example showing generated code patterns
-  - `scripts/BLOCKLY_README.md`: Comprehensive documentation for Blockly integration
+- **Real Blockly installation** using official npm package (blockly v12.3.1) with custom OT-2 blocks:
+  - `scripts/blockly_app/`: Complete webpack-bundled application with real Blockly installation
   - Custom blocks for `mix_color()`, `move_sensor_back()`, and `protocol.home()` functions
+  - Real-time Python code generation from visual blocks
+  - Fully functional drag-and-drop interface
+  - Documentation: `scripts/blockly_app/README.md`
+- Concept demonstrations for documentation:
+  - `scripts/blockly_concept_demo.html`: Visual demonstration of block-to-code mapping
+  - `scripts/blockly_ot2_demo.html`: Interactive demo (CDN-based)
+  - `scripts/blockly_example.py`: Python example showing generated code patterns
+  - `scripts/BLOCKLY_README.md` and `scripts/BLOCKLY_SUMMARY.md`: Documentation
 
 ### Fixed
 - Ctrl+C interrupt handling in `src/ac_training_lab/picam/device.py` now properly exits the streaming loop instead of restarting.

@@ -73,3 +73,7 @@ src/ac_training_lab/apriltag_demo/tag36_11_00000.png
 src/ac_training_lab/apriltag_demo/tag49_12_00000.png
 scripts/playwright/sem-open-close/chat.json
 scripts/blockly_demo/
+
+# Node.js dependencies
+node_modules/
+package-lock.json
