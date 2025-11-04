@@ -9,11 +9,6 @@
   - Real-time Python code generation from visual blocks
   - Fully functional drag-and-drop interface
   - Documentation: `scripts/blockly_app/README.md`
-- Concept demonstrations for documentation:
-  - `scripts/blockly_concept_demo.html`: Visual demonstration of block-to-code mapping
-  - `scripts/blockly_ot2_demo.html`: Interactive demo (CDN-based)
-  - `scripts/blockly_example.py`: Python example showing generated code patterns
-  - `scripts/BLOCKLY_README.md` and `scripts/BLOCKLY_SUMMARY.md`: Documentation
 
 ### Fixed
 - Ctrl+C interrupt handling in `src/ac_training_lab/picam/device.py` now properly exits the streaming loop instead of restarting.
