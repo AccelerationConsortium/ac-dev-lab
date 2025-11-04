@@ -6,7 +6,7 @@ This guide demonstrates how to build an OT-2 automation workflow using Blockly's
 
 ### Step 1: Start with Empty Workspace
 
-![Empty Workspace](screenshots/step1_empty.png)
+![Empty Workspace](https://github.com/user-attachments/assets/8f41f369-a6e7-453d-9120-9618fb91bc55)
 
 - Open the Blockly application
 - The workspace is empty and ready for blocks
@@ -20,14 +20,19 @@ This guide demonstrates how to build an OT-2 automation workflow using Blockly's
 
 **Generated Code:**
 ```python
-# No blocks yet...
+# Generated from Blockly visual programming
+# This code uses functions from OT2mqtt.py
+
+from OT2mqtt import mix_color, move_sensor_back, protocol
+
+# Main workflow
 ```
 
 ---
 
 ### Step 2: Add "OT-2: Home Robot" Block
 
-![Adding Home Block](screenshots/step2_home.png)
+![Adding Home Block](https://github.com/user-attachments/assets/768853fa-5929-4b64-9ec6-b0afaf4af7fe)
 
 1. Click on **"OT-2 Commands"** category in toolbox
 2. Drag the **"🏠 OT-2: Home Robot"** block to workspace
@@ -35,8 +40,12 @@ This guide demonstrates how to build an OT-2 automation workflow using Blockly's
 
 **Generated Code:**
 ```python
-from OT2mqtt import protocol
+# Generated from Blockly visual programming
+# This code uses functions from OT2mqtt.py
 
+from OT2mqtt import mix_color, move_sensor_back, protocol
+
+# Main workflow
 protocol.home()
 ```
 
@@ -53,12 +62,16 @@ protocol.home()
 
 **Generated Code:**
 ```python
-from OT2mqtt import protocol
+# Generated from Blockly visual programming
+# This code uses functions from OT2mqtt.py
 
+from OT2mqtt import mix_color, move_sensor_back, protocol
+
+# Main workflow
 protocol.home()
 
 for count in range(3):
-  pass  # Loop body empty for now
+  pass
 ```
 
 ---
@@ -79,8 +92,12 @@ for count in range(3):
 
 **Generated Code:**
 ```python
-from OT2mqtt import mix_color, protocol
+# Generated from Blockly visual programming
+# This code uses functions from OT2mqtt.py
 
+from OT2mqtt import mix_color, move_sensor_back, protocol
+
+# Main workflow
 protocol.home()
 
 for count in range(3):
@@ -112,8 +129,12 @@ for count in range(3):
 
 **Generated Code:**
 ```python
+# Generated from Blockly visual programming
+# This code uses functions from OT2mqtt.py
+
 from OT2mqtt import mix_color, move_sensor_back, protocol
 
+# Main workflow
 protocol.home()
 
 for count in range(3):
@@ -213,4 +234,4 @@ Then open http://localhost:8080 and start building your own workflow!
 
 ---
 
-**Note:** Screenshots for steps 1-5 show placeholder paths. To generate actual screenshots, the Blockly application needs to be run interactively and screenshots captured after each block is added. Step 6 shows the actual complete workflow.
+**Note:** All screenshots were captured from the real Blockly installation by hardcoding different workflow states.

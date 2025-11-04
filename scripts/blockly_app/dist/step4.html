@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Blockly OT-2 - Step 4</title>
+  <style>
+    body {
+      background-color: #fff;
+      font-family: sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    h1 {
+      text-align: center;
+      padding: 20px;
+      margin: 0;
+      background-color: #5b7fc7;
+      color: white;
+    }
+    .step-banner {
+      background-color: #fff8dc;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 3px solid #b8860b;
+      font-weight: bold;
+      color: #8b4513;
+      font-size: 18px;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 150px);
+    }
+    #blocklyDiv {
+      flex: 1;
+      height: 100%;
+    }
+    #outputDiv {
+      flex: 0 0 400px;
+      background-color: #f5f5f5;
+      border-left: 2px solid #ddd;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #codeOutput {
+      background-color: #263238;
+      color: #aed581;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      white-space: pre;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.5;
+      min-height: 400px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #333;
+    }
+    .info {
+      background-color: #e3f2fd;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blockly OT-2 Custom Functions - Building Workflow Step by Step</h1>
+  <div class="step-banner" id="stepBanner">Step 4</div>
+  <div class="container">
+    <div id="blocklyDiv"></div>
+    <div id="outputDiv">
+      <h2>Generated Python Code</h2>
+      <div class="info">
+        Watch as we build the workflow block by block
+      </div>
+      <div id="codeOutput"># Waiting for blocks...</div>
+    </div>
+  </div>
+  <script src="step4.js"></script>
+</body>
+</html>
