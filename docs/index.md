@@ -39,6 +39,8 @@ Here are some of the modules we have procured and are in the process of setting 
 
 <!-- TODO: Convert this to YAML and autopopulate table, preferably linked to current status somehow (planning, in progress, complete, etc.) -->
 
+<a id="equipment-table"></a>
+
 | Name                                                                                                                                                                                                                                                                          | Image                                                                | Qty   | Description                                                                                                                                                                                                                                     | Video                                                                                                                                     |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | [Science Jubilee](https://science-jubilee.readthedocs.io/)                                                                                                                                                                                                                    | <img src="./_static/images/jubilee.png" height=50>                   | 1(+4) | A versatile, open-source toolchanger with a large community of users and developers which is used for both general 3D printing and [scientific applications](https://dx.doi.org/10.1039/D3DD00033H). One nearing completion. Four more planned. | [<img src="http://img.youtube.com/vi/I_TUBX-A1sQ/0.jpg" height="50" alt="vial capper video">](http://www.youtube.com/watch?v=I_TUBX-A1sQ) |
@@ -79,6 +81,8 @@ Here are some of the modules we have procured and are in the process of setting 
 
 --->
 
+<a id="planned-equipment"></a>
+
 | Name                     | Image | Qty | Description                                                                                                                                                                                                                                                                                                                                                                            |
 | ------------------------ | ----- | --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Mobile manipulator       |       | 1   | A research-grade six-axis mobile cobot with vision capabilities optimized for laboratory environments                                                                                                                                                                                                                                                                                  |
@@ -86,34 +90,81 @@ Here are some of the modules we have procured and are in the process of setting 
 | Chamber interfaces (TBD) |       | -   | e.g., miniature glovebox, miniature ductless fumehood, small nitrogen generator                                                                                                                                                                                                                                                                                                        |
 | Low-force tensile tester |       | 1   | Low-cost, open-source tensile tester. Examples [[1](https://www.instructables.com/Universal-Tensile-Testing-Machine-VERSION-TWO/)], [[2](https://www.creativemachineslab.com/freeloader.html)], [[3](https://tspace.library.utoronto.ca/bitstream/1807/109212/4/Liu_Xinyue_202111_MAS_thesis.pdf)], [[4](https://www.printables.com/model/81214-open-pull-diy-universal-test-machine)] |
 
+## Unit Operations
+
+The AC Training Lab provides a comprehensive set of unit operations for materials research and education. These operations span dispensing, liquid handling, characterization, synthesis, and automation capabilities:
+
+### Dispensing and Material Handling
+
+- **Solid dispensing (trickler-based)** - Large volumes with 1 mg and 0.1 mg accuracy ([AutoTrickler v4, ChargeMaster Supreme, Ingenuity Powder System](#equipment-table))
+- **Solid dispensing (Mettler Toledo)** - XPR autodoser system with 0.01 mg accuracy ([MT Powder Doser](#equipment-table))
+- **Liquid handling** - Precision liquid handling via [OT-2](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/ot-2), [OT-Flex](#equipment-table), Digital Pipette, and peristaltic pumps
+- **Viscosity estimation** - OT-Flex pipette pressure sensor with custom algorithm
+
+### Synthesis and Processing
+
+- **Bioreactor chamber** - Heating, stirring, media exchange, gas flow, optical measurements ([Pioreactor](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/pioreactor), [Chi.Bio](#equipment-table))
+- **FDM 3D printing** - High-performance multi-material filament printing ([Bambu Lab A1 Mini](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/bambu_a1_mini))
+- **SLA 3D printing** - Stereolithography resin printing ([Formlabs 3L, Form Auto](#equipment-table))
+- **Chocolate 3D printing** - Food-safe 3D printing ([Cocoa Press](#equipment-table))
+- **Laser powder bed fusion (LPBF)** - Metal 3D printing ([AO A30 Metal 3D Printer](#planned-equipment))
+
+### Characterization
+
+- **Electrolyte conductivity** - Mettler Toledo sensor for ionic conductivity measurements
+- **Automated transmission microscopy** - High-resolution imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure))
+- **Automated reflection microscopy** - Surface imaging ([OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure))
+- **Scanning electron microscopy** - Sub-micron imaging (Hitachi TM-4000II)
+- **Potentiostat measurements** - Electrochemical characterization including chronoamperometry, constant voltage voltammetry ([Squidstat](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/squidstat), [Rodeostat](https://iorodeo.com/products/rodeostat))
+
+### Robotics and Automation
+
+- **Automated vial capping/decapping** - DH Robotics capper/decapper demo
+- **Vision-enabled 6DOF arm and gripper** - Manipulation and pick-and-place ([Elephant Robotics](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/cobot280pi))
+- **Automated vial turntables** - Sample positioning and imaging (FluxGarage)
+- **Equipment monitoring** - Livestream cameras for remote observation
+
 ## Workflows
 
 The AC Training Lab is intended as a hands-on sandbox and prototyping environment for researchers. Each workflow will either be dedicated (permanent) or supported (non-permanent).
 
+### Training Workflows
+
+Educational workflows designed to teach key concepts in materials acceleration and self-driving laboratories:
+
+| Name | Description | Hardware |
+| ---- | ----------- | -------- |
+| Hello World RGB color matching | Light-mixing kits with microcontroller to teach basic optimization concepts | LED controller, color sensor |
+| Liquid RYB color matching | Food coloring mixing with wireless charging color sensor | [OT-2](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/ot-2), wireless color sensor tool |
+| Titration using baking soda and citric acid | Acid-base titration workflow | Atlas Scientific pH meter, liquid handler |
+| Yeast growth optimization | Biological optimization with optical density feedback | [Pioreactor](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/pioreactor) |
+| Vision-enabled filament print parameter optimization | FDM printing with real-time monitoring | [BambuLab A1 Mini](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/bambu_a1_mini) with custom toolhead camera |
+| Vision-enabled chocolate 3D print optimization | Food printing with custom vision modules | Cocoa Press with toolhead camera / 3D reconstruction |
+| Mechanical property optimization of resin lattices | SLA printing with tensile testing | Formlabs Form Auto with custom tensile testing module |
+| Mechanical property optimization of 3D printed alloys | Metal powder processing and testing | Powder dosing, atomization [external], AO A30 metal printer, tensile testing [external] |
+| Large-scale image stitching of heart tissue | Automated microscopy and image processing | [OpenFlexure](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/openflexure) transmission microscope with biology slides |
+| AprilTag image recognition for robot path planning | Computer vision for robotic manipulation | [Elephant Robotics arm](https://github.com/AccelerationConsortium/ac-training-lab/tree/main/src/ac_training_lab/cobot280pi), camera, label printer |
+
+### Research Workflows
+
+Advanced workflows for materials discovery and optimization research:
+
+| Name | Description | Status |
+| ---- | ----------- | ------ |
+| Alkaline Catalysis Lifecycle Testing | Adjust the stress-cycling conditions of a nickel electrode in a KOH solution to investigate the cause of catalyst degradation | Ready |
+| Battery slurry viscosity optimization | Using OT-Flex pipette pressure sensor and custom algorithm to optimize electrode slurry rheology | Development |
+| Material recycling | Incorporate the use of "waste" experimental samples as part of a recycling workflow using mixed red, yellow, and blue solid powders | Development |
+
 ### Dedicated Workflows
 
-While the equipment is not restricted to particular workflows, we are actively developing a subset of readily accessible workflows for the AC Training Lab. Note that single workflow could be carried out using different sets of equipment within the training lab. These workflows will use dedicated hardware in a permanent setup to allow for 24/7 access. The core workflows that are planned, in development, or available are listed below:
+While the equipment is not restricted to particular workflows, we are actively developing a subset of readily accessible workflows for the AC Training Lab. Note that a single workflow could be carried out using different sets of equipment within the training lab. These workflows will use dedicated hardware in a permanent setup to allow for 24/7 access. The core workflows that are planned, in development, or available are listed below:
 
 | Name                                                                                | Diagram                                                  | Description                                                                                                                                                | Status      |
 | ----------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Light-based color matching                                                          | <img src="./_static/images/clslab-light.png" height=50>  | Adjust red, green, and blue LED power levels to match a target color                                                                                       | Ready       |
-| Liquid-based color matching                                                         | <img src="./_static/images/clslab-liquid.png" height=50> | Adjust diluted red, yellow, and blue food coloring pumping power to match a target color                                                                   | Ready       |
 | Solid-based color matching                                                          | <img src="./_static/images/clslab-solid.png" height=50>  | Adjust the composition of red, yellow, and blue powder (e.g., wax) and processing conditions to match a target color                                       | Development |
 | Chocolate tensile testing                                                           |                                                          | Adjust the composition and processing conditions of 3D printed chocolate tensile specimens to tune the microstructure for maximization of tensile strength | Development |
-| [Yeast growth](https://docs.pioreactor.com/experiments/yeast-growth-by-temperature) |                                                          | Adjust reactor temperature to maximize yeast growth and explore nonlinear effects                                                                          | Development |
-| Titration                                                                           |                                                          | Add a base of known concentration to an acid to find the equivalence point as determined by successive pH measurements                                     | Development |
-| Conductivity                                                                        |                                                          | Adjust the ratio of battery electrolyte reagants to maximize conductivity and redox potential for a target pH                                              | Planning    |
+| Conductivity                                                                        |                                                          | Adjust the ratio of battery electrolyte reagents to maximize conductivity and redox potential for a target pH                                              | Planning    |
 | Polymer cross-linkage                                                               |                                                          |                                                                                                                                                            | Planning    |
-
-
-### Supported Workflows
-
-Supported workflows (i.e., non-permanent setups) that are planned, in development, or available are listed below:
-
-| Name                                 | Diagram | Description                                                                                                                         | Status      |
-| ------------------------------------ | ------- | ----------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Alkaline Catalysis Lifecycle Testing |         | Adjust the stress-cycling conditions of a nickel electrode in a KOH solution to investigate the cause of catalyst degredation       | Ready       |
-| Material recycling                   |         | Incorporate the use of "waste" experimental samples as part of a recycling workflow using mixed red, yellow, and blue solid powders | Development |
 
 
 ## Functionality
