@@ -205,7 +205,7 @@ Then
 /data/tailscale_1.82.0_arm/tailscale up --ssh
 ```
 
-Since OT-2 does not have the required network driver for Tailsclae, you need to use [userspace-networking mode.
+Since OT-2 does not have the required network driver for Tailscale, you need to use [userspace-networking mode.
 ](https://tailscale.com/kb/1112/userspace-networking)
 
 You will have an authentication link after running the code above. Open the given URL in a browser to authenticate the device to your Tailscale account.
