@@ -211,7 +211,22 @@ def setup_slack_webhook():
         
         # Test webhook
         if test_webhook(webhook_url):
-            print("✅ Slack webhook configured successfully!")
+            # Save webhook URL as Prefect variable for the BO workflow to use
+            try:
+                import subprocess
+                result = subprocess.run([
+                    "prefect", "variable", "set", "slack-webhook-url", webhook_url
+                ], capture_output=True, text=True)
+                
+                if result.returncode == 0:
+                    print("✅ Slack webhook configured successfully!")
+                    print("✅ Webhook URL saved as Prefect variable")
+                else:
+                    print("⚠️  Webhook tested successfully but failed to save as variable")
+                    print(f"   Error: {result.stderr}")
+            except Exception as e:
+                print(f"⚠️  Webhook tested successfully but failed to save as variable: {e}")
+            
             return webhook_url
         else:
             retry = input("Try a different webhook URL? (y/N): ")
