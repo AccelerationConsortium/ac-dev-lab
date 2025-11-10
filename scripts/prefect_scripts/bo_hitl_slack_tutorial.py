@@ -493,15 +493,237 @@ def _clean_data_for_json(data):
 
 
 # ================================================================================
+# MONGODB STORAGE FUNCTIONS
+# ================================================================================
+
+def get_mongodb_client(connection_string: str = None, max_retries: int = 3):
+    """
+    Create MongoDB client connection with error handling
+    
+    Args:
+        connection_string: MongoDB connection string (if None, uses environment variable)
+        max_retries: Maximum connection attempts
+        
+    Returns:
+        MongoDB client or None if connection failed
+    """
+    try:
+        # Get connection string from environment if not provided
+        if connection_string is None:
+            connection_string = os.getenv("MONGODB_URI")
+            if not connection_string:
+                print("WARNING: No MongoDB connection string found in MONGODB_URI environment variable")
+                return None
+        
+        # Import pymongo with error handling
+        try:
+            from pymongo import MongoClient
+            from pymongo.errors import ConnectionFailure, ServerSelectionTimeoutError
+        except ImportError:
+            print("ERROR: pymongo not installed. Install with: pip install pymongo")
+            return None
+        
+        # Create client with connection timeout
+        for attempt in range(max_retries):
+            try:
+                client = MongoClient(
+                    connection_string,
+                    serverSelectionTimeoutMS=5000,  # 5 second timeout
+                    connectTimeoutMS=5000,
+                    socketTimeoutMS=5000
+                )
+                
+                # Test the connection
+                client.admin.command('ping')
+                print(f"✅ Successfully connected to MongoDB")
+                return client
+                
+            except ConnectionFailure as e:
+                print(f"Connection attempt {attempt + 1}/{max_retries} failed: {e}")
+                if attempt == max_retries - 1:
+                    print("ERROR: Failed to connect to MongoDB after maximum retries")
+                    return None
+                time.sleep(1.0 * (attempt + 1))  # Progressive backoff
+                
+            except ServerSelectionTimeoutError:
+                print(f"MongoDB server selection timeout (attempt {attempt + 1}/{max_retries})")
+                if attempt == max_retries - 1:
+                    print("ERROR: MongoDB server not reachable")
+                    return None
+                time.sleep(1.0 * (attempt + 1))
+                
+    except Exception as e:
+        print(f"Unexpected error connecting to MongoDB: {e}")
+        return None
+
+
+def save_experiment_to_mongodb(experiment_data: Dict, client=None, database_name: str = "bo_experiments") -> bool:
+    """
+    Save experiment metadata to MongoDB with error handling
+    
+    Args:
+        experiment_data: Experiment metadata dictionary
+        client: MongoDB client (if None, creates new connection)
+        database_name: Database name to use
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    if not experiment_data or not isinstance(experiment_data, dict):
+        print("ERROR: Invalid experiment data for MongoDB storage")
+        return False
+    
+    # Use provided client or create new one
+    should_close_client = False
+    if client is None:
+        client = get_mongodb_client()
+        should_close_client = True
+        if client is None:
+            return False
+    
+    try:
+        # Get database and collection
+        db = client[database_name]
+        collection = db["experiments"]
+        
+        # Prepare document for MongoDB
+        document = _prepare_document_for_mongodb(experiment_data)
+        experiment_id = document["experiment"]["experiment_id"]
+        
+        # Use upsert to handle both insert and update
+        result = collection.replace_one(
+            {"experiment.experiment_id": experiment_id},
+            document,
+            upsert=True
+        )
+        
+        if result.upserted_id or result.modified_count > 0:
+            print(f"✅ Experiment {experiment_id} saved to MongoDB")
+            return True
+        else:
+            print(f"WARNING: No changes made to MongoDB for experiment {experiment_id}")
+            return True  # Still consider success if no changes needed
+            
+    except Exception as e:
+        print(f"ERROR: Failed to save experiment to MongoDB: {e}")
+        return False
+    finally:
+        if should_close_client and client:
+            try:
+                client.close()
+            except:
+                pass  # Ignore close errors
+
+
+def save_trial_to_mongodb(trial_data: Dict, experiment_id: str, client=None, database_name: str = "bo_experiments") -> bool:
+    """
+    Save individual trial to MongoDB with error handling
+    
+    Args:
+        trial_data: Trial data dictionary
+        experiment_id: Experiment identifier to link trial to
+        client: MongoDB client (if None, creates new connection)
+        database_name: Database name to use
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    if not trial_data or not isinstance(trial_data, dict):
+        print("ERROR: Invalid trial data for MongoDB storage")
+        return False
+    
+    if not experiment_id:
+        print("ERROR: No experiment ID provided for trial storage")
+        return False
+    
+    # Use provided client or create new one
+    should_close_client = False
+    if client is None:
+        client = get_mongodb_client()
+        should_close_client = True
+        if client is None:
+            return False
+    
+    try:
+        # Get database and collection
+        db = client[database_name]
+        collection = db["trials"]
+        
+        # Prepare trial document
+        document = _prepare_document_for_mongodb(trial_data)
+        document["experiment_id"] = experiment_id
+        document["created_at"] = datetime.utcnow().isoformat() + "Z"
+        
+        # Insert trial document
+        result = collection.insert_one(document)
+        
+        if result.inserted_id:
+            print(f"✅ Trial {trial_data.get('iteration', 'unknown')} saved to MongoDB")
+            return True
+        else:
+            print("ERROR: Failed to insert trial into MongoDB")
+            return False
+            
+    except Exception as e:
+        print(f"ERROR: Failed to save trial to MongoDB: {e}")
+        return False
+    finally:
+        if should_close_client and client:
+            try:
+                client.close()
+            except:
+                pass
+
+
+def _prepare_document_for_mongodb(data):
+    """
+    Prepare data for MongoDB storage by cleaning and ensuring compatibility
+    
+    Args:
+        data: Data structure to prepare
+        
+    Returns:
+        Cleaned data structure safe for MongoDB
+    """
+    import math
+    
+    if isinstance(data, dict):
+        # Handle special MongoDB field name restrictions
+        cleaned_dict = {}
+        for key, value in data.items():
+            # MongoDB doesn't allow field names to start with '$' or contain '.'
+            clean_key = key.replace('.', '_').replace('$', '_')
+            cleaned_dict[clean_key] = _prepare_document_for_mongodb(value)
+        return cleaned_dict
+    elif isinstance(data, list):
+        return [_prepare_document_for_mongodb(item) for item in data]
+    elif isinstance(data, float):
+        if math.isnan(data):
+            return None  # MongoDB doesn't support NaN
+        elif math.isinf(data):
+            return "Infinity" if data > 0 else "-Infinity"
+        else:
+            return data
+    elif isinstance(data, (int, str, bool, type(None))):
+        return data
+    else:
+        # Convert other types to string representation
+        try:
+            return str(data)
+        except Exception:
+            return None
+
+
+# ================================================================================
 # STORAGE MANAGEMENT FUNCTIONS
 # ================================================================================
 
-def initialize_experiment_storage(random_seed: int, n_iterations: int, logger=None) -> Tuple[Optional[str], Optional[Path], Optional[Dict]]:
+def initialize_experiment_storage(random_seed: int, n_iterations: int, logger=None) -> Tuple[Optional[str], Optional[Path], Optional[Dict], Optional[object]]:
     """
     Initialize complete storage system for a new experiment with error handling
     
     Returns:
-        Tuple of (experiment_id, storage_path, experiment_data) or (None, None, None) on failure
+        Tuple of (experiment_id, storage_path, experiment_data, mongodb_client) or (None, None, None, None) on failure
     """
     try:
         # Generate unique experiment ID and setup storage
@@ -513,38 +735,57 @@ def initialize_experiment_storage(random_seed: int, n_iterations: int, logger=No
         storage_path = setup_local_storage(experiment_id)
         if storage_path is None:
             if logger:
-                logger.error("Failed to create storage directory - experiment will run without local storage")
-            return None, None, None
-            
-        if logger:
-            logger.info(f"Created storage directory: {storage_path}")
+                logger.warning("Failed to create storage directory - continuing without local storage")
+        else:
+            if logger:
+                logger.info(f"Created storage directory: {storage_path}")
+        
+        # Initialize MongoDB client
+        mongodb_client = get_mongodb_client()
+        if mongodb_client:
+            if logger:
+                logger.info("Successfully connected to MongoDB")
+        else:
+            if logger:
+                logger.warning("Failed to connect to MongoDB - continuing without cloud storage")
         
         # Create experiment metadata
         experiment_data = create_experiment_metadata(experiment_id, random_seed, n_iterations)
         
-        # Save initial experiment metadata
-        if save_experiment_to_json(experiment_data, storage_path):
-            if logger:
-                logger.info(f"Saved initial experiment metadata to {storage_path}")
-        else:
-            if logger:
-                logger.error("Failed to save initial experiment metadata - continuing without storage")
-            return None, None, None
+        # Save initial experiment metadata to available storage systems
+        storage_success = False
         
-        return experiment_id, storage_path, experiment_data
+        # Try local JSON storage
+        if storage_path and save_experiment_to_json(experiment_data, storage_path):
+            if logger:
+                logger.info(f"Saved initial experiment metadata to local storage: {storage_path}")
+            storage_success = True
+        
+        # Try MongoDB storage
+        if mongodb_client and save_experiment_to_mongodb(experiment_data, mongodb_client):
+            if logger:
+                logger.info("Saved initial experiment metadata to MongoDB")
+            storage_success = True
+        
+        if not storage_success:
+            if logger:
+                logger.error("Failed to save initial experiment metadata to any storage system")
+            return None, None, None, None
+        
+        return experiment_id, storage_path, experiment_data, mongodb_client
         
     except Exception as e:
         if logger:
             logger.error(f"Critical error initializing storage system: {e}")
         print(f"ERROR: Storage initialization failed: {e}")
-        return None, None, None
+        return None, None, None, None
 
 
 def save_trial_and_update_experiment(trial_result: Dict, experiment_data: Optional[Dict], 
                                    storage_path: Optional[Path], experiment_id: Optional[str], 
-                                   iteration: int, logger=None) -> Optional[Dict]:
+                                   iteration: int, mongodb_client=None, logger=None) -> Optional[Dict]:
     """
-    Save individual trial and update experiment metadata with error handling
+    Save individual trial and update experiment metadata with dual storage (JSON + MongoDB)
     
     Args:
         trial_result: Trial data dictionary
@@ -552,49 +793,78 @@ def save_trial_and_update_experiment(trial_result: Dict, experiment_data: Option
         storage_path: Storage directory path (can be None if storage failed)
         experiment_id: Unique experiment identifier (can be None if storage failed)
         iteration: Current iteration number
+        mongodb_client: MongoDB client (can be None if MongoDB unavailable)
         logger: Optional logger instance
         
     Returns:
         Updated experiment_data dictionary or None if storage unavailable
     """
-    # If storage system is not available, just return None
-    if storage_path is None or experiment_data is None:
+    # If no storage system is available, just return None
+    if storage_path is None and mongodb_client is None:
         if logger:
-            logger.warning(f"Storage system unavailable - skipping trial {iteration} storage")
-        return None
+            logger.warning(f"No storage systems available - skipping trial {iteration} storage")
+        return experiment_data
     
     try:
-        # Save individual trial to JSON
-        if save_trial_to_json(trial_result, storage_path):
-            if logger:
-                logger.info(f"Saved trial {iteration} data to JSON")
-        else:
-            if logger:
-                logger.warning(f"Failed to save trial {iteration} data to JSON")
+        storage_successes = []
         
-        # Update experiment metadata with trial
-        experiment_data["trials"].append(trial_result)
-        experiment_data["summary"]["total_trials"] = len(experiment_data["trials"])
+        # Save individual trial to JSON storage
+        if storage_path:
+            if save_trial_to_json(trial_result, storage_path):
+                if logger:
+                    logger.info(f"Saved trial {iteration} data to JSON")
+                storage_successes.append("JSON")
+            else:
+                if logger:
+                    logger.warning(f"Failed to save trial {iteration} data to JSON")
         
-        # Update best trial if this is better (assuming minimization)
-        try:
-            objective_value = float(trial_result["objective_value"])
-            current_best = experiment_data["summary"]["best_trial"]
+        # Save individual trial to MongoDB
+        if mongodb_client and experiment_id:
+            if save_trial_to_mongodb(trial_result, experiment_id, mongodb_client):
+                if logger:
+                    logger.info(f"Saved trial {iteration} data to MongoDB")
+                storage_successes.append("MongoDB")
+            else:
+                if logger:
+                    logger.warning(f"Failed to save trial {iteration} data to MongoDB")
+        
+        # Update experiment metadata with trial (if we have it)
+        if experiment_data:
+            experiment_data["trials"].append(trial_result)
+            experiment_data["summary"]["total_trials"] = len(experiment_data["trials"])
             
-            if (current_best is None or 
-                objective_value < float(current_best["objective_value"])):
-                experiment_data["summary"]["best_trial"] = trial_result.copy()
-        except (ValueError, TypeError, KeyError) as e:
-            if logger:
-                logger.warning(f"Could not update best trial due to data issue: {e}")
-        
-        # Save updated experiment data
-        if save_experiment_to_json(experiment_data, storage_path):
-            if logger:
-                logger.info(f"Updated experiment metadata after trial {iteration}")
-        else:
-            if logger:
-                logger.warning(f"Failed to update experiment metadata after trial {iteration}")
+            # Update best trial if this is better (assuming minimization)
+            try:
+                objective_value = float(trial_result["objective_value"])
+                current_best = experiment_data["summary"]["best_trial"]
+                
+                if (current_best is None or 
+                    objective_value < float(current_best["objective_value"])):
+                    experiment_data["summary"]["best_trial"] = trial_result.copy()
+            except (ValueError, TypeError, KeyError) as e:
+                if logger:
+                    logger.warning(f"Could not update best trial due to data issue: {e}")
+            
+            # Save updated experiment data to available storage systems
+            update_successes = []
+            
+            # Update JSON storage
+            if storage_path and save_experiment_to_json(experiment_data, storage_path):
+                if logger:
+                    logger.info(f"Updated experiment metadata in JSON after trial {iteration}")
+                update_successes.append("JSON")
+            
+            # Update MongoDB storage
+            if mongodb_client and save_experiment_to_mongodb(experiment_data, mongodb_client):
+                if logger:
+                    logger.info(f"Updated experiment metadata in MongoDB after trial {iteration}")
+                update_successes.append("MongoDB")
+            
+            # Report storage status
+            if storage_successes or update_successes:
+                all_successes = list(set(storage_successes + update_successes))
+                if logger:
+                    logger.info(f"Trial {iteration} successfully stored to: {', '.join(all_successes)}")
         
         return experiment_data
         
@@ -606,52 +876,81 @@ def save_trial_and_update_experiment(trial_result: Dict, experiment_data: Option
 
 
 def finalize_experiment_storage(experiment_data: Optional[Dict], storage_path: Optional[Path], 
-                              n_iterations: int, experiment_id: Optional[str], logger=None) -> Optional[Dict]:
+                              n_iterations: int, experiment_id: Optional[str], 
+                              mongodb_client=None, logger=None) -> Optional[Dict]:
     """
-    Finalize experiment storage with completion metadata and error handling
+    Finalize experiment storage with completion metadata and dual storage (JSON + MongoDB)
     
     Args:
         experiment_data: Current experiment metadata (can be None if storage failed)
         storage_path: Storage directory path (can be None if storage failed)
         n_iterations: Total number of iterations
         experiment_id: Unique experiment identifier (can be None if storage failed)
+        mongodb_client: MongoDB client (can be None if MongoDB unavailable)
         logger: Optional logger instance
         
     Returns:
         Finalized experiment_data dictionary or None if storage unavailable
     """
-    # If storage system is not available, just return None
-    if storage_path is None or experiment_data is None:
+    # If no storage system is available, just return None
+    if storage_path is None and mongodb_client is None:
         if logger:
-            logger.warning("Storage system unavailable - skipping experiment finalization")
-        return None
+            logger.warning("No storage systems available - skipping experiment finalization")
+        return experiment_data
     
     try:
-        # Mark experiment as completed
-        experiment_data["experiment"]["completed_at"] = datetime.utcnow().isoformat() + "Z"
-        experiment_data["experiment"]["status"] = "completed"
+        if experiment_data:
+            # Mark experiment as completed
+            experiment_data["experiment"]["completed_at"] = datetime.utcnow().isoformat() + "Z"
+            experiment_data["experiment"]["status"] = "completed"
+            
+            # Calculate final timing
+            try:
+                start_time = datetime.fromisoformat(experiment_data["experiment"]["created_at"].replace("Z", ""))
+                end_time = datetime.fromisoformat(experiment_data["experiment"]["completed_at"].replace("Z", ""))
+                total_duration = (end_time - start_time).total_seconds()
+                experiment_data["summary"]["timing"]["total_duration_seconds"] = total_duration
+                experiment_data["summary"]["timing"]["avg_evaluation_time_seconds"] = total_duration / max(n_iterations, 1)
+            except Exception as e:
+                if logger:
+                    logger.warning(f"Could not calculate timing metrics: {e}")
         
-        # Calculate final timing
-        try:
-            start_time = datetime.fromisoformat(experiment_data["experiment"]["created_at"].replace("Z", ""))
-            end_time = datetime.fromisoformat(experiment_data["experiment"]["completed_at"].replace("Z", ""))
-            total_duration = (end_time - start_time).total_seconds()
-            experiment_data["summary"]["timing"]["total_duration_seconds"] = total_duration
-            experiment_data["summary"]["timing"]["avg_evaluation_time_seconds"] = total_duration / max(n_iterations, 1)
-        except Exception as e:
-            if logger:
-                logger.warning(f"Could not calculate timing metrics: {e}")
+        # Save final experiment data to available storage systems
+        finalization_successes = []
         
-        # Save final experiment data
-        if save_experiment_to_json(experiment_data, storage_path):
+        # Save to JSON storage
+        if storage_path and experiment_data and save_experiment_to_json(experiment_data, storage_path):
             if logger:
-                logger.info(f"Saved final experiment results to {storage_path}")
+                logger.info(f"Saved final experiment results to local storage: {storage_path}")
                 logger.info(f"Complete results stored in: {storage_path / 'experiment.json'}")
-                logger.info(f"Experiment ID: {experiment_id}")
-                logger.info(f"Storage Location: {storage_path}")
+            finalization_successes.append("JSON")
+        
+        # Save to MongoDB storage
+        if mongodb_client and experiment_data and save_experiment_to_mongodb(experiment_data, mongodb_client):
+            if logger:
+                logger.info("Saved final experiment results to MongoDB")
+            finalization_successes.append("MongoDB")
+        
+        # Close MongoDB connection if we opened it
+        if mongodb_client:
+            try:
+                mongodb_client.close()
+                if logger:
+                    logger.info("Closed MongoDB connection")
+            except Exception:
+                pass  # Ignore close errors
+        
+        # Report final storage status
+        if finalization_successes:
+            if logger:
+                logger.info(f"Experiment finalization completed successfully in: {', '.join(finalization_successes)}")
+                if experiment_id:
+                    logger.info(f"Experiment ID: {experiment_id}")
+                if storage_path:
+                    logger.info(f"Local Storage Location: {storage_path}")
         else:
             if logger:
-                logger.error("Failed to save final experiment results")
+                logger.warning("Failed to finalize experiment in any storage system")
         
         return experiment_data
         
@@ -686,7 +985,7 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
     logger.info(f"Starting BO campaign with {n_iterations} iterations")
     
     # === INITIALIZE STORAGE SYSTEM ===
-    experiment_id, storage_path, experiment_data = initialize_experiment_storage(
+    experiment_id, storage_path, experiment_data, mongodb_client = initialize_experiment_storage(
         random_seed, n_iterations, logger
     )
     
@@ -763,7 +1062,7 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
         # === SAVE TRIAL DATA ===
         experiment_data = save_trial_and_update_experiment(
             trial_result, experiment_data, storage_path, 
-            experiment_id, iteration + 1, logger
+            experiment_id, iteration + 1, mongodb_client, logger
         )
         
         logger.info(f"Completed iteration {iteration + 1} with value {objective_value}")
@@ -773,7 +1072,7 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
     
     # === FINALIZE EXPERIMENT ===
     experiment_data = finalize_experiment_storage(
-        experiment_data, storage_path, n_iterations, experiment_id, logger
+        experiment_data, storage_path, n_iterations, experiment_id, mongodb_client, logger
     )
     
     logger.info("\nBO Campaign Completed!")
@@ -792,10 +1091,19 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
         if duration:
             experiment_details += f"\n    • Duration: {duration:.1f} seconds"
     
+    # Build storage status
+    storage_systems = []
     if storage_path:
-        experiment_details += f"\n    • Results saved to: `{storage_path.name}/`"
+        storage_systems.append(f"Local: `{storage_path.name}/`")
+    if mongodb_client:
+        storage_systems.append("MongoDB: Cloud database")
+    
+    if storage_systems:
+        storage_info = f"\n    • Storage: {', '.join(storage_systems)}"
     else:
-        experiment_details += f"\n    • Storage: Not available (experiment ran without local storage)"
+        storage_info = f"\n    • Storage: Not available (experiment ran without persistence)"
+    
+    experiment_details += storage_info
     
     final_message = f"""
     *Bayesian Optimization Campaign Completed!*
@@ -817,12 +1125,13 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42):
     else:
         logger.info("Slack webhook not configured, skipping final notification")
     
-    return ax_client, results, experiment_id, storage_path
+    return ax_client, results, experiment_id, storage_path, mongodb_client
 if __name__ == "__main__":
     # Run the Prefect flow
     print("Starting Bayesian Optimization HITL campaign with Slack integration")
     print("Make sure you have set up your Slack webhook block named 'prefect-test'")
     print("You will receive Slack notifications for each iteration")
+    print("MongoDB connection will be attempted automatically if MONGODB_URI is set")
     
     # Run the flow
-    ax_client, results, experiment_id, storage_path = run_bo_campaign()
+    ax_client, results, experiment_id, storage_path, mongodb_client = run_bo_campaign()

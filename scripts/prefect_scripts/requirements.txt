@@ -15,6 +15,9 @@ alembic>=1.7.0  # Database migration tool for Prefect
 # Scientific computing
 numpy>=1.24.0,<2.0.0
 
+# Database connectivity
+pymongo>=4.3.0,<5.0.0  # MongoDB client for cloud storage
+
 # Standard utilities
 requests>=2.28.0,<3.0.0
 
