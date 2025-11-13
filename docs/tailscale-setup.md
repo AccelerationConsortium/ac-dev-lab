@@ -19,8 +19,8 @@ For running commands on your device during setup, you have two options:
    # Example: ssh ac@rpi-zero2w-stream-cam-a1b2.local
    
    # Or using the device's local IP address:
-   ssh <username>@192.168.1.100
-   # Replace 192.168.1.100 with your device's actual IP address and <username> with your Pi's username (default is `pi`)
+   ssh <username>@<ip-address>
+   # Replace <username> with your Pi's username (default is `pi`) and <ip-address> (e.g., 192.168.1.100) with your device's actual IP address.
    ```
 
 2. **Physical Access**: Connect a keyboard and mouse directly to the device. This is especially useful when:
