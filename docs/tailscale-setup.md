@@ -6,7 +6,7 @@ The following covers [tailscale setup](#general-setup-instructions) for general-
 
 ## General Setup Instructions
 
-For Raspberry Pi devices, follow the [Debian Bookworm tailscale installation instructions](https://tailscale.com/kb/1174/install-debian-bookworm) (or follow the appropriate device instructions at https://tailscale.com/kb/1347/installation if not using Bookworm, e.g., [Debian Trixie](https://pkgs.tailscale.com/stable/?v=1.86.2#debian-trixie)).
+Follow the appropriate device instructions at https://tailscale.com/kb/1347/installation for your operating system. For Raspberry Pi devices, you'll typically use either [Debian Trixie](https://pkgs.tailscale.com/stable/?v=1.86.2#debian-trixie)) (most recent version) or [Debian Bookworm](https://tailscale.com/kb/1174/install-debian-bookworm).
 
 ### Initial Device Access Options
 
