@@ -355,6 +355,9 @@ systemctl list-units --all --type=service
 
 For more details on managing services, check out the [systemctl(1)](https://www.freedesktop.org/software/systemd/man/systemctl.html) manual [[transcript](https://chatgpt.com/share/67da116e-184c-8006-99b3-a49fc08eb1bb)].
 
+## Troubleshooting
+
+If you get `Codec AVOption preset (Encoding preset) has not been used for any stream. The most likely reason is either wrong type (e.g. a video option with no video streams) or that it is a private option of some decoder which was not actually used for any stream.`, then try running `rpicam-hello` (Trixie) or `picamera-hello` (Bookworm) to check to see if the camera is found / working. Verify that the physical connections are correct per hardware setup instructions above. Try swapping out the camera with a new one to help with debugging. Try swapping out the Pi Zero 2W with a new one if this still doesn't work.
 
 Related issue(s):
 - https://github.com/AccelerationConsortium/ac-training-lab/issues/11
