@@ -27,6 +27,7 @@ For running commands on your device during setup, you have two options:
    - You don't have SSH enabled yet
    - You're troubleshooting network connectivity issues
    - You need to perform initial WiFi setup on the device (and couldn't when flashing using the Raspberry Pi Imager tool)
+   - In case SSH'ing via the hostname doesn't work, and you want to try SSH'ing directly with the IP address, which you can find by running `hostname -I` on a Raspberry Pi for example
 
 You can see which RPi OS version you have (assuming you're using RPi OS) [by running](https://www.cyberciti.biz/faq/linux-command-print-raspberry-pi-os-version-on-raspberry-pi/) `hostnamectl` or using `cat /etc/os-release`. However, if you're using Ubuntu OS on your RPi, you'll [need to run](https://www.google.com/search?q=check+ubuntu+version) `lsb_release -a`.
 
