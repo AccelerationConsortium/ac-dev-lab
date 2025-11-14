@@ -359,7 +359,7 @@ For more details on managing services, check out the [systemctl(1)](https://www.
 
 If you get the error `Codec AVOption preset (Encoding preset) has not been used for any stream. The most likely reason is either wrong type (e.g. a video option with no video streams) or that it is a private option of some decoder which was not actually used for any stream.`, follow these steps:
 
-1. Run `rpicam-hello` (Trixie) or `picamera-hello` (Bookworm` to check if the camera is detected and working.
+1. Run `rpicam-hello` (Trixie) or `libcamera-hello` (Bookworm` to check if the camera is detected and working.
 2. Verify that the physical connections are correct according to the hardware setup instructions above.
 3. Try swapping out the camera with a new one to help with debugging.
 4. If the issue persists, try swapping out the Pi Zero 2W with a new one.
