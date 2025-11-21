@@ -8,9 +8,13 @@ Module 3 running RPi OS Lite (bookworm).
 
 ## Codebase
 
-Optionally, update the system packages to the latest versions (`-y` flag is used to automatically answer "yes" to any installation prompts):
+Update the system package list via:
 ```bash
 sudo apt update
+```
+
+Optionally, upgrade the upgrade-able packages to the latest versions (`-y` flag is used to automatically answer "yes" to any installation prompts):
+```
 sudo apt upgrade -y
 ```
 
