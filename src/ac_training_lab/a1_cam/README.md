@@ -6,6 +6,150 @@ Module 3 running RPi OS Lite (bookworm).
 ```{include} ../../docs/_snippets/network-setup-note.md
 ```
 
+## Architecture Overview
+
+The A1 Mini camera system uses a hybrid approach for image transfer:
+
+1. **MQTT** - Used to send capture commands to the device and receive image URIs back
+2. **AWS S3** - Used to store the actual image files (avoids MQTT payload size limitations)
+
+This architecture follows the recommendations from [ac-microcourses data logging tutorial](https://ac-microcourses.readthedocs.io/en/latest/courses/hello-world/1.5-data-logging.html#additional-resources) which suggests uploading files to cloud storage and storing URIs in your database rather than embedding large binary data.
+
+## AWS S3 Setup
+
+### 1. Create an AWS Account
+
+If you don't have an AWS account, create one at [aws.amazon.com](https://aws.amazon.com/). AWS offers a free tier that includes 5 GB of S3 storage for 12 months.
+
+### 2. Create an S3 Bucket
+
+Follow the official AWS documentation to create an S3 bucket:
+- [Creating a bucket (AWS Console)](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html)
+- [Tutorial: Creating your first S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/creating-bucket.html)
+
+**Recommended bucket configuration settings** (based on [Issue #159](https://github.com/AccelerationConsortium/ac-dev-lab/issues/159#issuecomment-2725422824)):
+
+![S3 Bucket Settings](https://github.com/user-attachments/assets/f155f371-9c1c-4702-9530-89615026da80)
+
+Key considerations:
+- **Region**: Choose a region close to your devices for lower latency (e.g., `us-east-2`)
+- **Bucket name**: Must be globally unique (e.g., `rpi-zero2w-toolhead-camera`)
+- **Object Ownership**: ACLs disabled (recommended)
+- **Block Public Access settings**: 
+  - Uncheck "Block *all* public access" if you need publicly accessible image URLs (as shown in the screenshot)
+  - Note: For security, consider keeping public access blocked and using signed URLs or restricting access to specific IAM users
+
+![S3 Public Access Settings](https://github.com/user-attachments/assets/fb694a7f-4dc0-4baf-a603-01bfa74d3165)
+
+- **Bucket Versioning**: Enable (recommended for production use)
+- **Default encryption**: Enable Server-side encryption with Amazon S3 managed keys (SSE-S3)
+
+### 3. Create IAM Credentials
+
+Create AWS IAM credentials with S3 access permissions. Follow the official guide:
+- [Creating an IAM user in your AWS account](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
+- [Managing access keys for IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
+
+**Security best practice**: Create credentials with minimal permissions (principle of least privilege):
+
+1. In the AWS Console, go to **IAM** → **Users** → **Create user**
+2. Create a user specifically for this camera device (e.g., `a1-cam-user`)
+3. Attach a custom inline policy that grants only the necessary S3 permissions. Here's a recommended policy (based on [Issue #159](https://github.com/AccelerationConsortium/ac-dev-lab/issues/159#issuecomment-2725490350)):
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "ListObjectsInBucket",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket"
+            ],
+            "Resource": [
+                "arn:aws:s3:::your-bucket-name"
+            ]
+        },
+        {
+            "Sid": "AllObjectActions",
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject",
+                "s3:PutObject",
+                "s3:DeleteObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::your-bucket-name/*"
+            ]
+        }
+    ]
+}
+```
+
+Replace `your-bucket-name` with your actual bucket name.
+
+4. Create access keys for this user and save them securely
+   - You'll receive an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
+   - **Important**: These credentials will only be shown once, so save them immediately
+
+### 4. Configure Bucket Policies (Optional)
+
+If you need to access images via public URLs, you can configure bucket policies. See:
+- [Using bucket policies](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html)
+- [Bucket policy examples](https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html)
+
+For the a1_cam device, the default configuration generates URLs like:
+```
+https://{BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{object_name}
+```
+
+## boto3 Setup
+
+The device uses [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html), the AWS SDK for Python, to upload images to S3.
+
+### Installation
+
+boto3 is included in the device `requirements.txt` and will be installed when you follow the dependency installation instructions below.
+
+### Configuration
+
+The device reads AWS credentials from the `my_secrets.py` file (see Secrets section below for setup).
+
+Required AWS credentials:
+- `AWS_ACCESS_KEY_ID` - Your IAM user access key
+- `AWS_SECRET_ACCESS_KEY` - Your IAM user secret key
+- `AWS_REGION` - The region where your S3 bucket is located (e.g., `us-east-2`)
+- `BUCKET_NAME` - Your S3 bucket name
+
+### Additional Resources
+
+- [boto3 Documentation](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
+- [boto3 S3 Guide](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3.html)
+- [boto3 S3 Examples](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-examples.html)
+
+## MQTT Setup
+
+The A1 Mini camera uses MQTT for hardware-software communication. For comprehensive MQTT setup instructions, refer to the AC Microcourses documentation:
+
+- [Hardware-Software Communication](https://ac-microcourses.readthedocs.io/en/latest/courses/hello-world/1.4-hardware-software-communication.html)
+- [Onboard LED & Temperature Tutorial](https://ac-microcourses.readthedocs.io/en/latest/courses/hello-world/1.4.1-onboard-led-temp.html)
+
+### MQTT Credentials
+
+The device requires MQTT connection details in the `my_secrets.py` file (see Secrets section below for setup):
+
+- `MQTT_HOST` - Your MQTT broker host (e.g., HiveMQ Cloud)
+- `MQTT_PORT` - Usually 8883 for TLS-encrypted connections
+- `MQTT_USERNAME` - Your MQTT username
+- `MQTT_PASSWORD` - Your MQTT password
+- `DEVICE_SERIAL` - A unique identifier for this camera device
+- `CAMERA_READ_TOPIC` - Topic for receiving capture commands (e.g., `bambu_a1_mini/request/{DEVICE_SERIAL}`)
+- `CAMERA_WRITE_TOPIC` - Topic for publishing image URIs (e.g., `bambu_a1_mini/response/{DEVICE_SERIAL}`)
+
+### MQTT Library
+
+The device uses [paho-mqtt](https://pypi.org/project/paho-mqtt/), the standard Python MQTT client library. It's included in the device `requirements.txt`.
+
 ## Codebase
 
 Optionally, update the system packages to the latest versions (`-y` flag is used to automatically answer "yes" to any installation prompts):
@@ -84,6 +228,19 @@ python3 device.py
 ```
 
 To verify quickly that this script works, you can run `_scripts/client.py` locally (e.g., on your PC), ensuring that you have the same credentials in a `my_secrets.py` located in the `_scripts` directory as you do on the RPi. This script will request the latest image from the device and save it to your local machine.
+
+## Workflow Example
+
+Here's how the complete image capture workflow operates:
+
+1. **Setup**: Configure AWS S3 bucket and credentials, set up MQTT broker
+2. **Image capture request**: Orchestrator sends `{"command": "capture_image"}` via MQTT to `CAMERA_READ_TOPIC`
+3. **Device captures**: Raspberry Pi takes a photo using the camera
+4. **Upload to S3**: Device uploads image to S3 bucket using boto3
+5. **Respond with URI**: Device publishes S3 URI back to orchestrator via MQTT on `CAMERA_WRITE_TOPIC`
+6. **Access image**: Orchestrator can download image from S3 or store URI in database
+
+For implementation details, see [Issue #159](https://github.com/AccelerationConsortium/ac-dev-lab/issues/159).
 
 ## Automatic startup
 
