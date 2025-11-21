@@ -123,7 +123,6 @@ Create AWS IAM credentials with S3 access permissions. Follow the official guide
    - Click **Done**
 
 **Security best practices**: 
-- Rotate these credentials periodically (every 90 days recommended)
 - Revoke credentials immediately if compromised
 - Never commit credentials to version control
 
