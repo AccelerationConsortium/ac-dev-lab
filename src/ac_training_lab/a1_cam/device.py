@@ -16,6 +16,7 @@ from my_secrets import (
     BUCKET_NAME,
     CAMERA_READ_TOPIC,
     CAMERA_WRITE_TOPIC,
+    IMAGE_QUALITY,
     MQTT_HOST,
     MQTT_PASSWORD,
     MQTT_PORT,
@@ -99,7 +100,7 @@ try:
     logger.info("Starting camera setup...")
     picam2 = Picamera2()
     picam2.set_controls({"AfMode": "auto"})
-    picam2.options["quality"] = 90
+    picam2.options["quality"] = IMAGE_QUALITY
     config = picam2.create_still_configuration(transform=Transform(vflip=1))
     picam2.configure(config)
     picam2.start()
