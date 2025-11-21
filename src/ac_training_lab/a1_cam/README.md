@@ -51,11 +51,28 @@ Create AWS IAM credentials with S3 access permissions. Follow the official guide
 - [Creating an IAM user in your AWS account](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html)
 - [Managing access keys for IAM users](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html)
 
-**Security best practice**: Create credentials with minimal permissions (principle of least privilege):
+**Detailed step-by-step instructions**:
 
-1. In the AWS Console, go to **IAM** → **Users** → **Create user**
-2. Create a user specifically for this camera device (e.g., `a1-cam-user`)
-3. Attach a custom inline policy that grants only the necessary S3 permissions. Here's a recommended policy (based on [Issue #159](https://github.com/AccelerationConsortium/ac-dev-lab/issues/159#issuecomment-2725490350)):
+1. **Navigate to IAM**:
+   - In the AWS Console, search for "IAM" in the top search bar or go to the Services menu → Security, Identity, & Compliance → IAM
+
+2. **Create a new user**:
+   - In the left sidebar, click **Users**
+   - Click the **Create user** button (orange button in top right)
+   - Enter a user name (e.g., `a1-cam-user`)
+   - Click **Next**
+
+3. **Set permissions**:
+   - Select **Attach policies directly**
+   - **Do not** select any AWS managed policies (we'll add a custom policy next)
+   - Click **Next**
+   - Review and click **Create user**
+
+4. **Add custom inline policy**:
+   - After creating the user, click on the user name to open the user details
+   - Click on the **Add permissions** dropdown → **Create inline policy**
+   - Click on the **JSON** tab
+   - Replace the default policy with the following (based on [Issue #159](https://github.com/AccelerationConsortium/ac-dev-lab/issues/159#issuecomment-2725490350)):
 
 ```json
 {
@@ -87,12 +104,28 @@ Create AWS IAM credentials with S3 access permissions. Follow the official guide
 }
 ```
 
-Replace `your-bucket-name` with your actual bucket name.
+   - Replace `your-bucket-name` with your actual bucket name (e.g., `rpi-zero2w-toolhead-camera`)
+   - Click **Next**
+   - Enter a policy name (e.g., `a1-cam-s3-access`)
+   - Click **Create policy**
 
-4. Create access keys for this user and save them securely
-   - You'll receive an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-   - **Important**: These credentials will only be shown once, so save them immediately to a secure password manager
-   - **Security best practice**: Rotate these credentials periodically and revoke them immediately if compromised
+5. **Create access keys**:
+   - Still on the user details page, click the **Security credentials** tab
+   - Scroll down to **Access keys** section
+   - Click **Create access key**
+   - Select **Application running outside AWS** as the use case
+   - Click **Next**
+   - (Optional) Add a description tag (e.g., "A1 Mini Camera Raspberry Pi")
+   - Click **Create access key**
+   - **IMPORTANT**: You'll see your `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` displayed
+   - Click **Download .csv file** or copy both values immediately - they will only be shown once!
+   - Save these credentials securely in a password manager
+   - Click **Done**
+
+**Security best practices**: 
+- Rotate these credentials periodically (every 90 days recommended)
+- Revoke credentials immediately if compromised
+- Never commit credentials to version control
 
 The a1_cam device generates URLs like:
 ```
