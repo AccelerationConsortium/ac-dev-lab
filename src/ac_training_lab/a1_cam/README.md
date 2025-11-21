@@ -41,7 +41,7 @@ Key considerations:
 
 ![S3 Public Access Settings](https://github.com/user-attachments/assets/fb694a7f-4dc0-4baf-a603-01bfa74d3165)
 
-- **Bucket Versioning**: Enable (recommended for production use)
+- **Bucket Versioning**: Can be left disabled by default. Enable if you want to keep multiple versions of files (less applicable when uploading timestamped images as this camera does)
 - **Default encryption**: Enable Server-side encryption with Amazon S3 managed keys (SSE-S3)
 
 ### 3. Create IAM Credentials
@@ -92,16 +92,14 @@ Replace `your-bucket-name` with your actual bucket name.
    - You'll receive an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
    - **Important**: These credentials will only be shown once, so save them immediately
 
-### 4. Configure Bucket Policies (Optional)
-
-If you need to access images via public URLs, you can configure bucket policies. See:
-- [Using bucket policies](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html)
-- [Bucket policy examples](https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html)
-
-For the a1_cam device, the default configuration generates URLs like:
+The a1_cam device generates URLs like:
 ```
 https://{BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{object_name}
 ```
+
+If you need to configure additional bucket policies, see:
+- [Using bucket policies](https://docs.aws.amazon.com/AmazonS3/latest/userguide/bucket-policies.html)
+- [Bucket policy examples](https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html)
 
 ## boto3 Setup
 
@@ -113,13 +111,28 @@ boto3 is included in the device `requirements.txt` and will be installed when yo
 
 ### Configuration
 
-The device reads AWS credentials from the `my_secrets.py` file (see Secrets section below for setup).
+The device code explicitly passes AWS credentials to boto3 from the `my_secrets.py` file. This approach keeps all credentials in one place and avoids the need to configure `~/.aws/credentials` on the Raspberry Pi.
 
-Required AWS credentials:
-- `AWS_ACCESS_KEY_ID` - Your IAM user access key
-- `AWS_SECRET_ACCESS_KEY` - Your IAM user secret key
-- `AWS_REGION` - The region where your S3 bucket is located (e.g., `us-east-2`)
-- `BUCKET_NAME` - Your S3 bucket name
+Add the following to your `my_secrets.py` file (see Secrets section below for creating this file):
+
+```python
+AWS_ACCESS_KEY_ID = "your-aws-access-key-id"
+AWS_SECRET_ACCESS_KEY = "your-aws-secret-access-key"
+AWS_REGION = "us-east-2"  # or your chosen region
+BUCKET_NAME = "rpi-zero2w-toolhead-camera"  # or your bucket name
+```
+
+The device.py code passes these credentials directly to boto3.client():
+```python
+s3 = boto3.client(
+    "s3",
+    aws_access_key_id=AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=AWS_SECRET_ACCESS_KEY,
+    region_name=AWS_REGION,
+)
+```
+
+**Note**: While boto3 also supports reading credentials from `~/.aws/credentials` or environment variables, this implementation explicitly passes them to keep all device secrets centralized in `my_secrets.py`.
 
 ### Additional Resources
 
