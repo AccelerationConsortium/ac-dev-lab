@@ -155,7 +155,14 @@ AWS_ACCESS_KEY_ID = "your-aws-access-key-id"
 AWS_SECRET_ACCESS_KEY = "your-aws-secret-access-key"
 AWS_REGION = "us-east-2"  # or your chosen region
 BUCKET_NAME = "rpi-zero2w-toolhead-camera"  # or your bucket name
+IMAGE_QUALITY = 85  # JPEG quality (1-100). Lower = smaller file size. 85 gives ~2-3 MB images
 ```
+
+**Image quality settings**:
+- `IMAGE_QUALITY` controls JPEG compression (1-100 scale)
+- Default of 85 produces ~2-3 MB images (down from ~35 MB at quality 90)
+- Lower values reduce file size but may decrease image clarity
+- Recommended range: 75-90 depending on your needs
 
 The device.py code passes these credentials directly to boto3.client():
 ```python
