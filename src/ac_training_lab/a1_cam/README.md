@@ -209,6 +209,16 @@ The device requires MQTT connection details in the `my_secrets.py` file (see Sec
 
 The device uses [paho-mqtt](https://pypi.org/project/paho-mqtt/), the standard Python MQTT client library. It's included in the device `requirements.txt`.
 
+## Quick Setup (Automated)
+
+For a streamlined setup process, use the provided `setup.sh` script:
+
+```bash
+bash setup.sh
+```
+
+This script automates all the steps described in the sections below. **Note**: If this script and README diverge, README is authoritative. See the [Codebase](#codebase), [Secrets](#secrets), and [Dependencies](#dependencies) sections for manual step-by-step instructions.
+
 ## Codebase
 
 Optionally, update the system packages to the latest versions (`-y` flag is used to automatically answer "yes" to any installation prompts):
@@ -286,7 +296,24 @@ To start the device manually and ensure that it's functioning normally, run:
 python3 device.py
 ```
 
-To verify quickly that this script works, you can run `_scripts/client.py` locally (e.g., on your PC), ensuring that you have the same credentials in a `my_secrets.py` located in the `_scripts` directory as you do on the RPi. This script will request the latest image from the device and save it to your local machine.
+### Testing the Camera
+
+To verify the camera is working, you have two options:
+
+**Option 1: Jupyter Notebook (Recommended)**
+
+Use the provided `test_camera.ipynb` notebook to interactively test the camera:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/a1_cam/test_camera.ipynb)
+
+The notebook allows you to:
+- Configure your MQTT credentials
+- Send a capture command
+- Download and display the captured image
+
+**Option 2: Python Script**
+
+Run `_scripts/client.py` locally (e.g., on your PC), ensuring you have the same credentials in a `my_secrets.py` located in the `_scripts` directory as you do on the RPi. This script will request the latest image from the device and save it to your local machine.
 
 ## Workflow Example
 
