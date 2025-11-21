@@ -36,8 +36,9 @@ Key considerations:
 - **Bucket name**: Must be globally unique (e.g., `rpi-zero2w-toolhead-camera`)
 - **Object Ownership**: ACLs disabled (recommended)
 - **Block Public Access settings**: 
-  - Uncheck "Block *all* public access" if you need publicly accessible image URLs (as shown in the screenshot)
-  - Note: For security, consider keeping public access blocked and using signed URLs or restricting access to specific IAM users
+  - For enhanced security, keep "Block all public access" enabled (recommended)
+  - If you need to access images from external systems, use IAM-based access controls or generate signed URLs rather than making the bucket public
+  - Only uncheck public access if you fully understand the security implications and need publicly accessible URLs (as shown in the screenshot)
 
 ![S3 Public Access Settings](https://github.com/user-attachments/assets/fb694a7f-4dc0-4baf-a603-01bfa74d3165)
 
@@ -90,7 +91,8 @@ Replace `your-bucket-name` with your actual bucket name.
 
 4. Create access keys for this user and save them securely
    - You'll receive an `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
-   - **Important**: These credentials will only be shown once, so save them immediately
+   - **Important**: These credentials will only be shown once, so save them immediately to a secure password manager
+   - **Security best practice**: Rotate these credentials periodically and revoke them immediately if compromised
 
 The a1_cam device generates URLs like:
 ```
@@ -132,7 +134,11 @@ s3 = boto3.client(
 )
 ```
 
-**Note**: While boto3 also supports reading credentials from `~/.aws/credentials` or environment variables, this implementation explicitly passes them to keep all device secrets centralized in `my_secrets.py`.
+**Security considerations**:
+- The `my_secrets.py` file stores credentials in plaintext. Ensure proper file permissions: `chmod 600 my_secrets.py`
+- Keep your Raspberry Pi login credentials secure and use SSH key authentication
+- Consider restricting SSH access and using fail2ban or similar tools
+- While boto3 also supports reading credentials from `~/.aws/credentials` or environment variables, this implementation explicitly passes them to keep all device secrets centralized in `my_secrets.py`
 
 ### Additional Resources
 
