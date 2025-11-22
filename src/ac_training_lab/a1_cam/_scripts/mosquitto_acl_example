@@ -1,0 +1,9 @@
+# Device user can read requests and write responses
+user device_user
+topic read rpi-zero2w/still-camera/+/request
+topic write rpi-zero2w/still-camera/+/response
+
+# Client user can write requests and read responses
+user client_user
+topic write rpi-zero2w/still-camera/+/request
+topic read rpi-zero2w/still-camera/+/response
