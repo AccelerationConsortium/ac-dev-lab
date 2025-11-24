@@ -45,6 +45,32 @@ Key considerations:
 - **Bucket Versioning**: Can be left disabled by default. Enable if you want to keep multiple versions of files (less applicable when uploading timestamped images as this camera does)
 - **Default encryption**: Enable Server-side encryption with Amazon S3 managed keys (SSE-S3)
 
+**Optional: Enable Public Read Access**
+
+If you unchecked "Block all public access" and want to allow public read access to images (useful for accessing images directly via URL without authentication), add the following bucket policy:
+
+1. Go to your bucket → **Permissions** tab → **Bucket policy**
+2. Click **Edit** and paste the following policy (replace `your-bucket-name` with your actual bucket name):
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "PublicRead",
+            "Effect": "Allow",
+            "Principal": "*",
+            "Action": "s3:GetObject",
+            "Resource": "arn:aws:s3:::your-bucket-name/*"
+        }
+    ]
+}
+```
+
+3. Click **Save changes**
+
+This policy allows anyone to read (download) objects from your bucket via their public URLs. The IAM user credentials are still required for uploading and deleting objects.
+
 ### 3. Create IAM Credentials
 
 Create AWS IAM credentials with S3 access permissions. Follow the official guide:
