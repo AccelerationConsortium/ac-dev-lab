@@ -47,6 +47,8 @@ Key considerations:
 
 **Optional: Enable Public Read Access**
 
+> **⚠️ Security Warning**: Enabling public read access means anyone with knowledge of your object URLs can download images from your bucket. This may lead to unintended data exposure and unexpected AWS data transfer charges. Only enable this if you specifically need publicly accessible URLs and understand these implications.
+
 If you unchecked "Block all public access" and want to allow public read access to images (useful for accessing images directly via URL without authentication), add the following bucket policy:
 
 1. Go to your bucket → **Permissions** tab → **Bucket policy**
@@ -69,7 +71,7 @@ If you unchecked "Block all public access" and want to allow public read access 
 
 3. Click **Save changes**
 
-This policy allows anyone to read (download) objects from your bucket via their public URLs. The IAM user credentials are still required for uploading and deleting objects.
+This policy allows anyone to read (download) objects from your bucket via their public URLs. The IAM user credentials are still required for uploading and deleting objects. **Note**: Anyone who knows or guesses your object URLs can access them without authentication.
 
 ### 3. Create IAM Credentials
 
