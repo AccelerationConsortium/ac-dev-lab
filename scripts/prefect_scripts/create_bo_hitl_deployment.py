@@ -8,21 +8,6 @@ using the modern flow.from_source() approach.
 Requirements:
 - Same dependencies as bo_hitl_slack_tutorial.py
 - A configured Prefect server and work pool
-
-Usage:
-    python create_bo_hitl_deployment.py
-
-Benefits of using flow.from_source() over local execution:
-1. Git Integration: Automatically pulls code from your repository
-2. Infrastructure: Runs code in specified work pools (local, k8s, docker)
-3. Scheduling: Run flows on schedules (cron, intervals)
-4. Remote execution: Run flows on remote workers/agents
-5. UI monitoring: Track flow runs, logs, and results via UI
-6. Parameterization: Pass different parameters to each run
-7. Notifications: Configure notifications for flow status
-8. Human-in-the-Loop: Better UI experience for HITL workflows
-9. Versioning: Keep track of deployment versions
-10. Team collaboration: Share flows with team members
 """
 
 import subprocess
