@@ -41,7 +41,9 @@ class A1CamCapture:
         self.picam2.capture_file("image.jpeg")
         object_name = datetime.now(timezone.utc).strftime("%Y-%m-%d-%H:%M:%S") + ".jpeg"
         self.s3.upload_file("image.jpeg", BUCKET_NAME, object_name)
-        return f"https://{BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{object_name}"
+        uri = f"https://{BUCKET_NAME}.s3.{AWS_REGION}.amazonaws.com/{object_name}"
+        print(f"Uploaded image to {uri}")
+        return uri
 
     def cleanup(self):
         self.picam2.stop()
