@@ -50,7 +50,7 @@ class A1CamCapture:
         self.picam2.close()
 
 
-@flow(description="Capture a Picamera2 image and upload it to S3.")
+@flow(description="Capture a Picamera2 image and upload it to S3.", persist_result=True)
 def capture_image() -> str:
     cam = A1CamCapture()
     try:
