@@ -1,0 +1,9 @@
+{
+    "executionEnvironments": [
+        {
+            "root": ".",
+            "pythonPath": "python",
+            "extraPaths": ["./src"]
+        }
+    ]
+}
