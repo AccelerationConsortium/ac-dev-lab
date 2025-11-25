@@ -29,3 +29,9 @@ class Picamera2:
         with open(file_path, "wb") as f:
             dummy_image = Image.new("RGB", (640, 480), color="red")
             dummy_image.save(f, "JPEG")
+
+    def stop(self):
+        logging.info("Mock: Stopping camera")
+
+    def close(self):
+        logging.info("Mock: Closing camera")
