@@ -229,8 +229,8 @@ The device requires MQTT connection details in the `my_secrets.py` file (see Sec
 - `MQTT_USERNAME` - Your MQTT username
 - `MQTT_PASSWORD` - Your MQTT password
 - `DEVICE_SERIAL` - A unique identifier for this camera device
-- `CAMERA_READ_TOPIC` - Topic for receiving capture commands (e.g., `bambu_a1_mini/request/{DEVICE_SERIAL}`)
-- `CAMERA_WRITE_TOPIC` - Topic for publishing image URIs (e.g., `bambu_a1_mini/response/{DEVICE_SERIAL}`)
+- `CAMERA_READ_TOPIC` - Topic for receiving capture commands (e.g., `rpi-zero2w/still-camera/request/{DEVICE_SERIAL}`)
+- `CAMERA_WRITE_TOPIC` - Topic for publishing image URIs (e.g., `rpi-zero2w/still-camera/response/{DEVICE_SERIAL}`)
 
 ### MQTT Library
 
@@ -262,13 +262,13 @@ sudo apt-get install git -y
 Clone the repository to your Raspberry Pi Zero 2W device via HTTPS (allows for `git pull` to work without needing to enter credentials each time):
 
 ```bash
-git clone https://github.com/AccelerationConsortium/ac-training-lab.git
+git clone https://github.com/AccelerationConsortium/ac-dev-lab.git
 ```
 
 Navigate to the same directory as this README file:
 
 ```bash
-cd /home/ac/ac-training-lab/src/ac_training_lab/a1_cam/
+cd /home/ac/ac-dev-lab/src/ac_training_lab/a1_cam/
 ```
 
 ## Secrets
@@ -303,7 +303,7 @@ python3 -m venv --system-site-packages venv
 source venv/bin/activate
 ```
 
-While one could use the built-in Python installation (this device is intended to be run via a single top-level script, the RPi device (in our case RPi Zero 2W) requires minimal setup (i.e., can easily be reflashed), and the RPi device is intended for a single purpose with a single set of requirements (i.e., a "point-and-shoot" camera)), the extra steps involved to make this work are as equally onerous as using a venv [[context](https://github.com/AccelerationConsortium/ac-training-lab/pull/178#issuecomment-2730490626)], hence we only include instructions assuming a venv.
+While one could use the built-in Python installation (this device is intended to be run via a single top-level script, the RPi device (in our case RPi Zero 2W) requires minimal setup (i.e., can easily be reflashed), and the RPi device is intended for a single purpose with a single set of requirements (i.e., a "point-and-shoot" camera)), the extra steps involved to make this work are as equally onerous as using a venv [[context](https://github.com/AccelerationConsortium/ac-dev-lab/pull/178#issuecomment-2730490626)], hence we only include instructions assuming a venv.
 
 Next, install the requirements via:
 
@@ -331,7 +331,7 @@ To verify the camera is working, you have two options:
 
 Use the provided `test_camera.ipynb` notebook to interactively test the camera:
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AccelerationConsortium/ac-training-lab/blob/main/src/ac_training_lab/a1_cam/test_camera.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AccelerationConsortium/ac-dev-lab/blob/main/src/ac_training_lab/a1_cam/test_camera.ipynb)
 
 The notebook allows you to:
 - Configure your MQTT credentials
@@ -360,7 +360,7 @@ For implementation details, see [Issue #159](https://github.com/AccelerationCons
 To create the file, run nano (or other editor of choice):
 
 ```bash
-sudo nano /etc/systemd/system/a1-cam.service
+sudo nano /etc/systemd/system/device.service
 ```
 
 Copy the following code into the file (right click to paste), save it via `Ctrl+O` and `Enter` and exit via `Ctrl+X`:
@@ -373,9 +373,9 @@ Wants=network-online.target
 
 [Service]
 # Launch the device script (adjust the path as needed)
-WorkingDirectory=/home/ac/ac-training-lab/src/ac_training_lab/picam
+WorkingDirectory=/home/ac/ac-dev-lab/src/ac_training_lab/a1_cam
 # Best to specify the full path to the Python interpreter or use ExecSearchPath
-ExecStart=/home/ac/ac-training-lab/src/ac_training_lab/picam/venv/bin/python3 device.py
+ExecStart=/home/ac/ac-dev-lab/src/ac_training_lab/a1_cam/venv/bin/python3 device.py
 # Restart whenever the script exits ('always' because sometimes it throws an error but still exits gracefully)
 Restart=always
 RestartSec=10
@@ -394,8 +394,7 @@ WantedBy=multi-user.target
 Run:
 ```
 sudo systemctl daemon-reload
-sudo systemctl enable a1-cam.service
-sudo systemctl start a1-cam.service
+sudo systemctl enable device.service
 ```
 
 Run:
@@ -415,19 +414,19 @@ Add the following at the end of the crontab file:
 You can manually start the service by running:
 
 ```bash
-sudo systemctl start a1-cam.service
+sudo systemctl start device.service
 ```
 
 This command tells systemd to run your service immediately (as if it had been triggered at boot). To check its status, use:
 
 ```bash
-sudo systemctl status a1-cam.service
+sudo systemctl status device.service
 ```
 
 To view any logs:
 
 ```bash
-sudo journalctl -u a1-cam.service -f
+sudo journalctl -u device.service -f
 ```
 
 Starting the service with `systemd` is recommended since it applies all the configured options (dependencies, restart behavior, etc.).
@@ -438,13 +437,13 @@ For more details, see the [systemctl(1)](https://www.freedesktop.org/software/sy
 To stop the service (for example, while you work on fixing it / pulling new changes), run:
 
 ```bash
-sudo systemctl stop a1-cam.service
+sudo systemctl stop device.service
 ```
 
 This command stops the running instance of the service immediately. If you also want to prevent it from starting at boot until you've fixed it, you can disable it with:
 
 ```bash
-sudo systemctl disable a1-cam.service
+sudo systemctl disable device.service
 ```
 
 To get it to reflect the new changes, run:

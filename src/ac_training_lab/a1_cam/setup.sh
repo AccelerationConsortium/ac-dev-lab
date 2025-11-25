@@ -22,13 +22,13 @@ echo "[2/6] Installing git..."
 sudo apt-get install git -y
 
 echo "[3/6] Cloning repository..."
-if [ ! -d "/home/ac/ac-training-lab" ]; then
+if [ ! -d "/home/ac/ac-dev-lab" ]; then
     cd /home/ac
-    git clone https://github.com/AccelerationConsortium/ac-training-lab.git
-    cd ac-training-lab/src/ac_training_lab/a1_cam/
+    git clone https://github.com/AccelerationConsortium/ac-dev-lab.git
+    cd ac-dev-lab/src/ac_training_lab/a1_cam/
 else
     echo "Repository already exists, skipping clone..."
-    cd /home/ac/ac-training-lab/src/ac_training_lab/a1_cam/
+    cd /home/ac/ac-dev-lab/src/ac_training_lab/a1_cam/
 fi
 
 # Secrets section (see README.md ## Secrets)
@@ -51,7 +51,7 @@ fi
 
 # Dependencies section (see README.md ## Dependencies)
 echo "[5/6] Installing dependencies..."
-sudo apt install python3-picamera2 ffmpeg --no-install-recommends
+sudo apt install -y --no-install-recommends python3-picamera2 ffmpeg
 
 # Virtual environment setup
 echo "[6/6] Setting up Python virtual environment..."
@@ -68,7 +68,7 @@ echo "✓ Setup complete!"
 echo "======================================"
 echo ""
 echo "To run the camera device:"
-echo "  cd /home/ac/ac-training-lab/src/ac_training_lab/a1_cam/"
+echo "  cd /home/ac/ac-dev-lab/src/ac_training_lab/a1_cam/"
 echo "  source venv/bin/activate"
 echo "  python3 device.py"
 echo ""
