@@ -20,6 +20,12 @@ _connection: Optional[Connection] = None
 _axis = None
 
 
+def _check_connected():
+    """Raise if not connected."""
+    if _axis is None:
+        raise RuntimeError("Not connected. Call connect() first.")
+
+
 def connect(serial_port: Optional[str] = None) -> dict:
     """Connect to Zaber device via USB serial."""
     global _connection, _axis
@@ -55,6 +61,7 @@ def disconnect() -> None:
 
 def home() -> float:
     """Home the axis. Returns position in mm."""
+    _check_connected()
     _axis.home()
     _axis.wait_until_idle()
     return _axis.get_position("mm")
@@ -62,6 +69,7 @@ def home() -> float:
 
 def move_absolute(position: float, unit: str = "mm") -> float:
     """Move to absolute position. Returns final position."""
+    _check_connected()
     _axis.move_absolute(position, unit)
     _axis.wait_until_idle()
     return _axis.get_position("mm")
@@ -69,6 +77,7 @@ def move_absolute(position: float, unit: str = "mm") -> float:
 
 def move_relative(distance: float, unit: str = "mm") -> float:
     """Move by relative distance. Returns final position."""
+    _check_connected()
     _axis.move_relative(distance, unit)
     _axis.wait_until_idle()
     return _axis.get_position("mm")
@@ -76,10 +85,12 @@ def move_relative(distance: float, unit: str = "mm") -> float:
 
 def get_position(unit: str = "mm") -> float:
     """Get current position."""
+    _check_connected()
     return _axis.get_position(unit)
 
 
 def stop() -> float:
     """Stop movement. Returns position."""
+    _check_connected()
     _axis.stop()
     return _axis.get_position("mm")
