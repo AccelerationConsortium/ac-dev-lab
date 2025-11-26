@@ -16,6 +16,7 @@ from my_secrets import (
     BUCKET_NAME,
     CAMERA_READ_TOPIC,
     CAMERA_WRITE_TOPIC,
+    IMAGE_QUALITY,
     MQTT_HOST,
     MQTT_PASSWORD,
     MQTT_PORT,
@@ -99,7 +100,7 @@ try:
     logger.info("Starting camera setup...")
     picam2 = Picamera2()
     picam2.set_controls({"AfMode": "auto"})
-    picam2.options["quality"] = 90
+    picam2.options["quality"] = IMAGE_QUALITY
     config = picam2.create_still_configuration(transform=Transform(vflip=1))
     picam2.configure(config)
     picam2.start()
@@ -120,10 +121,19 @@ try:
     logger.info("Waiting for commands...")
 
     start_time = time()
+    last_print_time = time()
+    print_interval = 5  # Start with 5 seconds
     # Keep the script running to handle incoming messages
     while True:
         elapsed = round(time() - start_time)
-        print(f"Running... Elapsed: {elapsed}s")
+        current_time = time()
+        
+        # Print with exponentially increasing intervals (5s, 10s, 20s, 40s, max 300s)
+        if current_time - last_print_time >= print_interval:
+            print(f"Running... Elapsed: {elapsed}s")
+            last_print_time = current_time
+            print_interval = min(print_interval * 2, 300)  # Double interval, cap at 5 minutes
+        
         sleep(5)
 
 except Exception as e:
