@@ -1,42 +1,34 @@
 """
 Zaber Linear Rail Control Module.
 
-Provides programmatic control of Zaber linear rails via Python with Prefect workflow
-orchestration support.
+Simple wrappers around zaber-motion library for Prefect integration.
 
 Example:
-    from ac_training_lab.zaber_linear_rail import move_to_position, home_axis
+    from ac_training_lab.zaber_linear_rail import connect, home, move_absolute
 
-    home_axis()
-    move_to_position(100.0)  # Move to 100mm
+    connect()
+    home()
+    move_absolute(100.0)  # Move to 100mm
 """
 
-from ac_training_lab.zaber_linear_rail.config import (
-    DEFAULT_ACCELERATION,
-    DEFAULT_VELOCITY,
-    SERIAL_PORT,
-)
+from ac_training_lab.zaber_linear_rail.config import SERIAL_PORT
 from ac_training_lab.zaber_linear_rail.rail_controller import (
     connect,
     disconnect,
-    get_device_info,
     get_position,
-    home_axis,
+    home,
+    move_absolute,
     move_relative,
-    move_to_position,
-    stop_movement,
+    stop,
 )
 
 __all__ = [
     "connect",
     "disconnect",
-    "home_axis",
-    "move_to_position",
+    "home",
+    "move_absolute",
     "move_relative",
     "get_position",
-    "stop_movement",
-    "get_device_info",
+    "stop",
     "SERIAL_PORT",
-    "DEFAULT_VELOCITY",
-    "DEFAULT_ACCELERATION",
 ]
