@@ -25,7 +25,7 @@ IOT_TOKEN = os.getenv("ZABER_IOT_TOKEN", "")
 # =============================================================================
 # DEVICE CONFIGURATION
 # =============================================================================
-# Device and axis indices (1-based indexing as per Zaber convention)
+# Device index is 0-based (for device_list), axis number is 1-based (Zaber)
 DEVICE_INDEX = int(os.getenv("ZABER_DEVICE_INDEX", "0"))  # Index in device list
 AXIS_NUMBER = int(os.getenv("ZABER_AXIS_NUMBER", "1"))  # Axis number on device
 

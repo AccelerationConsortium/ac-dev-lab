@@ -36,14 +36,14 @@ def _load_state() -> dict:
     """Load state from file."""
     state_path = Path(STATE_FILE)
     if state_path.exists():
-        with open(state_path) as f:
+        with open(state_path, encoding="utf-8") as f:
             return json.load(f)
     return {"last_position": None, "is_homed": False}
 
 
 def _save_state(state: dict) -> None:
     """Save state to file."""
-    with open(STATE_FILE, "w") as f:
+    with open(STATE_FILE, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)
 
 

@@ -4,6 +4,8 @@ Prefect flows for Zaber linear rail control.
 Provides workflow orchestration using Prefect for remote rail control.
 """
 
+from typing import Optional
+
 from prefect import flow, task
 from prefect.logging import get_run_logger
 
@@ -32,8 +34,8 @@ get_device_info_task = task(get_device_info)
 @flow
 def move_to_position_flow(
     target_position: float,
-    serial_port: str = None,
-    velocity: float = None,
+    serial_port: Optional[str] = None,
+    velocity: Optional[float] = None,
     home_first: bool = False,
 ) -> dict:
     """
@@ -90,8 +92,8 @@ def move_to_position_flow(
 @flow
 def move_relative_flow(
     distance: float,
-    serial_port: str = None,
-    velocity: float = None,
+    serial_port: Optional[str] = None,
+    velocity: Optional[float] = None,
 ) -> dict:
     """
     Prefect flow for moving rail by a relative distance.
@@ -137,7 +139,7 @@ def move_relative_flow(
 
 
 @flow
-def home_flow(serial_port: str = None) -> dict:
+def home_flow(serial_port: Optional[str] = None) -> dict:
     """
     Prefect flow for homing the rail.
 
@@ -171,7 +173,7 @@ def home_flow(serial_port: str = None) -> dict:
 
 
 @flow
-def get_status_flow(serial_port: str = None) -> dict:
+def get_status_flow(serial_port: Optional[str] = None) -> dict:
     """
     Prefect flow for getting rail status.
 
@@ -211,8 +213,8 @@ def get_status_flow(serial_port: str = None) -> dict:
 @flow
 def sequence_flow(
     positions: list[float],
-    serial_port: str = None,
-    velocity: float = None,
+    serial_port: Optional[str] = None,
+    velocity: Optional[float] = None,
     home_first: bool = True,
 ) -> dict:
     """
