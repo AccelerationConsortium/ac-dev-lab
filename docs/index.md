@@ -1,37 +1,37 @@
-# 🏢 AC Training Lab
+# 🏢 AC Dev Lab
 
 ```{note}
 If you would like to participate or are interested in contributing, please [introduce yourself](https://github.com/AccelerationConsortium/ac-training-lab/discussions/2) or reach out to sterling.baird@utoronto.ca.
 ```
 
 The [Acceleration Consortium](https://github.com/AccelerationConsortium) (AC)
-Training Lab is a remotely accessible facility that houses a
+Dev Lab is a remotely accessible facility that houses a
 diverse set of physical hardware for self-driving laboratories (SDLs) including
 liquid handlers, solid dispensers, Cartesian-axis systems, mobile robotic arms,
 and synthesis and characterization modules. Where possible, both educational and
-research-grade hardware are included. The AC Training Lab is used to
+research-grade hardware are included. The AC Dev Lab is used to
 develop and test SDLs and to provide a platform for training students and
-researchers in the use of SDLs. The [AC Training Lab GitHub repository](https://github.com/AccelerationConsortium/ac-training-lab) also acts as an example of
+researchers in the use of SDLs. The [AC Dev Lab GitHub repository](https://github.com/AccelerationConsortium/ac-dev-lab) also acts as an example of
 setting up an autonomous laboratory.
 
-<a class="github-button" href="https://github.com/AccelerationConsortium/ac-training-lab"
+<a class="github-button" href="https://github.com/AccelerationConsortium/ac-dev-lab"
 data-icon="octicon-star" data-size="large" data-show-count="true" aria-label="Star
-AccelerationConsortium/ac-training-lab on GitHub">Star</a>
+AccelerationConsortium/ac-dev-lab on GitHub">Star</a>
 <a class="github-button"
 href="https://github.com/AccelerationConsortium" data-size="large" data-show-count="true"
 aria-label="Follow @AccelerationConsortium on GitHub">Follow @AccelerationConsortium</a>
 <a class="github-button"
 href="https://github.com/sgbaird" data-size="large" data-show-count="true"
 aria-label="Follow @sgbaird on GitHub">Follow @sgbaird</a>
-<a class="github-button" href="https://github.com/AccelerationConsortium/ac-training-lab/issues"
+<a class="github-button" href="https://github.com/AccelerationConsortium/ac-dev-lab/issues"
 data-icon="octicon-issue-opened" data-size="large" data-show-count="true"
-aria-label="Issue AccelerationConsortium/ac-training-lab on GitHub">Issue</a>
-<a class="github-button" href="https://github.com/AccelerationConsortium/ac-training-lab/discussions" data-icon="octicon-comment-discussion" data-size="large" aria-label="Discuss AccelerationConsortium/ac-training-lab on GitHub">Discuss</a>
+aria-label="Issue AccelerationConsortium/ac-dev-lab on GitHub">Issue</a>
+<a class="github-button" href="https://github.com/AccelerationConsortium/ac-dev-lab/discussions" data-icon="octicon-comment-discussion" data-size="large" aria-label="Discuss AccelerationConsortium/ac-dev-lab on GitHub">Discuss</a>
 
-The equipment in the training lab can be broadly categorized in the following
+The equipment in the AC Dev Lab can be broadly categorized in the following
 categories: characterization, prototyping, synthesis, dispensing, environment,
 and infrastructure. See the image below for an example of some of the equipment
-intended for the AC Training Lab.
+intended for the AC Dev Lab.
 
 ![training lab categories](training-lab-categories.png)
 
@@ -92,7 +92,7 @@ Here are some of the modules we have procured and are in the process of setting 
 
 ## Unit Operations
 
-The AC Training Lab provides a comprehensive set of unit operations for materials research and education. These operations span dispensing, liquid handling, characterization, synthesis, and automation capabilities:
+The AC Dev Lab provides a comprehensive set of unit operations for materials research and education. These operations span dispensing, liquid handling, characterization, synthesis, and automation capabilities:
 
 ### Dispensing and Material Handling
 
@@ -157,7 +157,7 @@ Advanced workflows for materials discovery and optimization research:
 
 ### Dedicated Workflows
 
-While the equipment is not restricted to particular workflows, we are actively developing a subset of readily accessible workflows for the AC Training Lab. Note that a single workflow could be carried out using different sets of equipment within the training lab. These workflows will use dedicated hardware in a permanent setup to allow for 24/7 access. The core workflows that are planned, in development, or available are listed below:
+While the equipment is not restricted to particular workflows, we are actively developing a subset of readily accessible workflows for the AC Dev Lab. Note that a single workflow could be carried out using different sets of equipment within the lab. These workflows will use dedicated hardware in a permanent setup to allow for 24/7 access. The core workflows that are planned, in development, or available are listed below:
 
 | Name                                                                                | Diagram                                                  | Description                                                                                                                                                | Status      |
 | ----------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
@@ -169,7 +169,7 @@ While the equipment is not restricted to particular workflows, we are actively d
 
 ## Functionality
 
-This refers to the infrastructure-focused capabilities showcased in the AC Training Lab. The core functionalities (intended as permanent demos) that are planned, development, or available are listed below. These functionalities may either be standalone or part of the workflows listed above.
+This refers to the infrastructure-focused capabilities showcased in the AC Dev Lab. The core functionalities (intended as permanent demos) that are planned, development, or available are listed below. These functionalities may either be standalone or part of the workflows listed above.
 
 | Name                       | Diagram | Description                           | Status      |
 | -------------------------- | ------- | ------------------------------------- | ----------- |
@@ -180,7 +180,7 @@ This refers to the infrastructure-focused capabilities showcased in the AC Train
 
 ## Feedback
 
-We would love to get suggestions on the [types of workflows and functions](https://github.com/AccelerationConsortium/ac-training-lab/discussions/3) you'd like to see in the AC Training Lab! For additional training opportunities offered by the Acceleration Consortium, please navigate to [AC Microcourses](https://ac-microcourses.readthedocs.io/en/latest/).
+We would love to get suggestions on the [types of workflows and functions](https://github.com/AccelerationConsortium/ac-dev-lab/discussions/3) you'd like to see in the AC Dev Lab! For additional training opportunities offered by the Acceleration Consortium, please navigate to [AC Microcourses](https://ac-microcourses.readthedocs.io/en/latest/).
 
 ## Contents
 
