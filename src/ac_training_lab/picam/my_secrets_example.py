@@ -57,3 +57,10 @@ RESOLUTION = "480p"
 # Note: Pi Zero 2W can comfortably handle 15fps at 480p.
 # For higher frame rates or resolutions, use a Pi 4B or Pi 5.
 FRAME_RATE = 15
+
+# Timestamp overlay setting
+# Set to True to display current date/time with seconds on the video stream
+# The timestamp appears in the top-left corner (white text with black background)
+# Note: Enabling timestamp requires video re-encoding which increases CPU usage.
+# Default: False
+TIMESTAMP_OVERLAY = False
