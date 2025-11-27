@@ -8,6 +8,7 @@ from my_secrets import (
     CAMERA_HFLIP,
     CAMERA_ROTATION,
     CAMERA_VFLIP,
+    FRAME_RATE,
     LAMBDA_FUNCTION_URL,
     PRIVACY_STATUS,
     RESOLUTION,
@@ -16,10 +17,12 @@ from my_secrets import (
 
 # Resolution mappings for YouTube-compatible resolutions
 RESOLUTION_MAP = {
+    "144p": (256, 144),
     "240p": (426, 240),
     "360p": (640, 360),
     "480p": (854, 480),
     "720p": (1280, 720),
+    "1080p": (1920, 1080),
 }
 
 
@@ -37,7 +40,7 @@ def get_camera_command():
         )
 
 
-def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
+def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15):
     """
     Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
       p1: camera process (rpicam-vid or libcamera-vid)
@@ -48,6 +51,7 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
         width: Output width in pixels
         height: Output height in pixels
         rotation: Rotation angle (0, 90, 180, 270 degrees clockwise)
+        framerate: Frame rate in fps
     """
     # Get the available camera command
     camera_cmd = get_camera_command()
@@ -73,7 +77,7 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
         "--height",
         str(cam_height),  # Scale height
         "--framerate",
-        "15",  # Frame rate
+        str(framerate),  # Frame rate
         "--codec",
         "h264",  # H.264 encoding
         "--bitrate",
@@ -206,8 +210,16 @@ if __name__ == "__main__":
             f"Allowed options: 0, 90, 180, 270"
         )
 
+    # Validate frame rate
+    if not isinstance(FRAME_RATE, int) or FRAME_RATE <= 0:
+        raise ValueError(
+            f"Invalid FRAME_RATE '{FRAME_RATE}'. "
+            f"Must be a positive integer (e.g., 15, 24, 30)"
+        )
+
     print(f"Using resolution: {RESOLUTION} ({width}x{height})")
     print(f"Using rotation: {CAMERA_ROTATION} degrees")
+    print(f"Using frame rate: {FRAME_RATE} fps")
 
     # End previous broadcast and start a new one via Lambda
     call_lambda("end", CAM_NAME, WORKFLOW_NAME)
@@ -226,7 +238,7 @@ if __name__ == "__main__":
 
     while True:
         print("Starting stream..")
-        p1, p2 = start_stream(ffmpeg_url, width, height, CAMERA_ROTATION)
+        p1, p2 = start_stream(ffmpeg_url, width, height, CAMERA_ROTATION, FRAME_RATE)
         print("Stream started")
         interrupted = False
         try:
