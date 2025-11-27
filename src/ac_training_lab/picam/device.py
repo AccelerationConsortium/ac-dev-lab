@@ -49,8 +49,8 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
     
     Args:
         ffmpeg_url: RTMP URL for streaming
-        width: Output width in pixels
-        height: Output height in pixels
+        width: Output width in pixels (final output after rotation)
+        height: Output height in pixels (final output after rotation)
         rotation: Rotation angle (0, 90, 180, 270 degrees clockwise)
         framerate: Frame rate in fps
         timestamp_overlay: Whether to show timestamp on video
@@ -58,10 +58,15 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
     # Get the available camera command
     camera_cmd = get_camera_command()
 
-    # For 90 or 270 degree rotation, the camera captures in landscape orientation
-    # (swapped dimensions), then ffmpeg rotates to get the final portrait output.
-    # E.g., for 480x854 portrait output, camera captures 854x480, then rotates.
+    # Camera always captures in landscape orientation using the full sensor.
+    # For portrait output (90/270 rotation), we capture landscape and rotate in ffmpeg.
+    # This preserves the full field of view instead of cropping.
+    # 
+    # For 90/270 rotation: capture at height x width (landscape), rotate to width x height (portrait)
+    # For 0/180 rotation: capture at width x height (landscape), output same orientation
     if rotation in (90, 270):
+        # For portrait output, capture in landscape (swap dimensions for camera)
+        # Camera captures height x width, then ffmpeg rotates to width x height
         cam_width, cam_height = height, width
     else:
         cam_width, cam_height = width, height
@@ -73,8 +78,6 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
         "--nopreview",
         "-t",
         "0",
-        "--mode",
-        "1536:864",  # A known 16:9 sensor mode
         "--width",
         str(cam_width),  # Scale width
         "--height",
@@ -236,7 +239,15 @@ if __name__ == "__main__":
             f"Must be a positive integer (e.g., 15, 24, 30)"
         )
 
-    print(f"Using resolution: {RESOLUTION} ({width}x{height})")
+    # For 90/270 rotation, output is portrait (swapped dimensions)
+    if CAMERA_ROTATION in (90, 270):
+        output_width, output_height = height, width
+        orientation = "portrait"
+    else:
+        output_width, output_height = width, height
+        orientation = "landscape"
+
+    print(f"Using resolution: {RESOLUTION} ({output_width}x{output_height} {orientation})")
     print(f"Using rotation: {CAMERA_ROTATION} degrees")
     print(f"Using frame rate: {FRAME_RATE} fps")
     print(f"Timestamp overlay: {'enabled' if TIMESTAMP_OVERLAY else 'disabled'}")
