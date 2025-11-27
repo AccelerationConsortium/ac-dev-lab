@@ -52,8 +52,9 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
     # Get the available camera command
     camera_cmd = get_camera_command()
 
-    # For 90 or 270 degree rotation, swap width/height for camera capture
-    # since rotation happens in ffmpeg
+    # For 90 or 270 degree rotation, swap width/height for camera capture.
+    # The camera captures with swapped dimensions so that after ffmpeg rotation,
+    # the final output has the intended width x height (e.g., 480x854 for portrait).
     cam_width, cam_height = width, height
     if rotation in (90, 270):
         cam_width, cam_height = height, width
@@ -93,7 +94,7 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
     if rotation == 90:
         rotation_filter = "transpose=1"  # 90 degrees clockwise
     elif rotation == 180:
-        rotation_filter = "transpose=1,transpose=1"  # 180 degrees
+        rotation_filter = "hflip,vflip"  # 180 degrees (more efficient than double transpose)
     elif rotation == 270:
         rotation_filter = "transpose=2"  # 90 degrees counter-clockwise (270 clockwise)
 
@@ -116,6 +117,9 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
     ]
 
     # Add video filter for rotation if needed, otherwise copy video directly
+    # Note: When rotation is applied, libx264 encoding is required which increases
+    # CPU usage compared to the original H.264 passthrough. This is unavoidable
+    # since ffmpeg cannot apply filters without re-encoding the video stream.
     if rotation_filter:
         ffmpeg_cmd.extend(["-vf", rotation_filter, "-c:v", "libx264"])
     else:
