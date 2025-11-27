@@ -1,4 +1,3 @@
-import argparse
 import json
 import subprocess
 import shutil
@@ -7,11 +6,21 @@ import requests
 from my_secrets import (
     CAM_NAME,
     CAMERA_HFLIP,
+    CAMERA_ROTATION,
     CAMERA_VFLIP,
     LAMBDA_FUNCTION_URL,
     PRIVACY_STATUS,
+    RESOLUTION,
     WORKFLOW_NAME,
 )
+
+# Resolution mappings for YouTube-compatible resolutions
+RESOLUTION_MAP = {
+    "240p": (426, 240),
+    "360p": (640, 360),
+    "480p": (854, 480),
+    "720p": (1280, 720),
+}
 
 
 def get_camera_command():
@@ -28,14 +37,26 @@ def get_camera_command():
         )
 
 
-def start_stream(ffmpeg_url, width=854, height=480):
+def start_stream(ffmpeg_url, width=854, height=480, rotation=0):
     """
     Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
       p1: camera process (rpicam-vid or libcamera-vid)
       p2: ffmpeg process
+    
+    Args:
+        ffmpeg_url: RTMP URL for streaming
+        width: Output width in pixels
+        height: Output height in pixels
+        rotation: Rotation angle (0, 90, 180, 270 degrees clockwise)
     """
     # Get the available camera command
     camera_cmd = get_camera_command()
+
+    # For 90 or 270 degree rotation, swap width/height for camera capture
+    # since rotation happens in ffmpeg
+    cam_width, cam_height = width, height
+    if rotation in (90, 270):
+        cam_width, cam_height = height, width
 
     # First: camera command with core parameters
     libcamera_cmd = [
@@ -47,9 +68,9 @@ def start_stream(ffmpeg_url, width=854, height=480):
         "--mode",
         "1536:864",  # A known 16:9 sensor mode
         "--width",
-        str(width),  # Scale width
+        str(cam_width),  # Scale width
         "--height",
-        str(height),  # Scale height
+        str(cam_height),  # Scale height
         "--framerate",
         "15",  # Frame rate
         "--codec",
@@ -67,6 +88,15 @@ def start_stream(ffmpeg_url, width=854, height=480):
     # Add output parameters last
     libcamera_cmd.extend(["-o", "-"])  # Output to stdout (pipe)
 
+    # Build rotation filter for ffmpeg if needed
+    rotation_filter = None
+    if rotation == 90:
+        rotation_filter = "transpose=1"  # 90 degrees clockwise
+    elif rotation == 180:
+        rotation_filter = "transpose=1,transpose=1"  # 180 degrees
+    elif rotation == 270:
+        rotation_filter = "transpose=2"  # 90 degrees counter-clockwise (270 clockwise)
+
     # Second: ffmpeg command
     ffmpeg_cmd = [
         "ffmpeg",
@@ -83,9 +113,15 @@ def start_stream(ffmpeg_url, width=854, height=480):
         # Read H.264 video from pipe
         "-i",
         "pipe:0",
-        # Copy the H.264 video directly
-        "-c:v",
-        "copy",
+    ]
+
+    # Add video filter for rotation if needed, otherwise copy video directly
+    if rotation_filter:
+        ffmpeg_cmd.extend(["-vf", rotation_filter, "-c:v", "libx264"])
+    else:
+        ffmpeg_cmd.extend(["-c:v", "copy"])
+
+    ffmpeg_cmd.extend([
         # Encode audio as AAC
         "-c:a",
         "aac",
@@ -99,7 +135,7 @@ def start_stream(ffmpeg_url, width=854, height=480):
         "-f",
         "flv",
         ffmpeg_url,
-    ]
+    ])
 
     # Start camera process, capturing its output in a pipe
     p1 = subprocess.Popen(
@@ -151,24 +187,24 @@ def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Stream camera feed via Lambda")
-    parser.add_argument(
-        "--resolution", 
-        type=str, 
-        default="854x480",
-        help="Camera resolution as WIDTHxHEIGHT (default: 854x480)"
-    )
-    args = parser.parse_args()
-    
-    # Parse resolution
-    try:
-        width, height = map(int, args.resolution.split('x'))
-    except ValueError:
-        print(f"Invalid resolution format: {args.resolution}. Use WIDTHxHEIGHT format.")
-        exit(1)
-    
-    print(f"Using resolution: {width}x{height}")
-    
+    # Validate and get resolution
+    if RESOLUTION not in RESOLUTION_MAP:
+        raise ValueError(
+            f"Invalid RESOLUTION '{RESOLUTION}'. "
+            f"Allowed options: {list(RESOLUTION_MAP.keys())}"
+        )
+    width, height = RESOLUTION_MAP[RESOLUTION]
+
+    # Validate rotation
+    if CAMERA_ROTATION not in (0, 90, 180, 270):
+        raise ValueError(
+            f"Invalid CAMERA_ROTATION '{CAMERA_ROTATION}'. "
+            f"Allowed options: 0, 90, 180, 270"
+        )
+
+    print(f"Using resolution: {RESOLUTION} ({width}x{height})")
+    print(f"Using rotation: {CAMERA_ROTATION} degrees")
+
     # End previous broadcast and start a new one via Lambda
     call_lambda("end", CAM_NAME, WORKFLOW_NAME)
     raw_body = call_lambda(
@@ -186,7 +222,7 @@ if __name__ == "__main__":
 
     while True:
         print("Starting stream..")
-        p1, p2 = start_stream(ffmpeg_url, width, height)
+        p1, p2 = start_stream(ffmpeg_url, width, height, CAMERA_ROTATION)
         print("Stream started")
         interrupted = False
         try:
