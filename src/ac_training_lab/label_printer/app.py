@@ -4,6 +4,7 @@ Gradio web app for AprilTag label printing with MQTT integration.
 Generates AprilTags and sends print commands via MQTT to a local printer subscriber.
 """
 
+import base64
 import json
 import os
 from io import BytesIO
@@ -22,15 +23,14 @@ TAG_FAMILIES = ["tag36h11", "tag25h9", "tag16h5", "tagStandard41h12"]
 
 
 def generate_apriltag(tag_id: int, tag_family: str, size: int = 300) -> Image.Image:
-    """Generate an AprilTag image using the apriltag library if available."""
+    """Generate an AprilTag image using pupil_apriltags if available."""
     try:
-        import pupil_apriltags
+        from pupil_apriltags import apriltag
 
-        detector = pupil_apriltags.Detector(families=tag_family)
-        tag_img = detector.create_tag(tag_family, tag_id, size // 10)
-        tag_img = Image.fromarray(tag_img).convert("RGB")
+        tag_img_array = apriltag(tag_family, tag_id)
+        tag_img = Image.fromarray(tag_img_array).convert("RGB")
         tag_img = tag_img.resize((size, size), Image.NEAREST)
-    except ImportError:
+    except (ImportError, Exception):
         tag_img = Image.new("RGB", (size, size), color="white")
         draw = ImageDraw.Draw(tag_img)
         draw.rectangle([10, 10, size - 10, size - 10], outline="black", width=3)
@@ -112,7 +112,7 @@ def send_print_command(
     label_img = create_label_image(device_name, tag_id, tag_family, printed_by)
     buffer = BytesIO()
     label_img.save(buffer, format="PNG")
-    img_base64 = __import__("base64").b64encode(buffer.getvalue()).decode("utf-8")
+    img_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
     command = {
         "device_name": device_name,
@@ -122,16 +122,19 @@ def send_print_command(
         "image_base64": img_base64,
     }
 
+    client = None
     try:
         client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2, protocol=mqtt.MQTTv5)
         client.tls_set()
         client.username_pw_set(username, password)
         client.connect(host, PORT, 60)
         client.publish(MQTT_TOPIC, json.dumps(command), qos=1)
-        client.disconnect()
         return f"Print command sent for '{device_name}' (Tag ID: {tag_id})"
     except Exception as e:
         return f"Error sending print command: {e}"
+    finally:
+        if client:
+            client.disconnect()
 
 
 with gr.Blocks(title="AprilTag Label Printer") as demo:
