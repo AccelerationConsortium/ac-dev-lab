@@ -48,13 +48,21 @@ brother_ql print -l 62 test_image.png
 
 ### MWE (Minimum Working Example)
 
+Configure environment variables and run:
 ```bash
+export BROTHER_QL_PRINTER=tcp://192.168.1.XXX:9100
+export BROTHER_QL_MODEL=QL-810W
+export BROTHER_QL_LABEL=62
 python mwe_print.py
 ```
 
 ### Gradio App
 
+Configure MQTT credentials and run:
 ```bash
+export HIVEMQ_HOST=your-broker.hivemq.cloud
+export HIVEMQ_USERNAME=your-username
+export HIVEMQ_PASSWORD=your-password
 python app.py
 ```
 
