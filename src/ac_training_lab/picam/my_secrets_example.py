@@ -30,3 +30,19 @@ PRIVACY_STATUS = "private"  # "private", "public", or "unlisted"
 CAMERA_VFLIP = True
 # Set to True to flip the camera image horizontally (mirror image)
 CAMERA_HFLIP = True
+
+# Camera rotation setting (for portrait mode streaming)
+# Allowed options: 0, 90, 180, 270 (degrees, clockwise)
+# Default: 0 (no rotation / landscape mode)
+# Use 90 or 270 for portrait mode streaming
+CAMERA_ROTATION = 0
+
+# Stream resolution setting
+# Allowed options for YouTube: "240p", "360p", "480p", "720p"
+# Resolution mappings:
+#   "240p" = 426x240
+#   "360p" = 640x360
+#   "480p" = 854x480
+#   "720p" = 1280x720
+# Default: "480p"
+RESOLUTION = "480p"
