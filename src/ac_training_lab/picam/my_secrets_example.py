@@ -38,11 +38,22 @@ CAMERA_HFLIP = True
 CAMERA_ROTATION = 0
 
 # Stream resolution setting
-# Allowed options for YouTube: "240p", "360p", "480p", "720p"
+# Allowed options for YouTube: "144p", "240p", "360p", "480p", "720p", "1080p"
 # Resolution mappings:
+#   "144p" = 256x144
 #   "240p" = 426x240
 #   "360p" = 640x360
 #   "480p" = 854x480
 #   "720p" = 1280x720
+#   "1080p" = 1920x1080
 # Default: "480p"
+# Note: Pi Zero 2W can comfortably handle 480p at 15fps. 720p at 15fps is pushing it.
+# For 1080p or higher frame rates, use a Pi 4B or Pi 5.
 RESOLUTION = "480p"
+
+# Stream frame rate setting (frames per second)
+# Common values: 15, 24, 30
+# Default: 15
+# Note: Pi Zero 2W can comfortably handle 15fps at 480p.
+# For higher frame rates or resolutions, use a Pi 4B or Pi 5.
+FRAME_RATE = 15
