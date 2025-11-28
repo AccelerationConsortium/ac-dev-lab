@@ -18,7 +18,7 @@ import subprocess
 import sys
 from datetime import datetime
 
-def get_apriltag_pose(image_path="images/img1_flipped_vertical.png", tag_size=0.03):
+def get_apriltag_pose(image_path="apriltag_images/img1_flipped_vertical.png", tag_size=0.03):
     """
     Run AprilTag detection and return pose data
     
@@ -152,7 +152,7 @@ def main():
     parser = argparse.ArgumentParser(description='Collect Hand-Eye Calibration Data')
     parser.add_argument('--robot-pose', nargs=6, type=float, metavar=('X', 'Y', 'Z', 'ROLL', 'PITCH', 'YAW'),
                        help='Robot end-effector pose: x y z roll pitch yaw (m, degrees)')
-    parser.add_argument('--image', default='images/img1_flipped_vertical.png',
+    parser.add_argument('--image', default='apriltag_images/img1_flipped_vertical.png',
                        help='AprilTag image to use for detection')
     parser.add_argument('--tag-size', type=float, default=0.03,
                        help='AprilTag size in meters (default: 0.03)')
