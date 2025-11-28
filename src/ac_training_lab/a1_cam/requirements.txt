@@ -3,4 +3,6 @@ paho-mqtt
 opencv-python
 PyYAML
 numpy
+scipy
+pupil-apriltags
 # picamera2 via `sudo apt install python3-picamera2` (see README)
