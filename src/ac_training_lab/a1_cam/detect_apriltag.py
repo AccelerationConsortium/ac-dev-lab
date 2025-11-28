@@ -38,7 +38,15 @@ def load_camera_intrinsics(config_path="config/a1_intrinsics.yaml"):
 def get_camera_matrices(calib):
     """Extract camera matrix and distortion coefficients."""
     K = np.array(calib["camera_matrix"], dtype=np.float32)
-    dist = np.array(calib["distortion_coefficients"][0], dtype=np.float32)
+    
+    # Handle different distortion coefficient formats
+    if isinstance(calib["distortion_coefficients"][0], list):
+        # Old format: nested list
+        dist = np.array(calib["distortion_coefficients"][0], dtype=np.float32)
+    else:
+        # New format: flat list
+        dist = np.array(calib["distortion_coefficients"], dtype=np.float32)
+    
     return K, dist
 
 
@@ -256,8 +264,16 @@ def main():
     
     K, dist = get_camera_matrices(calib)
     print(f"✅ Camera intrinsics loaded")
-    print(f"   Focal length: fx={calib['focal_length_x']:.1f}, fy={calib['focal_length_y']:.1f}")
-    print(f"   Image size: {calib['image_size']}")
+    
+    # Extract focal lengths from camera matrix
+    fx, fy = K[0,0], K[1,1]
+    print(f"   Focal length: fx={fx:.1f}, fy={fy:.1f}")
+    
+    # Handle different image size formats
+    if 'image_size' in calib:
+        print(f"   Image size: {calib['image_size']}")
+    else:
+        print(f"   Image size: not specified in calibration")
     
     # Try AprilTag detection
     print(f"\n🔍 Detecting AprilTags in {args.image}...")
