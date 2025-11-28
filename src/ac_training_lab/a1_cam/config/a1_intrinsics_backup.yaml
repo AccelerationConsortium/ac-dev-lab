@@ -1,0 +1,32 @@
+calibration_date: '2025-08-25T13:48:37.236321'
+calibration_quality: Excellent (<0.3px) - High precision poses, sub-millimeter accuracy
+calibration_successful: true
+camera_matrix:
+- - 1465.6099184918514
+  - 0.0
+  - 932.55811173008
+- - 0.0
+  - 1463.3121827070456
+  - 512.2671650849411
+- - 0.0
+  - 0.0
+  - 1.0
+checkerboard_size:
+- 7
+- 5
+distortion_coefficients:
+- - 0.04988618136899136
+  - 0.14442660532044985
+  - -0.0046389734519390186
+  - -0.009566672323473092
+  - -0.47591564714658857
+focal_length_x: 1465.6099184918514
+focal_length_y: 1463.3121827070456
+image_size:
+- 1920
+- 1080
+num_images_used: 10
+principal_point_x: 932.55811173008
+principal_point_y: 512.2671650849411
+reprojection_error: 0.03989865591060219
+square_size_mm: 30.0
