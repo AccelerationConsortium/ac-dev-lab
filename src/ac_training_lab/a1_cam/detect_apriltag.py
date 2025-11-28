@@ -127,9 +127,23 @@ def detect_apriltag_pupil(image_path, camera_matrix, dist_coeffs, tag_size_m=0.0
                 print(f"     Distance: {distance_cm:.1f}cm")
                 
                 # Convert rotation matrix to roll, pitch, yaw
-                euler = R.from_matrix(detection.pose_R).as_euler('xyz', degrees=True)
-                roll, pitch, yaw = euler
-                print(f"     Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
+                try:
+                    # Check if rotation matrix is valid (positive determinant)
+                    det = np.linalg.det(detection.pose_R)
+                    if det > 0:
+                        euler = R.from_matrix(detection.pose_R).as_euler('xyz', degrees=True)
+                        roll, pitch, yaw = euler
+                        print(f"     Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
+                    else:
+                        print(f"     ⚠️  Invalid rotation matrix (det={det:.3f}), using rotation vector instead")
+                        # Use rotation vector as approximation
+                        roll, pitch, yaw = np.degrees(rvec.flatten())
+                        print(f"     Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}°")
+                except ValueError as e:
+                    print(f"     ⚠️  Rotation matrix error: {e}")
+                    # Fallback to rotation vector
+                    roll, pitch, yaw = np.degrees(rvec.flatten())
+                    print(f"     Roll: {roll:.2f}°, Pitch: {pitch:.2f}°, Yaw: {yaw:.2f}° (from rvec)")
             else:
                 print(f"     ❌ No pose estimation available for tag {tag_id}")
         
