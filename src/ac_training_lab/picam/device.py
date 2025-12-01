@@ -116,12 +116,16 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
         # drawtext filter with white text, black background box, in top-left corner
         # fontsize scales with video height for consistent appearance
         fontsize = max(16, height // 20)
+        # Note: In ffmpeg drawtext filter, special characters must be escaped:
+        # - Colons in text values must be escaped as \:
+        # - The %{localtime} function needs the strftime format after a colon
         timestamp_filter = (
-            f"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf:"
-            f"text='%{{localtime\\:%Y-%m-%d %H\\\\:%M\\\\:%S}}':"
-            f"fontcolor=white:fontsize={fontsize}:"
-            f"box=1:boxcolor=black@0.5:boxborderw=5:"
-            f"x=10:y=10"
+            f"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
+            f":fontsize={fontsize}"
+            f":fontcolor=white"
+            f":box=1:boxcolor=black@0.5:boxborderw=5"
+            f":x=10:y=10"
+            f":text='%{{localtime\\:%Y-%m-%d %H\\:%M\\:%S}}'"
         )
         video_filters.append(timestamp_filter)
 
