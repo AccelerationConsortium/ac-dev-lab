@@ -165,8 +165,8 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
         "128k",
         "-strict",
         "experimental",
-        # Fix non-monotonous DTS warnings by using async audio filter
-        # and allowing ffmpeg to correct timestamps
+        # Fix non-monotonous DTS warnings by enabling audio synchronization
+        # and constant frame rate video output
         "-async",
         "1",
         "-vsync",
