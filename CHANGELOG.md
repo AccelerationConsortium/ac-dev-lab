@@ -8,32 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- BO / Prefect HiTL Slack integration tutorial (2025-01-18)
-  - Created `scripts/prefect_scripts/bo_hitl_slack_tutorial.py` - Complete Bayesian Optimization workflow with human-in-the-loop evaluation via Slack
-  - Added `scripts/prefect_scripts/test_bo_workflow.py` - Demonstration script showing BO workflow without dependencies
-  - Added `scripts/prefect_scripts/README_BO_HITL_Tutorial.md` - Setup instructions and documentation
-  - Implements Ax Service API for Bayesian optimization with Branin function
-  - Integrates Prefect interactive workflows with pause_flow_run for human input
-  - Provides Slack notifications for experiment suggestions
-  - Supports evaluation via HuggingFace Branin space
-  - Includes mock implementations for development without heavy dependencies
-  - Follows minimal working example pattern with 4-5 optimization iterations
-# CHANGELOG
+- BO / Prefect HiTL Slack integration tutorial (2025-12-01)
+  - Added `scripts/prefect_scripts/bo_hitl_slack_tutorial.py` - Bayesian Optimization with human-in-the-loop evaluation via Slack
+  - Uses Ax Service API for Bayesian optimization
+  - Integrates Prefect interactive workflows with pause_flow_run
+  - Slack notifications for experiment suggestions
+  - MongoDB Atlas storage for experiment data
+  - Evaluation via HuggingFace Branin space
 
-## [Unreleased]
-### Added
-- Support for both `rpicam-vid` (Raspberry Pi OS Trixie) and `libcamera-vid` (Raspberry Pi OS Bookworm) camera commands in `src/ac_training_lab/picam/device.py` to ensure compatibility across different OS versions.
+### Changed
+- Support for both `rpicam-vid` (Raspberry Pi OS Trixie) and `libcamera-vid` (Raspberry Pi OS Bookworm) camera commands
 
 ### Fixed
-- Ctrl+C interrupt handling in `src/ac_training_lab/picam/device.py` now properly exits the streaming loop instead of restarting.
+- Ctrl+C interrupt handling in `src/ac_training_lab/picam/device.py`
 
 ## [1.1.0] - 2024-06-11
 ### Added
-- Imperial (10-32 thread) alternative design to SEM door automation bill of materials in `docs/sem-door-automation-components.md`.
-- Validated McMaster-Carr part numbers and direct links for all imperial components.
-
-### Changed
-- No changes to metric design section.
+- Imperial (10-32 thread) alternative design to SEM door automation bill of materials
 
 ### Notes
-- All components sourced from McMaster-Carr for reliability and reproducibility.
+- All components sourced from McMaster-Carr for reliability and reproducibility
