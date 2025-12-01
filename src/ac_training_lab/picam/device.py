@@ -165,6 +165,12 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
         "128k",
         "-strict",
         "experimental",
+        # Fix non-monotonous DTS warnings by using async audio filter
+        # and allowing ffmpeg to correct timestamps
+        "-async",
+        "1",
+        "-vsync",
+        "cfr",
         # Output format is FLV, then final RTMP URL
         "-f",
         "flv",
