@@ -111,22 +111,22 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
         video_filters.append("transpose=2")  # 90 degrees counter-clockwise (270 clockwise)
     
     # Add timestamp overlay if enabled
-    # Format: YYYY-MM-DD HH:MM:SS (updates every second)
+    # Format: YYYY-MM-DD_HH-MM-SS (updates every second)
     if timestamp_overlay:
         # drawtext filter with white text, black background box, in top-left corner
         # fontsize scales with video height for consistent appearance
         fontsize = max(16, height // 20)
-        # Note: In ffmpeg drawtext filter, special characters must be escaped:
-        # - Colons in the strftime format must be escaped as \:
-        # - Spaces must be escaped or avoided
-        # Using underscore instead of space to avoid parsing issues
+        # Note: In ffmpeg drawtext filter, special characters need escaping:
+        # - The format separator after localtime uses \:
+        # - Colons in the time display (H:M:S) also need escaping
+        # - Using dashes instead of colons in time to avoid complex escaping issues
         timestamp_filter = (
             f"drawtext=fontfile=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"
             f":fontsize={fontsize}"
             f":fontcolor=white"
             f":box=1:boxcolor=black@0.5:boxborderw=5"
             f":x=10:y=10"
-            f":text='%{{localtime\\:%Y-%m-%d_%H\\:%M\\:%S}}'"
+            f":text='%{{localtime\\:%Y-%m-%d_%H-%M-%S}}'"
         )
         video_filters.append(timestamp_filter)
 

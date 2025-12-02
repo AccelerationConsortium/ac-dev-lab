@@ -59,7 +59,8 @@ RESOLUTION = "480p"
 FRAME_RATE = 15
 
 # Timestamp overlay setting
-# Set to True to display current date/time with seconds on the video stream
+# Set to True to display current date/time on the video stream
+# Format: YYYY-MM-DD_HH-MM-SS (e.g., 2024-12-01_21-38-37)
 # The timestamp appears in the top-left corner (white text with black background)
 # Note: Enabling timestamp requires video re-encoding which increases CPU usage.
 # Default: False
