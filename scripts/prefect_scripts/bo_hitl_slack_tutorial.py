@@ -60,7 +60,7 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_na
     
     # Create experiment record
     experiment_id = f"exp_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}"
-    if db:
+    if db is not None:
         db.experiments.insert_one({
             "experiment_id": experiment_id,
             "created_at": datetime.utcnow(),
@@ -88,13 +88,13 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_na
         # Send Slack notification
         message = f"""*BO Iteration {iteration + 1}/{n_iterations}*
 
-Evaluate Branin function at:
-- x1 = {x1}
-- x2 = {x2}
+        Evaluate Branin function at:
+        - x1 = {x1}
+        - x2 = {x2}
 
-Use: https://huggingface.co/spaces/AccelerationConsortium/branin
+        Use: https://huggingface.co/spaces/AccelerationConsortium/branin
 
-<{flow_run_url}|Click here to resume> and enter the objective value."""
+        <{flow_run_url}|Click here to resume> and enter the objective value."""
         
         slack_block.notify(message)
         
@@ -124,7 +124,7 @@ Use: https://huggingface.co/spaces/AccelerationConsortium/branin
         results.append(trial_result)
         
         # Save to MongoDB
-        if db:
+        if db is not None:
             db.trials.insert_one({
                 "experiment_id": experiment_id,
                 **trial_result
@@ -136,7 +136,7 @@ Use: https://huggingface.co/spaces/AccelerationConsortium/branin
     best_parameters, best_values = ax_client.get_best_parameters()
     
     # Update experiment status
-    if db:
+    if db is not None:
         db.experiments.update_one(
             {"experiment_id": experiment_id},
             {"$set": {"status": "completed", "completed_at": datetime.utcnow(), 
