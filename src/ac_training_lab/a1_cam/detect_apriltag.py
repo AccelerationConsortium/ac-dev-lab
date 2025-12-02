@@ -25,7 +25,7 @@ except ImportError:
     print("⚠️  pupil-apriltags library not found. Install with: pip install pupil-apriltags")
     PUPIL_APRILTAGS_AVAILABLE = False
 
-def load_camera_intrinsics(config_path="config/a1_intrinsics.yaml"):
+def load_camera_intrinsics(config_path="config/ac_lab_camera_calibration.yaml"):
     """Load camera intrinsics from YAML configuration file."""
     try:
         with open(config_path, 'r') as f:
