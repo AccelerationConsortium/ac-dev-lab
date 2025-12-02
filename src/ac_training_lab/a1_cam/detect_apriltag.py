@@ -12,28 +12,18 @@ import cv2
 import numpy as np
 import yaml
 import argparse
-import sys
 import json
 from datetime import datetime
 from pathlib import Path
 from scipy.spatial.transform import Rotation as R
 
-try:
-    from pupil_apriltags import Detector
-    PUPIL_APRILTAGS_AVAILABLE = True
-except ImportError:
-    print("⚠️  pupil-apriltags library not found. Install with: pip install pupil-apriltags")
-    PUPIL_APRILTAGS_AVAILABLE = False
+from pupil_apriltags import Detector
 
 def load_camera_intrinsics(config_path="config/ac_lab_camera_calibration.yaml"):
     """Load camera intrinsics from YAML configuration file."""
-    try:
-        with open(config_path, 'r') as f:
-            calib = yaml.safe_load(f)
-        return calib
-    except FileNotFoundError:
-        print(f"❌ Camera intrinsics file not found: {config_path}")
-        return None
+    with open(config_path, 'r') as f:
+        calib = yaml.safe_load(f)
+    return calib
 
 def get_camera_matrices(calib):
     """Extract camera matrix and distortion coefficients."""
@@ -50,49 +40,44 @@ def get_camera_matrices(calib):
     return K, dist
 
 
-def detect_apriltag_pupil(image_path, camera_matrix, dist_coeffs, tag_size_m=0.05):
+def detect_apriltag_pupil(image_path, camera_matrix, dist_coeffs, tag_size_m=0.05, tag_family='tag36h11'):
     """
     Detect AprilTag using the pupil-apriltags library.
-    """
-    if not PUPIL_APRILTAGS_AVAILABLE:
-        return None
     
+    Args:
+        image_path: Path to the image file
+        camera_matrix: 3x3 camera intrinsic matrix
+        dist_coeffs: Distortion coefficients
+        tag_size_m: Size of the AprilTag in meters
+        tag_family: AprilTag family to detect (default: 'tag36h11')
+    
+    Returns:
+        List of detection results with pose information
+    """
     # Load image
     img = cv2.imread(image_path)
     if img is None:
-        print(f"❌ Could not load image: {image_path}")
-        return None
+        raise FileNotFoundError(f"Could not load image: {image_path}")
     
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     
     # Camera parameters for pupil-apriltags (fx, fy, cx, cy)
     camera_params = [camera_matrix[0,0], camera_matrix[1,1], camera_matrix[0,2], camera_matrix[1,2]]
     
-    # Try different tag families
-    families_to_try = ['tag36h11', 'tagStandard41h12', 'tag25h9', 'tag16h5']
+    # Initialize detector with specified tag family
+    print(f"   Using tag family: {tag_family}")
+    detector = Detector(families=tag_family)
     
-    for family in families_to_try:
-        print(f"   Trying {family}...")
-        try:
-            # Initialize detector
-            detector = Detector(families=family)
-            
-            # Detect tags with pose estimation
-            detections = detector.detect(
-                gray,
-                estimate_tag_pose=True,
-                camera_params=camera_params,
-                tag_size=tag_size_m
-            )
-            
-            if detections:
-                break
-        except Exception as e:
-            print(f"   Error with {family}: {e}")
-            continue
+    # Detect tags with pose estimation
+    detections = detector.detect(
+        gray,
+        estimate_tag_pose=True,
+        camera_params=camera_params,
+        tag_size=tag_size_m
+    )
     
     if detections:
-        print(f"✅ pupil-apriltags detected {len(detections)} tag(s) with {family}")
+        print(f"✅ pupil-apriltags detected {len(detections)} tag(s)")
         
         results = []
         for detection in detections:
@@ -149,7 +134,7 @@ def detect_apriltag_pupil(image_path, camera_matrix, dist_coeffs, tag_size_m=0.0
         
         return results
     
-    print("❌ No AprilTags detected with any family")
+    print(f"❌ No AprilTags detected with family {tag_family}")
     return None
 
 def visualize_detections(image_path, detections, camera_matrix, dist_coeffs, output_path=None):
@@ -210,7 +195,7 @@ def visualize_detections(image_path, detections, camera_matrix, dist_coeffs, out
 def save_pose_to_json(detections, output_path):
     """Save 6DOF pose data to JSON file"""
     pose_data = {
-        "timestamp": str(pd.Timestamp.now()) if 'pd' in globals() else str(datetime.now()),
+        "timestamp": str(datetime.now()),
         "detections": []
     }
     
@@ -252,6 +237,8 @@ def main():
                        help='Path to image file (default: img1.png)')
     parser.add_argument('--tag-size', type=float, default=0.05,
                        help='AprilTag size in meters (default: 0.05m = 5cm)')
+    parser.add_argument('--tag-family', type=str, default='tag36h11',
+                       help='AprilTag family to detect (default: tag36h11)')
     parser.add_argument('--visualize', action='store_true',
                        help='Show visualization with detected tags')
     parser.add_argument('--save-viz', type=str,
@@ -263,18 +250,16 @@ def main():
     
     # Check if image exists
     if not Path(args.image).exists():
-        print(f"❌ Image file not found: {args.image}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Image file not found: {args.image}")
     
     print("🏷️  AprilTag Detection Starting...")
     print(f"   Image: {args.image}")
     print(f"   Tag size: {args.tag_size}m")
+    print(f"   Tag family: {args.tag_family}")
     
     # Load camera intrinsics
     print("\n📷 Loading camera intrinsics...")
     calib = load_camera_intrinsics()
-    if calib is None:
-        sys.exit(1)
     
     K, dist = get_camera_matrices(calib)
     print(f"✅ Camera intrinsics loaded")
@@ -289,11 +274,11 @@ def main():
     else:
         print(f"   Image size: not specified in calibration")
     
-    # Try AprilTag detection
+    # Detect AprilTags
     print(f"\n🔍 Detecting AprilTags in {args.image}...")
     
     # Use pupil-apriltags for detection
-    detections = detect_apriltag_pupil(args.image, K, dist, args.tag_size)
+    detections = detect_apriltag_pupil(args.image, K, dist, args.tag_size, args.tag_family)
     
     # Results
     if detections:
@@ -316,7 +301,7 @@ def main():
         print("   Possible issues:")
         print("   - No AprilTag in the image")
         print("   - AprilTag too small/blurry/angled")
-        print("   - Wrong tag family (script expects tag36h11)")
+        print(f"   - Wrong tag family (script using {args.tag_family})")
         print("   - Poor lighting conditions")
 
 if __name__ == "__main__":

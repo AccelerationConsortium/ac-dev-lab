@@ -1,6 +1,15 @@
 # CHANGELOG
 
 ## [Unreleased]
+### Changed
+- Removed all fallbacks in `src/ac_training_lab/a1_cam/detect_apriltag.py`:
+  - Import of pupil_apriltags now raises error if not installed
+  - File loading raises FileNotFoundError instead of returning None
+  - Image loading raises FileNotFoundError instead of returning None
+  - Tag family is now specified explicitly via --tag-family parameter instead of trying multiple families
+- Added --tag-family CLI argument for explicit tag family specification (default: tag36h11)
+- Cross-checked AprilTag pose detection math against official documentation (verified correct)
+
 ### Added
 - Support for both `rpicam-vid` (Raspberry Pi OS Trixie) and `libcamera-vid` (Raspberry Pi OS Bookworm) camera commands in `src/ac_training_lab/picam/device.py` to ensure compatibility across different OS versions.
 - Comprehensive Unit Operations section in `docs/index.md` documenting all available capabilities including dispensing, synthesis, characterization, and robotics operations.
