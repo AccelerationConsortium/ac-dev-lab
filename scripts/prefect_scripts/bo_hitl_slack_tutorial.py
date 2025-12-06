@@ -10,6 +10,7 @@ Demonstrates a BO campaign where:
 """
 
 import os
+import json
 from datetime import datetime
 from pymongo import MongoClient
 from ax.service.ax_client import AxClient, ObjectiveProperties
@@ -18,6 +19,7 @@ from prefect.blocks.notifications import SlackWebhook
 from prefect.context import get_run_context
 from prefect.input import RunInput
 from prefect.flow_runs import pause_flow_run
+from prefect.blocks.system import Secret
 
 
 class ExperimentInput(RunInput):
@@ -27,7 +29,7 @@ class ExperimentInput(RunInput):
 
 
 @flow(name="bo-hitl-slack-campaign")
-def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_name: str = "prefect-test"):
+def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_name: str = "tutorial-slack-webhook-url", mongodb_block_name: str = "tutorial-mongodb-uri"):
     """
     Bayesian Optimization campaign with human-in-the-loop evaluation via Slack
     
@@ -35,6 +37,7 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_na
         n_iterations: Number of BO iterations to run
         random_seed: Seed for Ax reproducibility
         slack_block_name: Name of the Prefect Slack webhook block
+        mongodb_block_name: Name of the Prefect Secret block containing MongoDB URI
     """
     logger = get_run_logger()
     logger.info(f"Starting BO campaign with {n_iterations} iterations")
@@ -53,9 +56,12 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_na
     # Load Slack webhook
     slack_block = SlackWebhook.load(slack_block_name)
     
-    # Connect to MongoDB Atlas for storage
-    mongodb_uri = os.getenv("MONGODB_URI")
+    # Connect to MongoDB Atlas for storage using Prefect Secret block
+    mongodb_secret = Secret.load(mongodb_block_name)
+    mongodb_uri = mongodb_secret.get()
     mongo_client = MongoClient(mongodb_uri) if mongodb_uri else None
+    logger.info(f"Connected to MongoDB using block '{mongodb_block_name}'")
+    
     db = mongo_client["bo_experiments"] if mongo_client else None
     
     # Create experiment record
@@ -80,10 +86,13 @@ def run_bo_campaign(n_iterations: int = 5, random_seed: int = 42, slack_block_na
         
         logger.info(f"Suggested: x1={x1}, x2={x2}")
         
-        # Build Prefect UI URL
+        # Build Prefect Cloud UI URL - use workspace ID format
         flow_run = get_run_context().flow_run
-        base_url = os.getenv("PREFECT_UI_URL", "http://127.0.0.1:4200")
-        flow_run_url = f"{base_url}/flow-runs/flow-run/{flow_run.id}" if flow_run else ""
+        # Default to generic dashboard URL that will handle authentication and routing
+        account_id = os.getenv("PREFECT_ACCOUNT_ID", "5b838504-64cf-4297-9b35-b881ac6169b3")
+        workspace_id = os.getenv("PREFECT_WORKSPACE_ID", "d2718b4c-b49a-43ce-83c2-baf6fb3b9665")
+        base_url = os.getenv("PREFECT_UI_URL", "https://app.prefect.cloud")
+        flow_run_url = f"{base_url}/account/{account_id}/workspace/{workspace_id}/flow-runs/flow-run/{flow_run.id}" if flow_run else ""
         
         # Send Slack notification
         message = f"""*BO Iteration {iteration + 1}/{n_iterations}*
@@ -151,6 +160,25 @@ Best value: {best_values[0]['branin']}
 Experiment ID: {experiment_id}""")
     
     logger.info(f"Campaign complete. Best: {best_parameters}, Value: {best_values}")
+    
+    # Export data to JSON files
+    if db is not None:
+        # Create experiment_data folder if it doesn't exist
+        os.makedirs('experiment_data', exist_ok=True)
+        
+        logger.info("Exporting experiments...")
+        experiments = list(db.experiments.find())
+        with open('experiment_data/bo_experiments.json', 'w') as f:
+            json.dump(experiments, f, indent=2, default=str)
+        
+        logger.info("Exporting trials...")
+        trials = list(db.trials.find())
+        with open('experiment_data/bo_trials.json', 'w') as f:
+            json.dump(trials, f, indent=2, default=str)
+            
+        summary = {"experiments": experiments, "trials": trials}
+        with open('experiment_data/bo_data_complete.json', 'w') as f:
+            json.dump(summary, f, indent=2, default=str)
     
     if mongo_client:
         mongo_client.close()

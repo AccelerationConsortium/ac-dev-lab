@@ -1,0 +1,16 @@
+[
+  {
+    "_id": "6933751d52c9e9c4e440a32e",
+    "experiment_id": "exp_20251206_001317",
+    "created_at": "2025-12-06 00:13:17.979000",
+    "n_iterations": 5,
+    "random_seed": 42,
+    "status": "completed",
+    "best_parameters": {
+      "x1": -3.3329896349459887,
+      "x2": 11.819649185054004
+    },
+    "best_value": 1.4197303445112155,
+    "completed_at": "2025-12-06 00:15:50.585000"
+  }
+]
