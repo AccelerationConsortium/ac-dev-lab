@@ -5,7 +5,6 @@ Prints a simple test label using the brother_ql library.
 """
 
 import os
-from io import BytesIO
 
 from brother_ql import BrotherQLRaster
 from brother_ql.backends.helpers import send
@@ -14,7 +13,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 PRINTER_MODEL = os.environ.get("BROTHER_QL_MODEL", "QL-810W")
 LABEL_TYPE = os.environ.get("BROTHER_QL_LABEL", "62")  # 62mm endless tape
-PRINTER_IDENTIFIER = os.environ.get("BROTHER_QL_PRINTER", "tcp://192.168.1.100:9100")
+PRINTER_IDENTIFIER = os.environ.get("BROTHER_QL_PRINTER", "tcp://192.168.1.167:9100")
 
 img = Image.new("RGB", (696, 300), color="white")
 draw = ImageDraw.Draw(img)
@@ -32,9 +31,5 @@ draw.text((50, 150), "Brother QL-810W!", fill="black", font=font)
 qlr = BrotherQLRaster(PRINTER_MODEL)
 instructions = convert(qlr=qlr, images=[img], label=LABEL_TYPE)
 
-buffer = BytesIO()
-for instruction in instructions:
-    buffer.write(instruction)
-
-send(instructions=buffer.getvalue(), printer_identifier=PRINTER_IDENTIFIER)
+send(instructions=instructions, printer_identifier=PRINTER_IDENTIFIER)
 print("Print job sent successfully")
