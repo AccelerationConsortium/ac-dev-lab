@@ -23,30 +23,47 @@ TAG_FAMILIES = ["tag36h11", "tag25h9", "tag16h5", "tagStandard41h12"]
 
 
 def generate_apriltag(tag_id: int, tag_family: str, size: int = 300) -> Image.Image:
-    """Generate an AprilTag image using pupil_apriltags if available."""
+    """Generate an AprilTag image, preferring repo helpers and pupil_apriltags.
+
+    This function reuses existing in-repo utilities (cobot280pi scripts and
+    the apriltag_demo notebook helpers) when available to avoid duplicating
+    generation logic.
+    """
+    # Try cobot280pi helper that creates a simulated AprilTag image
+    try:
+        from ac_training_lab.cobot280pi._scripts.pose_2025.generate_test_apriltag import (
+            create_apriltag_test_image,
+        )
+        import cv2
+
+        tag_np = create_apriltag_test_image()
+        try:
+            tag_np = cv2.cvtColor(tag_np, cv2.COLOR_BGR2RGB)
+        except Exception:
+            pass
+        return Image.fromarray(tag_np).convert("RGB").resize((size, size))
+    except Exception:
+        pass
+
+    # Try pupil_apriltags (used by apriltag_demo notebook)
     try:
         from pupil_apriltags import apriltag
 
         tag_img_array = apriltag(tag_family, tag_id)
         tag_img = Image.fromarray(tag_img_array).convert("RGB")
-        tag_img = tag_img.resize((size, size), Image.NEAREST)
-    except (ImportError, Exception):
-        tag_img = Image.new("RGB", (size, size), color="white")
-        draw = ImageDraw.Draw(tag_img)
-        draw.rectangle([10, 10, size - 10, size - 10], outline="black", width=3)
-        try:
-            font = ImageFont.truetype(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24
-            )
-        except OSError:
-            font = ImageFont.load_default()
-        draw.text(
-            (size // 2, size // 2),
-            f"{tag_family}\nID: {tag_id}",
-            fill="black",
-            font=font,
-            anchor="mm",
-        )
+        return tag_img.resize((size, size), Image.NEAREST)
+    except Exception:
+        pass
+
+    # Fallback: draw a simple placeholder but keep consistent with label_printer visuals
+    tag_img = Image.new("RGB", (size, size), color="white")
+    draw = ImageDraw.Draw(tag_img)
+    draw.rectangle([10, 10, size - 10, size - 10], outline="black", width=3)
+    try:
+        font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", 24)
+    except OSError:
+        font = ImageFont.load_default()
+    draw.text((size // 2, size // 2), f"{tag_family}\nID: {tag_id}", fill="black", font=font, anchor="mm")
     return tag_img
 
 
