@@ -1,7 +1,7 @@
 # 🏢 AC Dev Lab
 
 ```{note}
-If you would like to participate or are interested in contributing, please [introduce yourself](https://github.com/AccelerationConsortium/ac-training-lab/discussions/2) or reach out to gurpaul.kochhar@utoronto.ca.
+If you would like to participate or are interested in contributing, please [introduce yourself](https://github.com/AccelerationConsortium/ac-training-lab/discussions/2) or reach out to gurpaul.kochhar@utoronto.ca
 ```
 
 The [Acceleration Consortium](https://github.com/AccelerationConsortium) (AC)
