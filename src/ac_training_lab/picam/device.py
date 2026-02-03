@@ -1,3 +1,4 @@
+import argparse
 import json
 import subprocess
 import shutil
@@ -27,7 +28,7 @@ def get_camera_command():
         )
 
 
-def start_stream(ffmpeg_url):
+def start_stream(ffmpeg_url, width=854, height=480):
     """
     Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
       p1: camera process (rpicam-vid or libcamera-vid)
@@ -46,9 +47,9 @@ def start_stream(ffmpeg_url):
         "--mode",
         "1536:864",  # A known 16:9 sensor mode
         "--width",
-        "854",  # Scale width
+        str(width),  # Scale width
         "--height",
-        "480",  # Scale height
+        str(height),  # Scale height
         "--framerate",
         "15",  # Frame rate
         "--codec",
@@ -150,6 +151,24 @@ def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Stream camera feed via Lambda")
+    parser.add_argument(
+        "--resolution", 
+        type=str, 
+        default="854x480",
+        help="Camera resolution as WIDTHxHEIGHT (default: 854x480)"
+    )
+    args = parser.parse_args()
+    
+    # Parse resolution
+    try:
+        width, height = map(int, args.resolution.split('x'))
+    except ValueError:
+        print(f"Invalid resolution format: {args.resolution}. Use WIDTHxHEIGHT format.")
+        exit(1)
+    
+    print(f"Using resolution: {width}x{height}")
+    
     # End previous broadcast and start a new one via Lambda
     call_lambda("end", CAM_NAME, WORKFLOW_NAME)
     raw_body = call_lambda(
@@ -167,7 +186,7 @@ if __name__ == "__main__":
 
     while True:
         print("Starting stream..")
-        p1, p2 = start_stream(ffmpeg_url)
+        p1, p2 = start_stream(ffmpeg_url, width, height)
         print("Stream started")
         interrupted = False
         try:
