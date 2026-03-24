@@ -140,15 +140,20 @@ Fill in the necessary information (e.g., via `nano my_secrets.py`). Keep in mind
 
 ### Required Configuration Variables
 
+#### `AUTH_BASE_URL`
+The base URL of the GitHub auth service that issues JWTs for the Lambda. On first run, `device.py` opens a browser to this service, waits for login to complete, and caches the returned token locally in `~/.config/ac-picam/token.json`.
+
+**Example:** `"http://localhost:5000"`
+
 #### `LAMBDA_FUNCTION_URL`
 The AWS Lambda Function URL for the YouTube streaming service. This Lambda function handles YouTube API authentication and stream management.
 
 **Setup Steps:**
-1. Deploy the [streamingLambda](https://github.com/AccelerationConsortium/streamingLambda) service to your AWS account
-2. The deployment will provide you with a Function URL that looks like: `https://your-unique-id.lambda-url.region.on.aws/`
+1. Deploy the `ac-streaming-lambda-core` Lambda service to your AWS account
+2. Copy the Lambda Function URL, which looks like `https://your-unique-id.lambda-url.region.on.aws/`
 3. Use this URL as your `LAMBDA_FUNCTION_URL`
 
-**Note:** The Lambda function requires YouTube API credentials to be set up in AWS (stored in S3). See the streamingLambda repository for detailed deployment instructions.
+**Note:** This client now uses a separate GitHub auth service to obtain a JWT for the Lambda. The Lambda itself also needs YouTube OAuth credentials configured in AWS.
 
 #### `CAM_NAME`
 A descriptive name for this specific camera device. This appears in YouTube broadcast titles and helps identify individual cameras when you have multiple devices.
@@ -189,7 +194,7 @@ Controls the visibility of your YouTube live stream:
 Adjust these based on your camera mounting orientation to ensure the video appears right-side-up.
 
 ### Related Resources
-- [streamingLambda Repository](https://github.com/AccelerationConsortium/streamingLambda) - AWS Lambda service for YouTube streaming
+- `ac-streaming-lambda-core` - AWS Lambda service for YouTube streaming
 - [Issue #290](https://github.com/AccelerationConsortium/ac-dev-lab/issues/290) - Workflow name uniqueness requirements
 - [YouTube Hardware Streams](https://www.youtube.com/@ac-hardware-streams) - Example of equipment monitoring streams
 
@@ -237,6 +242,8 @@ To start the device manually and ensure that it's functioning normally, run:
 ```bash
 python3 device.py
 ```
+
+On first run, the script opens a browser for GitHub login and caches the Lambda token automatically. On non-Raspberry Pi machines, it stops after the Lambda dry-run once it has obtained the stream URL.
 
 ## Automatic startup
 
