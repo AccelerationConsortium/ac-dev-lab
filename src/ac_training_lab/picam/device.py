@@ -8,6 +8,7 @@ from my_secrets import (
     CAMERA_HFLIP,
     CAMERA_VFLIP,
     LAMBDA_FUNCTION_URL,
+    LAMBDA_TOKEN,
     PRIVACY_STATUS,
     WORKFLOW_NAME,
 )
@@ -124,7 +125,11 @@ def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
     print(f"Sending to Lambda: {payload}")
     try:
 
-        response = requests.post(LAMBDA_FUNCTION_URL, json=payload)
+        response = requests.post(
+            LAMBDA_FUNCTION_URL,
+            json=payload,
+            headers={"Authorization": f"Bearer {LAMBDA_TOKEN}"},
+        )
         print(f"Status code: {response.status_code}")
         print(f"Response text: {response.text}")
         response.raise_for_status()
@@ -151,7 +156,13 @@ def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
 
 if __name__ == "__main__":
     # End previous broadcast and start a new one via Lambda
-    call_lambda("end", CAM_NAME, WORKFLOW_NAME)
+    try:
+        call_lambda("end", CAM_NAME, WORKFLOW_NAME)
+    except RuntimeError as e:
+        if "no active stream" not in str(e):
+            raise
+        print("No active stream to end; continuing")
+
     raw_body = call_lambda(
         "create", CAM_NAME, WORKFLOW_NAME, privacy_status=PRIVACY_STATUS
     )
