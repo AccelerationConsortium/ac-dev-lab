@@ -21,6 +21,11 @@ except ImportError:
     AUTH_BASE_URL = "http://localhost:5000"
 
 try:
+    from my_secrets import AUTH_TAILSCALE_IP
+except ImportError:
+    AUTH_TAILSCALE_IP = ""
+
+try:
     from my_secrets import LAMBDA_TOKEN
 except ImportError:
     LAMBDA_TOKEN = ""
@@ -46,7 +51,15 @@ def save_cached_token(token):
 
 
 def login_for_lambda_token():
-    start = requests.get(f"{AUTH_BASE_URL.rstrip('/')}/device/start", timeout=15)
+    params = {}
+    if AUTH_TAILSCALE_IP:
+        params["tailscale_ip"] = AUTH_TAILSCALE_IP
+
+    start = requests.get(
+        f"{AUTH_BASE_URL.rstrip('/')}/device/start",
+        params=params or None,
+        timeout=15,
+    )
     start.raise_for_status()
     payload = start.json()
 

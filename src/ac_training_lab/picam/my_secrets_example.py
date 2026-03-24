@@ -1,6 +1,6 @@
 # GitHub auth service base URL - used to obtain and refresh the Lambda JWT
 # The picam client opens a browser and polls this service automatically when no token is cached.
-AUTH_BASE_URL = "http://localhost:5000"
+AUTH_BASE_URL = "http://tacozoid11.tail6a1dd7.ts.net:5000/"
 
 # AWS Lambda Function URL - Required for YouTube streaming
 # This URL is obtained by deploying the streamingLambda service to AWS.
