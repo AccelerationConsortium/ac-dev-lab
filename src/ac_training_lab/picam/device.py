@@ -260,7 +260,7 @@ if __name__ == "__main__":
 
     while True:
         print("Starting stream..")
-        p1, p2 = start_stream(ffmpeg_url)
+        p1, p2 = start_stream(ffmpeg_url, stream_key)
         print("Stream started")
         interrupted = False
         try:
