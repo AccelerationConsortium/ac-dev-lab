@@ -1,6 +1,9 @@
 import json
-import subprocess
 import shutil
+import subprocess
+import time
+import webbrowser
+from pathlib import Path
 
 import requests
 from my_secrets import (
@@ -8,10 +11,77 @@ from my_secrets import (
     CAMERA_HFLIP,
     CAMERA_VFLIP,
     LAMBDA_FUNCTION_URL,
-    LAMBDA_TOKEN,
     PRIVACY_STATUS,
     WORKFLOW_NAME,
 )
+
+try:
+    from my_secrets import AUTH_BASE_URL
+except ImportError:
+    AUTH_BASE_URL = "http://localhost:5000"
+
+try:
+    from my_secrets import LAMBDA_TOKEN
+except ImportError:
+    LAMBDA_TOKEN = ""
+
+TOKEN_CACHE_PATH = Path.home() / ".config" / "ac-picam" / "token.json"
+
+
+def load_cached_token():
+    if LAMBDA_TOKEN:
+        return LAMBDA_TOKEN
+    if not TOKEN_CACHE_PATH.exists():
+        return None
+    try:
+        data = json.loads(TOKEN_CACHE_PATH.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data.get("token")
+
+
+def save_cached_token(token):
+    TOKEN_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    TOKEN_CACHE_PATH.write_text(json.dumps({"token": token}) + "\n")
+
+
+def login_for_lambda_token():
+    start = requests.get(f"{AUTH_BASE_URL.rstrip('/')}/device/start", timeout=15)
+    start.raise_for_status()
+    payload = start.json()
+
+    login_url = payload["login_url"]
+    device_code = payload["device_code"]
+    poll_interval = payload.get("poll_interval", 2)
+
+    print("Log in with GitHub here:")
+    print(login_url)
+    try:
+        webbrowser.open(login_url)
+    except Exception:
+        pass
+
+    while True:
+        poll = requests.get(
+            f"{AUTH_BASE_URL.rstrip('/')}/device/poll",
+            params={"device_code": device_code},
+            timeout=15,
+        )
+        poll.raise_for_status()
+        result = poll.json()
+        if result.get("status") == "approved" and result.get("token"):
+            token = result["token"]
+            save_cached_token(token)
+            return token
+        time.sleep(poll_interval)
+
+
+def get_lambda_token(force_refresh=False):
+    if not force_refresh:
+        cached = load_cached_token()
+        if cached:
+            return cached
+    return login_for_lambda_token()
 
 
 def get_camera_command():
@@ -34,10 +104,8 @@ def start_stream(ffmpeg_url):
       p1: camera process (rpicam-vid or libcamera-vid)
       p2: ffmpeg process
     """
-    # Get the available camera command
     camera_cmd = get_camera_command()
 
-    # First: camera command with core parameters
     libcamera_cmd = [
         camera_cmd,
         "--inline",
@@ -45,48 +113,40 @@ def start_stream(ffmpeg_url):
         "-t",
         "0",
         "--mode",
-        "1536:864",  # A known 16:9 sensor mode
+        "1536:864",
         "--width",
-        "854",  # Scale width
+        "854",
         "--height",
-        "480",  # Scale height
+        "480",
         "--framerate",
-        "15",  # Frame rate
+        "15",
         "--codec",
-        "h264",  # H.264 encoding
+        "h264",
         "--bitrate",
-        "1000000",  # ~1 Mbps video
+        "1000000",
     ]
 
-    # Add flip parameters if needed
     if CAMERA_VFLIP:
         libcamera_cmd.extend(["--vflip"])
     if CAMERA_HFLIP:
         libcamera_cmd.extend(["--hflip"])
 
-    # Add output parameters last
-    libcamera_cmd.extend(["-o", "-"])  # Output to stdout (pipe)
+    libcamera_cmd.extend(["-o", "-"])
 
-    # Second: ffmpeg command
     ffmpeg_cmd = [
         "ffmpeg",
-        # Generate silent audio source
         "-f",
         "lavfi",
         "-i",
         "anullsrc=channel_layout=stereo:sample_rate=44100",
-        # Handle timestamps/threading
         "-thread_queue_size",
         "1024",
         "-use_wallclock_as_timestamps",
         "1",
-        # Read H.264 video from pipe
         "-i",
         "pipe:0",
-        # Copy the H.264 video directly
         "-c:v",
         "copy",
-        # Encode audio as AAC
         "-c:a",
         "aac",
         "-b:a",
@@ -95,45 +155,49 @@ def start_stream(ffmpeg_url):
         "fast",
         "-strict",
         "experimental",
-        # Output format is FLV, then final RTMP URL
         "-f",
         "flv",
         ffmpeg_url,
     ]
 
-    # Start camera process, capturing its output in a pipe
     p1 = subprocess.Popen(
         libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
-
-    # Start ffmpeg, reading from p1's stdout
     p2 = subprocess.Popen(ffmpeg_cmd, stdin=p1.stdout, stderr=subprocess.STDOUT)
-
-    # Close p1's stdout in the parent process
     p1.stdout.close()
-
     return p1, p2
 
 
-def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
+def _post_lambda(payload, token):
+    return requests.post(
+        LAMBDA_FUNCTION_URL,
+        json=payload,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=60,
+    )
+
+
+def call_lambda(action, cam_name, workflow_name, privacy_status="private"):
     payload = {
         "action": action,
-        "cam_name": CAM_NAME,
-        "workflow_name": WORKFLOW_NAME,
+        "cam_name": cam_name,
+        "workflow_name": workflow_name,
         "privacy_status": privacy_status,
     }
     print(f"Sending to Lambda: {payload}")
-    try:
 
-        response = requests.post(
-            LAMBDA_FUNCTION_URL,
-            json=payload,
-            headers={"Authorization": f"Bearer {LAMBDA_TOKEN}"},
-        )
+    token = get_lambda_token()
+
+    try:
+        response = _post_lambda(payload, token)
+        if response.status_code == 401:
+            print("Lambda token missing or expired; starting GitHub login flow")
+            token = get_lambda_token(force_refresh=True)
+            response = _post_lambda(payload, token)
+
         print(f"Status code: {response.status_code}")
         print(f"Response text: {response.text}")
         response.raise_for_status()
-        # Try to decode JSON, otherwise fall back to raw text
         try:
             result = response.json()
             if isinstance(result, dict) and "statusCode" in result and "body" in result:
@@ -155,7 +219,6 @@ def call_lambda(action, CAM_NAME, WORKFLOW_NAME, privacy_status="private"):
 
 
 if __name__ == "__main__":
-    # End previous broadcast and start a new one via Lambda
     try:
         call_lambda("end", CAM_NAME, WORKFLOW_NAME)
     except RuntimeError as e:
@@ -172,7 +235,7 @@ if __name__ == "__main__":
         ffmpeg_url = result["result"]["ffmpeg_url"]
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         raise RuntimeError(
-            f"Cannot proceed: ffmpeg_url not found or response invalid → {e}"
+            f"Cannot proceed: ffmpeg_url not found or response invalid -> {e}"
         )
 
     print(f"Streaming to: {ffmpeg_url}")
