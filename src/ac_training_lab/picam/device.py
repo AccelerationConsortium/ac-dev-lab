@@ -111,7 +111,7 @@ def get_camera_command():
         )
 
 
-def start_stream(ffmpeg_url):
+def start_stream(ffmpeg_url, stream_key):
     """
     Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
       p1: camera process (rpicam-vid or libcamera-vid)
@@ -170,11 +170,11 @@ def start_stream(ffmpeg_url):
         "experimental",
         "-f",
         "flv",
-        ffmpeg_url,
+        f"{ffmpeg_url.rstrip('/')}/{stream_key}",
     ]
 
     p1 = subprocess.Popen(
-        libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
     )
     p2 = subprocess.Popen(ffmpeg_cmd, stdin=p1.stdout, stderr=subprocess.STDOUT)
     p1.stdout.close()
@@ -246,12 +246,13 @@ if __name__ == "__main__":
     try:
         result = json.loads(raw_body) if isinstance(raw_body, str) else raw_body
         ffmpeg_url = result["result"]["ffmpeg_url"]
+        stream_key = result["result"]["stream_key"]
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         raise RuntimeError(
-            f"Cannot proceed: ffmpeg_url not found or response invalid -> {e}"
+            f"Cannot proceed: stream connection details not found or response invalid -> {e}"
         )
 
-    print(f"Streaming to: {ffmpeg_url}")
+    print(f"Streaming to: {ffmpeg_url}/{stream_key}")
 
     if not shutil.which("rpicam-vid") and not shutil.which("libcamera-vid"):
         print("No Raspberry Pi camera command found; exiting after Lambda dry-run")
