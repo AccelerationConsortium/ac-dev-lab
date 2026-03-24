@@ -177,6 +177,10 @@ if __name__ == "__main__":
 
     print(f"Streaming to: {ffmpeg_url}")
 
+    if not shutil.which("rpicam-vid") and not shutil.which("libcamera-vid"):
+        print("No Raspberry Pi camera command found; exiting after Lambda dry-run")
+        raise SystemExit(0)
+
     while True:
         print("Starting stream..")
         p1, p2 = start_stream(ffmpeg_url)
