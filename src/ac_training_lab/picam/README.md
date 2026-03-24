@@ -143,7 +143,12 @@ Fill in the necessary information (e.g., via `nano my_secrets.py`). Keep in mind
 #### `AUTH_BASE_URL`
 The base URL of the GitHub auth service that issues JWTs for the Lambda. On first run, `device.py` opens a browser to this service, waits for login to complete, and caches the returned token locally in `~/.config/ac-picam/token.json`.
 
-**Example:** `"http://localhost:5000"`
+**Example:** `"http://tacozoid11.tail6a1dd7.ts.net:5000"`
+
+#### `AUTH_TAILSCALE_IP` (optional)
+Only needed when the client reaches the auth server one way, but the browser should be sent to a different Tailscale host or IP for login. In the common case, set `AUTH_BASE_URL` directly and leave this unset.
+
+**Example:** `"tacozoid11.tail6a1dd7.ts.net"`
 
 #### `LAMBDA_FUNCTION_URL`
 The AWS Lambda Function URL for the YouTube streaming service. This Lambda function handles YouTube API authentication and stream management.
@@ -153,7 +158,7 @@ The AWS Lambda Function URL for the YouTube streaming service. This Lambda funct
 2. Copy the Lambda Function URL, which looks like `https://your-unique-id.lambda-url.region.on.aws/`
 3. Use this URL as your `LAMBDA_FUNCTION_URL`
 
-**Note:** This client now uses a separate GitHub auth service to obtain a JWT for the Lambda. The Lambda itself also needs YouTube OAuth credentials configured in AWS.
+**Note:** This client gets its JWT from the separate `auth.py` GitHub auth service. The Lambda itself separately needs YouTube OAuth credentials configured in AWS.
 
 #### `CAM_NAME`
 A descriptive name for this specific camera device. This appears in YouTube broadcast titles and helps identify individual cameras when you have multiple devices.
@@ -225,11 +230,11 @@ source venv/bin/activate
 
 While one could use the built-in Python installation (this device is intended to be run via a single top-level script, the RPi device (in our case RPi Zero 2W) requires minimal setup (i.e., can easily be reflashed), and the RPi device is intended for a single purpose with a single set of requirements (i.e., a "point-and-shoot" camera)), the extra steps involved to make this work are as equally onerous as using a venv [[context](https://github.com/AccelerationConsortium/ac-training-lab/pull/178#issuecomment-2730490626)], hence we only include instructions assuming a venv.
 
-<!-- Next, install the requirements via:
+Install the Python dependency used by the client:
 
 ```bash
 pip install -r requirements.txt
-``` -->
+```
 
 ## "Local" (i.e., not RPi OS) OS Development
 
@@ -243,7 +248,7 @@ To start the device manually and ensure that it's functioning normally, run:
 python3 device.py
 ```
 
-On first run, the script opens a browser for GitHub login and caches the Lambda token automatically. On non-Raspberry Pi machines, it stops after the Lambda dry-run once it has obtained the stream URL.
+On first run, the script opens a browser for GitHub login and caches the Lambda token automatically in `~/.config/ac-picam/token.json`. If Lambda returns `401`, the script retries the login flow automatically. On non-Raspberry Pi machines, it stops after the Lambda dry-run once it has obtained the stream URL.
 
 ## Automatic startup
 

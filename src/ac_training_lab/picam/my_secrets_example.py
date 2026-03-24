@@ -1,10 +1,13 @@
 # GitHub auth service base URL - used to obtain and refresh the Lambda JWT
 # The picam client opens a browser and polls this service automatically when no token is cached.
-AUTH_BASE_URL = "http://tacozoid11.tail6a1dd7.ts.net:5000/"
+AUTH_BASE_URL = "http://tacozoid11.tail6a1dd7.ts.net:5000"
+
+# Optional Tailscale host override for the browser login URL.
+# Only set this when the client reaches the auth server one way, but the browser must use a different reachable host or IP.
+AUTH_TAILSCALE_IP = ""
 
 # AWS Lambda Function URL - Required for YouTube streaming
-# This URL is obtained by deploying the streamingLambda service to AWS.
-# See: https://github.com/AccelerationConsortium/streamingLambda
+# This URL is obtained by deploying the ac-streaming-lambda-core service to AWS.
 # The Lambda function handles YouTube API calls to create and manage live streams.
 LAMBDA_FUNCTION_URL = "your_Lambda_function_url"
 
