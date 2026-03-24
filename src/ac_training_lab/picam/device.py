@@ -159,9 +159,10 @@ if __name__ == "__main__":
     try:
         call_lambda("end", CAM_NAME, WORKFLOW_NAME)
     except RuntimeError as e:
-        if "no active stream" not in str(e):
+        message = str(e)
+        if "no active stream" not in message and "Invalid transition" not in message:
             raise
-        print("No active stream to end; continuing")
+        print("No endable active stream found; continuing")
 
     raw_body = call_lambda(
         "create", CAM_NAME, WORKFLOW_NAME, privacy_status=PRIVACY_STATUS
