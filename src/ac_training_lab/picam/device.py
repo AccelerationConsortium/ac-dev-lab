@@ -31,6 +31,7 @@ except ImportError:
     LAMBDA_TOKEN = ""
 
 TOKEN_CACHE_PATH = Path.home() / ".config" / "ac-picam" / "token.json"
+STREAM_STATE_PATH = Path.home() / ".config" / "ac-picam" / "stream.json"
 
 
 def load_cached_token():
@@ -48,6 +49,23 @@ def load_cached_token():
 def save_cached_token(token):
     TOKEN_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
     TOKEN_CACHE_PATH.write_text(json.dumps({"token": token}) + "\n")
+
+
+def load_cached_stream_id():
+    if not STREAM_STATE_PATH.exists():
+        return None
+    try:
+        data = json.loads(STREAM_STATE_PATH.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None
+    return data.get("stream_id")
+
+
+def save_cached_stream_id(stream_id):
+    if not stream_id:
+        return
+    STREAM_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STREAM_STATE_PATH.write_text(json.dumps({"stream_id": stream_id}) + "\n")
 
 
 def login_for_lambda_token():
@@ -196,13 +214,17 @@ def _post_lambda(payload, token):
     )
 
 
-def call_lambda(action, cam_name, workflow_name, privacy_status="private"):
+def call_lambda(
+    action, cam_name, workflow_name, privacy_status="private", stream_id=None
+):
     payload = {
         "action": action,
         "cam_name": cam_name,
         "workflow_name": workflow_name,
         "privacy_status": privacy_status,
     }
+    if stream_id:
+        payload["stream_id"] = stream_id
     print(f"Sending to Lambda: {payload}")
 
     token = get_lambda_token()
@@ -238,13 +260,20 @@ def call_lambda(action, cam_name, workflow_name, privacy_status="private"):
 
 
 if __name__ == "__main__":
-    try:
-        call_lambda("end", CAM_NAME, WORKFLOW_NAME)
-    except RuntimeError as e:
-        message = str(e)
-        if "no active stream" not in message and "Invalid transition" not in message:
-            raise
-        print("No endable active stream found; continuing")
+    cached_stream_id = load_cached_stream_id()
+    if cached_stream_id:
+        try:
+            call_lambda("end", CAM_NAME, WORKFLOW_NAME, stream_id=cached_stream_id)
+        except RuntimeError as e:
+            message = str(e)
+            if (
+                "no active stream" not in message
+                and "Invalid transition" not in message
+            ):
+                raise
+            print("No endable active stream found; continuing")
+    else:
+        print("No cached stream_id found; skipping end step.")
 
     raw_body = call_lambda(
         "create", CAM_NAME, WORKFLOW_NAME, privacy_status=PRIVACY_STATUS
@@ -253,6 +282,9 @@ if __name__ == "__main__":
         result = json.loads(raw_body) if isinstance(raw_body, str) else raw_body
         ffmpeg_url = result["result"]["ffmpeg_url"]
         stream_key = result["result"]["stream_key"]
+        stream_id = result["result"].get("stream_id")
+        if stream_id:
+            save_cached_stream_id(stream_id)
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         raise RuntimeError(
             f"Cannot proceed: stream connection details not found or response invalid -> {e}"
