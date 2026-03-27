@@ -1,0 +1,21 @@
+{
+  "timestamp": "2025-11-28 15:11:00.619489",
+  "detections": [
+    {
+      "tag_id": 110,
+      "position": {
+        "x": -0.027993731713029064,
+        "y": 0.04610861550706114,
+        "z": 0.4009576706127675
+      },
+      "orientation": {
+        "roll": -14.300916549107134,
+        "pitch": 1.9465526437791372,
+        "yaw": 7.9753109087608705
+      },
+      "distance_cm": 40.456978021401405,
+      "transformation_applied": "horizontal_flip_correction"
+    }
+  ],
+  "coordinate_system": "original_camera_orientation"
+}
