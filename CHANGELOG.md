@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 ### Added
+- Window frosting product recommendations in `docs/window-frosting-products.md` for laboratory privacy, including consumer-grade (Amazon), home improvement (Home Depot), and professional-grade (3M Fasara) options with verified purchase links and installation guidance.
 - Support for both `rpicam-vid` (Raspberry Pi OS Trixie) and `libcamera-vid` (Raspberry Pi OS Bookworm) camera commands in `src/ac_training_lab/picam/device.py` to ensure compatibility across different OS versions.
 - Comprehensive Unit Operations section in `docs/index.md` documenting all available capabilities including dispensing, synthesis, characterization, and robotics operations.
 - Expanded Training Workflows section in `docs/index.md` with 10 educational workflows including RGB/RYB color matching, titration, yeast growth optimization, vision-enabled 3D printing optimization, microscopy image stitching, and AprilTag robot path planning.
