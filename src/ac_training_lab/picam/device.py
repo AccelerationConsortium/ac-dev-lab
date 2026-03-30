@@ -153,6 +153,10 @@ def start_stream(ffmpeg_url, stream_key):
         "15",
         "--codec",
         "h264",
+        "--profile",
+        "baseline",
+        "--intra",
+        "30",
         "--bitrate",
         "1000000",
     ]
