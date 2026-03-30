@@ -152,8 +152,6 @@ def start_stream(ffmpeg_url, stream_key):
         "--framerate",
         "15",
         "--codec",
-        "libav",
-        "--libav-format",
         "h264",
         "--bitrate",
         "1000000",
