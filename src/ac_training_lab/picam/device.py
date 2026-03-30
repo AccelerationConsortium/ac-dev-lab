@@ -275,6 +275,7 @@ if __name__ == "__main__":
             if (
                 "no active stream" not in message
                 and "Invalid transition" not in message
+                and "Redundant transition" not in message
             ):
                 raise
             print("No endable active stream found; continuing")
