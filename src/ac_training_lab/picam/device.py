@@ -288,7 +288,9 @@ if __name__ == "__main__":
     try:
         result = json.loads(raw_body) if isinstance(raw_body, str) else raw_body
         ffmpeg_url = result["result"]["ffmpeg_url"]
-        stream_key = result["result"]["stream_key"]
+        stream_key = result["result"].get("stream_key")
+        if not stream_key and ffmpeg_url and "/" in ffmpeg_url:
+            ffmpeg_url, stream_key = ffmpeg_url.rsplit("/", 1)
         stream_id = result["result"].get("stream_id")
         if stream_id:
             save_cached_stream_id(stream_id)
