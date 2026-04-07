@@ -243,6 +243,8 @@ def call_lambda(
         "workflow_name": workflow_name,
         "privacy_status": privacy_status,
     }
+    if action == "create":
+        payload["force_new"] = True
     if stream_id:
         payload["stream_id"] = stream_id
     print(f"Sending to Lambda: {payload}")
