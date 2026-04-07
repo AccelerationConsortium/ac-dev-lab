@@ -323,6 +323,11 @@ if __name__ == "__main__":
         print("Starting stream..")
         p1, p2 = start_stream(ffmpeg_url, stream_key)
         print("Stream started")
+        if stream_id:
+            try:
+                call_lambda("live", CAM_NAME, WORKFLOW_NAME, stream_id=stream_id)
+            except RuntimeError as e:
+                print(f"Live transition failed: {e}")
         interrupted = False
         try:
             p2.wait()
