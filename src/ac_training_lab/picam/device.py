@@ -325,6 +325,7 @@ if __name__ == "__main__":
         print("Starting stream..")
         p1, p2 = start_stream(ffmpeg_url, stream_key)
         print("Stream started")
+        time.sleep(8)
         if stream_id:
             for action in ("testing", "live"):
                 for attempt in range(3):
