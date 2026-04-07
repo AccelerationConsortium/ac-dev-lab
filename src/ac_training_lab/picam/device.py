@@ -324,10 +324,21 @@ if __name__ == "__main__":
         p1, p2 = start_stream(ffmpeg_url, stream_key)
         print("Stream started")
         if stream_id:
-            try:
-                call_lambda("live", CAM_NAME, WORKFLOW_NAME, stream_id=stream_id)
-            except RuntimeError as e:
-                print(f"Live transition failed: {e}")
+            for action in ("testing", "live"):
+                for attempt in range(3):
+                    try:
+                        call_lambda(
+                            action, CAM_NAME, WORKFLOW_NAME, stream_id=stream_id
+                        )
+                        break
+                    except RuntimeError as e:
+                        message = str(e)
+                        if "Invalid transition" in message and action == "testing":
+                            break
+                        print(
+                            f"{action} transition failed (attempt {attempt + 1}): {e}"
+                        )
+                        time.sleep(5)
         interrupted = False
         try:
             p2.wait()
