@@ -332,7 +332,31 @@ if __name__ == "__main__":
         print("Stream started")
         time.sleep(8)
         if stream_id:
+            life_cycle = None
+            for attempt in range(6):
+                try:
+                    status_body = call_lambda(
+                        "status", CAM_NAME, WORKFLOW_NAME, stream_id=stream_id
+                    )
+                    status = (
+                        status_body.get("result")
+                        if isinstance(status_body, dict)
+                        else None
+                    )
+                    life_cycle = ((status or {}).get("status") or {}).get(
+                        "lifeCycleStatus"
+                    )
+                    if life_cycle in ("ready", "testing", "live"):
+                        break
+                except RuntimeError as e:
+                    print(f"Status check failed: {e}")
+                time.sleep(5)
+
             for action in ("testing", "live"):
+                if life_cycle == "live":
+                    break
+                if action == "testing" and life_cycle == "testing":
+                    continue
                 for attempt in range(3):
                     try:
                         call_lambda(
