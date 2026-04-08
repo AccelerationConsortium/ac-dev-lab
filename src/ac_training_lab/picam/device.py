@@ -150,6 +150,8 @@ def start_stream(ffmpeg_url, stream_key):
     video_maxrate = os.environ.get("PICAM_VIDEO_MAXRATE", video_bitrate)
     video_bufsize = os.environ.get("PICAM_VIDEO_BUFSIZE", "2000k")
     x264_preset = os.environ.get("PICAM_X264_PRESET", "ultrafast")
+    input_codec = os.environ.get("PICAM_INPUT_CODEC", "raw").lower()
+    camera_bitrate = os.environ.get("PICAM_CAMERA_BITRATE", "1200000")
     gop = str(stream_fps * 2)
 
     libcamera_cmd = [
@@ -166,9 +168,22 @@ def start_stream(ffmpeg_url, stream_key):
         str(stream_height),
         "--framerate",
         str(stream_fps),
-        "--codec",
-        "yuv420",
     ]
+    if input_codec == "h264":
+        libcamera_cmd.extend(
+            [
+                "--codec",
+                "h264",
+                "--profile",
+                "baseline",
+                "--intra",
+                gop,
+                "--bitrate",
+                str(camera_bitrate),
+            ]
+        )
+    else:
+        libcamera_cmd.extend(["--codec", "yuv420"])
 
     if CAMERA_VFLIP:
         libcamera_cmd.extend(["--vflip"])
@@ -177,52 +192,70 @@ def start_stream(ffmpeg_url, stream_key):
 
     libcamera_cmd.extend(["-o", "-"])
 
-    ffmpeg_cmd = [
-        "ffmpeg",
-        "-thread_queue_size",
-        "1024",
-        "-use_wallclock_as_timestamps",
-        "1",
-        "-fflags",
-        "+genpts",
-        "-analyzeduration",
-        "10000000",
-        "-probesize",
-        "10000000",
-        "-f",
-        "rawvideo",
-        "-pix_fmt",
-        "yuv420p",
-        "-s",
-        f"{stream_width}x{stream_height}",
-        "-r",
-        str(stream_fps),
-        "-i",
-        "pipe:0",
-        "-c:v",
-        "libx264",
-        "-preset",
-        x264_preset,
-        "-tune",
-        "zerolatency",
-        "-pix_fmt",
-        "yuv420p",
-        "-g",
-        gop,
-        "-keyint_min",
-        gop,
-        "-sc_threshold",
-        "0",
-        "-b:v",
-        video_bitrate,
-        "-maxrate",
-        video_maxrate,
-        "-bufsize",
-        video_bufsize,
-        "-f",
-        "flv",
-        f"{ffmpeg_url.rstrip('/')}/{stream_key}",
-    ]
+    if input_codec == "h264":
+        input_opts = [
+            "-f",
+            "h264",
+            "-r",
+            str(stream_fps),
+            "-i",
+            "pipe:0",
+        ]
+    else:
+        input_opts = [
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "yuv420p",
+            "-s",
+            f"{stream_width}x{stream_height}",
+            "-r",
+            str(stream_fps),
+            "-i",
+            "pipe:0",
+        ]
+
+    ffmpeg_cmd = (
+        [
+            "ffmpeg",
+            "-thread_queue_size",
+            "1024",
+            "-use_wallclock_as_timestamps",
+            "1",
+            "-fflags",
+            "+genpts",
+            "-analyzeduration",
+            "10000000",
+            "-probesize",
+            "10000000",
+        ]
+        + input_opts
+        + [
+            "-c:v",
+            "libx264",
+            "-preset",
+            x264_preset,
+            "-tune",
+            "zerolatency",
+            "-pix_fmt",
+            "yuv420p",
+            "-g",
+            gop,
+            "-keyint_min",
+            gop,
+            "-sc_threshold",
+            "0",
+            "-b:v",
+            video_bitrate,
+            "-maxrate",
+            video_maxrate,
+            "-bufsize",
+            video_bufsize,
+            "-f",
+            "flv",
+            f"{ffmpeg_url.rstrip('/')}/{stream_key}",
+        ]
+    )
 
     p1 = subprocess.Popen(
         libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
