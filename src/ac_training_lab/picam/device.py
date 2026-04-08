@@ -155,7 +155,7 @@ def start_stream(ffmpeg_url, stream_key):
         "--height",
         "360",
         "--framerate",
-        "10",
+        "15",
         "--codec",
         "yuv420",
     ]
@@ -190,7 +190,7 @@ def start_stream(ffmpeg_url, stream_key):
         "-s",
         "640x360",
         "-r",
-        "10",
+        "15",
         "-i",
         "pipe:0",
         "-c:v",
