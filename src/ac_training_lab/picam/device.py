@@ -228,6 +228,10 @@ def start_stream(ffmpeg_url, stream_key):
             "10000000",
             "-probesize",
             "10000000",
+            "-f",
+            "lavfi",
+            "-i",
+            "anullsrc=channel_layout=stereo:sample_rate=44100",
         ]
         + input_opts
         + [
@@ -251,6 +255,10 @@ def start_stream(ffmpeg_url, stream_key):
             video_maxrate,
             "-bufsize",
             video_bufsize,
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
             "-f",
             "flv",
             f"{ffmpeg_url.rstrip('/')}/{stream_key}",
