@@ -157,9 +157,13 @@ def start_stream(ffmpeg_url, stream_key):
         "--framerate",
         "10",
         "--codec",
-        "mjpeg",
-        "--quality",
-        "80",
+        "h264",
+        "--profile",
+        "baseline",
+        "--intra",
+        "30",
+        "--bitrate",
+        "600000",
     ]
 
     if CAMERA_VFLIP:
@@ -186,7 +190,7 @@ def start_stream(ffmpeg_url, stream_key):
         "-probesize",
         "10000000",
         "-f",
-        "mjpeg",
+        "h264",
         "-r",
         "10",
         "-i",
