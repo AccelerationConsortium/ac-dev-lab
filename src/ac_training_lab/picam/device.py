@@ -189,6 +189,8 @@ def start_stream(ffmpeg_url, stream_key):
         "mjpeg",
         "-r",
         "10",
+        "-s",
+        "640x360",
         "-i",
         "pipe:0",
         "-c:v",
