@@ -232,6 +232,8 @@ def start_stream(ffmpeg_url, stream_key):
             "lavfi",
             "-i",
             "anullsrc=channel_layout=stereo:sample_rate=44100",
+            "-af",
+            "aresample=async=1:first_pts=0",
         ]
         + input_opts
         + [
