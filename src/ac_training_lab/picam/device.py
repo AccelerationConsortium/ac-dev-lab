@@ -142,6 +142,15 @@ def start_stream(ffmpeg_url, stream_key):
     """
     camera_cmd = get_camera_command()
 
+    stream_width = int(os.environ.get("PICAM_WIDTH", "640"))
+    stream_height = int(os.environ.get("PICAM_HEIGHT", "360"))
+    stream_fps = int(os.environ.get("PICAM_FPS", "15"))
+    video_bitrate = os.environ.get("PICAM_VIDEO_BITRATE", "1000k")
+    video_maxrate = os.environ.get("PICAM_VIDEO_MAXRATE", video_bitrate)
+    video_bufsize = os.environ.get("PICAM_VIDEO_BUFSIZE", "2000k")
+    x264_preset = os.environ.get("PICAM_X264_PRESET", "ultrafast")
+    gop = str(stream_fps * 2)
+
     libcamera_cmd = [
         camera_cmd,
         "--inline",
@@ -151,11 +160,11 @@ def start_stream(ffmpeg_url, stream_key):
         "--mode",
         "1280:720",
         "--width",
-        "640",
+        str(stream_width),
         "--height",
-        "360",
+        str(stream_height),
         "--framerate",
-        "15",
+        str(stream_fps),
         "--codec",
         "yuv420",
     ]
@@ -169,10 +178,6 @@ def start_stream(ffmpeg_url, stream_key):
 
     ffmpeg_cmd = [
         "ffmpeg",
-        "-f",
-        "lavfi",
-        "-i",
-        "anullsrc=channel_layout=stereo:sample_rate=44100",
         "-thread_queue_size",
         "1024",
         "-use_wallclock_as_timestamps",
@@ -188,35 +193,31 @@ def start_stream(ffmpeg_url, stream_key):
         "-pix_fmt",
         "yuv420p",
         "-s",
-        "640x360",
+        f"{stream_width}x{stream_height}",
         "-r",
-        "15",
+        str(stream_fps),
         "-i",
         "pipe:0",
         "-c:v",
         "libx264",
         "-preset",
-        "ultrafast",
+        x264_preset,
         "-tune",
         "zerolatency",
         "-pix_fmt",
         "yuv420p",
         "-g",
-        "30",
+        gop,
         "-keyint_min",
-        "30",
+        gop,
         "-sc_threshold",
         "0",
         "-b:v",
-        "800k",
+        video_bitrate,
         "-maxrate",
-        "800k",
+        video_maxrate,
         "-bufsize",
-        "1600k",
-        "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
+        video_bufsize,
         "-f",
         "flv",
         f"{ffmpeg_url.rstrip('/')}/{stream_key}",
