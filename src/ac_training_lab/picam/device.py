@@ -30,6 +30,11 @@ try:
 except ImportError:
     LAMBDA_TOKEN = ""
 
+try:
+    from my_secrets import FORCE_NEW
+except ImportError:
+    FORCE_NEW = False
+
 TOKEN_CACHE_PATH = Path.home() / ".config" / "ac-picam" / "token.json"
 STREAM_STATE_PATH = Path.home() / ".config" / "ac-picam" / "stream.json"
 
@@ -244,7 +249,7 @@ def call_lambda(
         "privacy_status": privacy_status,
     }
     if action == "create":
-        payload["force_new"] = True
+        payload["force_new"] = FORCE_NEW
     if stream_id:
         payload["stream_id"] = stream_id
     print(f"Sending to Lambda: {payload}")
