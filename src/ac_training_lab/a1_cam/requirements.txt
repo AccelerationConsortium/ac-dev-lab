@@ -1,3 +1,6 @@
 boto3
 paho-mqtt
+opencv-python
+PyYAML
+numpy
 # picamera2 via `sudo apt install python3-picamera2` (see README)
