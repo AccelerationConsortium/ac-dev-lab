@@ -111,11 +111,15 @@ def start_stream(ffmpeg_url, width=854, height=480, rotation=0, framerate=15, ti
         video_filters.append("transpose=2")  # 90 degrees counter-clockwise (270 clockwise)
     
     # Add timestamp overlay if enabled
-    # Format: YYYY-MM-DD_HH-MM-SS (updates every second)
+    # Format: YYYY-MM-DD_HH-MM-SS (ffmpeg's localtime evaluates per-frame, so the overlay updates once per second at typical framerates)
     if timestamp_overlay:
         # drawtext filter with white text, black background box, in top-left corner
         # fontsize scales with video height for consistent appearance
-        fontsize = max(16, height // 20)
+        if rotation in (90, 270):
+            actual_height = width
+        else:
+            actual_height = height
+        fontsize = max(16, actual_height // 20)
         # Note: In ffmpeg drawtext filter, special characters need escaping:
         # - The format separator after localtime uses \:
         # - Colons in the time display (H:M:S) also need escaping

@@ -10,7 +10,7 @@
 - Resolution setting in `my_secrets_example.py` for YouTube-compatible streaming (144p, 240p, 360p, 480p, 720p, 1080p).
 - Camera rotation setting (0, 90, 180, 270 degrees) for portrait mode streaming in `my_secrets_example.py`.
 - Frame rate setting in `my_secrets_example.py` for adjustable stream frame rate.
-- Timestamp overlay setting in `my_secrets_example.py` to display date/time with seconds on video stream.
+- Timestamp overlay setting in `my_secrets_example.py` to display date/time (format: YYYY-MM-DD_HH-MM-SS) on video stream.
 
 ### Fixed
 - Ctrl+C interrupt handling in `src/ac_training_lab/picam/device.py` now properly exits the streaming loop instead of restarting.
