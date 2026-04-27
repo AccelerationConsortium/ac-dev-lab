@@ -1,6 +1,7 @@
 import json
-import subprocess
+import os
 import shutil
+import subprocess
 
 import requests
 from my_secrets import (
@@ -27,16 +28,25 @@ def get_camera_command():
         )
 
 
-def start_stream(ffmpeg_url):
+def start_stream(ffmpeg_url, stream_key=None):
     """
     Starts the libcamera -> ffmpeg pipeline and returns two Popen objects:
       p1: camera process (rpicam-vid or libcamera-vid)
       p2: ffmpeg process
     """
-    # Get the available camera command
     camera_cmd = get_camera_command()
 
-    # First: camera command with core parameters
+    stream_width = int(os.environ.get("PICAM_WIDTH", "640"))
+    stream_height = int(os.environ.get("PICAM_HEIGHT", "360"))
+    stream_fps = int(os.environ.get("PICAM_FPS", "15"))
+    video_bitrate = os.environ.get("PICAM_VIDEO_BITRATE", "1000k")
+    video_maxrate = os.environ.get("PICAM_VIDEO_MAXRATE", video_bitrate)
+    video_bufsize = os.environ.get("PICAM_VIDEO_BUFSIZE", "2000k")
+    x264_preset = os.environ.get("PICAM_X264_PRESET", "ultrafast")
+    input_codec = os.environ.get("PICAM_INPUT_CODEC", "raw").lower()
+    camera_bitrate = os.environ.get("PICAM_CAMERA_BITRATE", "1200000")
+    gop = str(stream_fps * 2)
+
     libcamera_cmd = [
         camera_cmd,
         "--inline",
@@ -44,73 +54,120 @@ def start_stream(ffmpeg_url):
         "-t",
         "0",
         "--mode",
-        "1536:864",  # A known 16:9 sensor mode
+        "1280:720",
         "--width",
-        "854",  # Scale width
+        str(stream_width),
         "--height",
-        "480",  # Scale height
+        str(stream_height),
         "--framerate",
-        "15",  # Frame rate
-        "--codec",
-        "h264",  # H.264 encoding
-        "--bitrate",
-        "1000000",  # ~1 Mbps video
+        str(stream_fps),
     ]
+    if input_codec == "h264":
+        libcamera_cmd.extend(
+            [
+                "--codec",
+                "h264",
+                "--profile",
+                "baseline",
+                "--intra",
+                gop,
+                "--bitrate",
+                str(camera_bitrate),
+            ]
+        )
+    else:
+        libcamera_cmd.extend(["--codec", "yuv420"])
 
-    # Add flip parameters if needed
     if CAMERA_VFLIP:
         libcamera_cmd.extend(["--vflip"])
     if CAMERA_HFLIP:
         libcamera_cmd.extend(["--hflip"])
 
-    # Add output parameters last
-    libcamera_cmd.extend(["-o", "-"])  # Output to stdout (pipe)
+    libcamera_cmd.extend(["-o", "-"])
 
-    # Second: ffmpeg command
-    ffmpeg_cmd = [
-        "ffmpeg",
-        # Generate silent audio source
-        "-f",
-        "lavfi",
-        "-i",
-        "anullsrc=channel_layout=stereo:sample_rate=44100",
-        # Handle timestamps/threading
-        "-thread_queue_size",
-        "1024",
-        "-use_wallclock_as_timestamps",
-        "1",
-        # Read H.264 video from pipe
-        "-i",
-        "pipe:0",
-        # Copy the H.264 video directly
-        "-c:v",
-        "copy",
-        # Encode audio as AAC
-        "-c:a",
-        "aac",
-        "-b:a",
-        "128k",
-        "-preset",
-        "fast",
-        "-strict",
-        "experimental",
-        # Output format is FLV, then final RTMP URL
-        "-f",
-        "flv",
-        ffmpeg_url,
-    ]
+    if input_codec == "h264":
+        input_opts = [
+            "-f",
+            "h264",
+            "-r",
+            str(stream_fps),
+            "-i",
+            "pipe:0",
+        ]
+    else:
+        input_opts = [
+            "-f",
+            "rawvideo",
+            "-pix_fmt",
+            "yuv420p",
+            "-s",
+            f"{stream_width}x{stream_height}",
+            "-r",
+            str(stream_fps),
+            "-i",
+            "pipe:0",
+        ]
 
-    # Start camera process, capturing its output in a pipe
-    p1 = subprocess.Popen(
-        libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+    output_url = (
+        f"{ffmpeg_url.rstrip('/')}/{stream_key}" if stream_key else ffmpeg_url
+    )
+    ffmpeg_cmd = (
+        [
+            "ffmpeg",
+            "-thread_queue_size",
+            "1024",
+            "-use_wallclock_as_timestamps",
+            "1",
+            "-fflags",
+            "+genpts",
+            "-analyzeduration",
+            "10000000",
+            "-probesize",
+            "10000000",
+            "-f",
+            "lavfi",
+            "-i",
+            "anullsrc=channel_layout=stereo:sample_rate=44100",
+        ]
+        + input_opts
+        + [
+            "-filter:a",
+            "aresample=async=1:first_pts=0",
+            "-c:v",
+            "libx264",
+            "-preset",
+            x264_preset,
+            "-tune",
+            "zerolatency",
+            "-pix_fmt",
+            "yuv420p",
+            "-g",
+            gop,
+            "-keyint_min",
+            gop,
+            "-sc_threshold",
+            "0",
+            "-b:v",
+            video_bitrate,
+            "-maxrate",
+            video_maxrate,
+            "-bufsize",
+            video_bufsize,
+            "-c:a",
+            "aac",
+            "-b:a",
+            "128k",
+            "-f",
+            "flv",
+            output_url,
+        ]
     )
 
-    # Start ffmpeg, reading from p1's stdout
+    p1 = subprocess.Popen(
+        libcamera_cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL
+    )
     p2 = subprocess.Popen(ffmpeg_cmd, stdin=p1.stdout, stderr=subprocess.STDOUT)
-
-    # Close p1's stdout in the parent process
     p1.stdout.close()
-
     return p1, p2
 
 
@@ -158,16 +215,24 @@ if __name__ == "__main__":
     try:
         result = json.loads(raw_body) if isinstance(raw_body, str) else raw_body
         ffmpeg_url = result["result"]["ffmpeg_url"]
+        stream_key = result["result"].get("stream_key")
+        if not stream_key and ffmpeg_url and "/" in ffmpeg_url:
+            ffmpeg_url, stream_key = ffmpeg_url.rsplit("/", 1)
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         raise RuntimeError(
-            f"Cannot proceed: ffmpeg_url not found or response invalid → {e}"
+            f"Cannot proceed: stream connection details not found or response invalid -> {e}"
         )
 
-    print(f"Streaming to: {ffmpeg_url}")
+    output_url = f"{ffmpeg_url.rstrip('/')}/{stream_key}" if stream_key else ffmpeg_url
+    print(f"Streaming to: {output_url}")
+
+    if not shutil.which("rpicam-vid") and not shutil.which("libcamera-vid"):
+        print("No Raspberry Pi camera command found; exiting after Lambda dry-run")
+        raise SystemExit(0)
 
     while True:
         print("Starting stream..")
-        p1, p2 = start_stream(ffmpeg_url)
+        p1, p2 = start_stream(ffmpeg_url, stream_key)
         print("Stream started")
         interrupted = False
         try:
