@@ -61,6 +61,7 @@ venv*/
 .python-version
 
 **/my_secrets.py
+src/ac_training_lab/picam/my_secrets
 ac-training-lab.code-workspace
 
 src/ac_training_lab/pioreactor/lookhere.py
