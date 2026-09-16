@@ -1,4 +1,5 @@
-# import lookhere
+import os
+
 import paho.mqtt.client as mqtt
 
 # Define the MQTT settings
@@ -15,10 +16,10 @@ Useful for debugging and testing the MQTT broker.
 Author: Enrui (Edison) Lin
 """
 
-broker = "pio1.local"
-port = 1883
-username = "pioreactor"
-password = \"<REDACTED>\"
+broker = os.environ.get("PIOREACTOR_MQTT_HOST", "pio1.local")
+port = int(os.environ.get("PIOREACTOR_MQTT_PORT", "1883"))
+username = os.environ.get("PIOREACTOR_MQTT_USERNAME", "pioreactor")
+password = os.environ["PIOREACTOR_MQTT_PASSWORD"]
 
 
 # The callback for when the client receives a CONNACK response from the server.

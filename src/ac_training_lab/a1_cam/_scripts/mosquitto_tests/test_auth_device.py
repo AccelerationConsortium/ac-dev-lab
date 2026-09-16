@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Test MQTT device with authentication"""
 import json
+import os
 import time
 import paho.mqtt.client as mqtt
 
@@ -39,7 +40,7 @@ def on_message(client, userdata, msg):
         print(f"✗ Error processing message: {e}")
 
 client = mqtt.Client(client_id="test-device")
-client.username_pw_set("device_user", \"<REDACTED>\")
+client.username_pw_set("device_user", os.environ["MQTT_TEST_DEVICE_PASSWORD"])
 client.on_connect = on_connect
 client.on_message = on_message
 

@@ -27,7 +27,7 @@ services:
     depends_on:
       - prefect-postgres
     environment:
-      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:<REDACTED>@prefect-postgres:5432/prefect"
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:${PREFECT_POSTGRES_PASSWORD:<REDACTED>
       PREFECT_SERVER_HOST: "0.0.0.0"
       PREFECT_API_URL: "http://192.168.2.144:4200/api"
       PREFECT_LOGGING_LEVEL: INFO

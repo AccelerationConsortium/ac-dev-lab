@@ -1,6 +1,7 @@
 """Streamlit implementation is preferred over this gradio implementation"""
 
 import json
+import os
 
 import gradio as gr
 import paho.mqtt.client as mqtt
@@ -8,7 +9,7 @@ import paho.mqtt.client as mqtt
 # Configuration
 HIVEMQ_HOST = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 HIVEMQ_USERNAME = "sgbaird"
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = os.environ["HIVEMQ_PASSWORD"]
 PORT = 8883  # default port for MQTT over TLS
 
 # Initialize MQTT client

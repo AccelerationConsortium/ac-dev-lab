@@ -1,4 +1,5 @@
 import json
+import os
 
 import lookhere
 import paho.mqtt.client as mqtt
@@ -22,10 +23,10 @@ username = lookhere.username
 password = lookhere.password
 
 
-broker = "pio1.local"
-port = 1883
-username = "pioreactor"
-password = \"<REDACTED>\"
+broker = os.environ.get("PIOREACTOR_MQTT_HOST", broker)
+port = int(os.environ.get("PIOREACTOR_MQTT_PORT", port))
+username = os.environ.get("PIOREACTOR_MQTT_USERNAME", username)
+password = os.environ["PIOREACTOR_MQTT_PASSWORD"]
 
 
 def on_connect(client, userdata, flags, rc):

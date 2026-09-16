@@ -4,6 +4,7 @@ Test client with MQTT authentication.
 Tests username/password authentication and topic ACL filters.
 """
 import json
+import os
 import paho.mqtt.client as mqtt
 from queue import Queue, Empty
 import time
@@ -12,7 +13,7 @@ import time
 MQTT_HOST = "localhost"
 MQTT_PORT = 1883
 MQTT_USERNAME = "client_user"
-MQTT_PASSWORD = \"<REDACTED>\"
+MQTT_PASSWORD = os.environ["MQTT_TEST_CLIENT_PASSWORD"]
 DEVICE_SERIAL = "test-cam-01"
 CAMERA_READ_TOPIC = f"rpi-zero2w/still-camera/{DEVICE_SERIAL}/request"
 CAMERA_WRITE_TOPIC = f"rpi-zero2w/still-camera/{DEVICE_SERIAL}/response"

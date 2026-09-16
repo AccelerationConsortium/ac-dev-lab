@@ -1,4 +1,5 @@
 import json
+import os
 from queue import Empty, Queue
 from time import sleep
 
@@ -13,7 +14,7 @@ PICO_ID = "e66130100f895134"
 # MQTT Broker Configuration
 host = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 username = "sgbaird"
-password = \"<REDACTED>\"
+password = os.environ["HIVEMQ_PASSWORD"]
 port = 8883
 
 OT2_COMMAND_TOPIC = f"command/ot2/{OT2_SERIAL}/pipette"

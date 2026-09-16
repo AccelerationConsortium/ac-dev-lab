@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import time
 
@@ -7,7 +8,7 @@ import numpy as np
 import paho.mqtt.client as mqtt
 
 HIVEMQ_USERNAME = "sgbaird"
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = os.environ["HIVEMQ_PASSWORD"]
 HIVEMQ_HOST = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 
 # MQTT Configuration
