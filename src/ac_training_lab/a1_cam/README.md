@@ -286,7 +286,7 @@ Fill in the necessary information. Keep in mind this will store the credentials 
 
 ## Dependencies
 
-If not already installed (not pre-installed on RPi OS Lite), install [`picamera2`](https://github.com/<REDACTED>pi/picamera2) via:
+If not already installed (not pre-installed on RPi OS Lite), install [`picamera2`](https://github.com/raspberrypi/picamera2) via:
 
 ```bash
 sudo apt install python3-picamera2 --no-install-recommends

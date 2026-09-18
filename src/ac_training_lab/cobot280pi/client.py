@@ -12,7 +12,7 @@ class CobotController:
     def __init__(
         self,
         hive_mq_username: str,
-        hive_mq_password: <REDACTED>
+        hive_mq_password: str,
         hive_mq_cloud: str,
         port: int,
         device_endpoint: str,

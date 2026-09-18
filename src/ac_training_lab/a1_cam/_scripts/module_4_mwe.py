@@ -8,8 +8,11 @@ COURSE_ID = "absurd-gazelle"
 command_topic = f"{COURSE_ID}/onboard_led"
 sensor_data_topic = f"{COURSE_ID}/onboard_temp"
 
+# Public demo credentials: see SECURITY.md ("Intentionally public credentials").
+# The password for this shared, read/write-anything *test* broker is published in
+# the AC Microcourses docs; it protects nothing. Use your own broker for real work.
 HIVEMQ_USERNAME = "sgbaird"
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = "<public demo password, see SECURITY.md>"
 HIVEMQ_HOST = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 
 sensor_data_queue: "Queue[dict]" = Queue()

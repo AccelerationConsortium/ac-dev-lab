@@ -614,7 +614,7 @@ class MQTTClient(MQTT_base):
         else:
             s.active(True)
             if RP2:  # Disable auto-sleep.
-                # https://datasheets.<REDACTED>pi.com/picow/connecting-to-the-internet-with-pico-w.pdf
+                # https://datasheets.raspberrypi.com/picow/connecting-to-the-internet-with-pico-w.pdf
                 # para 3.6.3
                 s.config(pm=0xA11140)
             s.connect(self._ssid, self._wifi_pw)

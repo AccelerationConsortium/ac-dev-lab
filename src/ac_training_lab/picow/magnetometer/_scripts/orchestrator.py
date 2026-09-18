@@ -6,8 +6,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 import paho.mqtt.client as mqtt
 
+# Public demo credentials: see SECURITY.md ("Intentionally public credentials").
+# The password for this shared, read/write-anything *test* broker is published in
+# the AC Microcourses docs; it protects nothing. Use your own broker for real work.
 HIVEMQ_USERNAME = "sgbaird"
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = "<public demo password, see SECURITY.md>"
 HIVEMQ_HOST = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 
 # MQTT Configuration

@@ -3,6 +3,9 @@
 # location as well as the network to your desired network.
 # This was run on portainer on truenas scale.
 # Author: Enrui (Edison) Lin
+#
+# No password is stored in this file. Set POSTGRES_PASSWORD as a stack
+# environment variable in Portainer (or in a git-ignored .env file).
 
 version: "3.9"
 
@@ -13,7 +16,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: prefect
-      POSTGRES_PASSWORD: <REDACTED>
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in Portainer stack env}
       POSTGRES_DB: prefect
     volumes:
       - /mnt/HDDs/tank/prefect-postgres:/var/lib/postgresql/data
@@ -27,7 +30,7 @@ services:
     depends_on:
       - prefect-postgres
     environment:
-      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:<REDACTED>@prefect-postgres:5432/prefect"
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:${POSTGRES_PASSWORD}@prefect-postgres:5432/prefect"
       PREFECT_SERVER_HOST: "0.0.0.0"
       PREFECT_API_URL: "http://192.168.2.144:4200/api"
       PREFECT_LOGGING_LEVEL: INFO

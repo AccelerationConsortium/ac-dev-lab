@@ -6,9 +6,12 @@ import gradio as gr
 import paho.mqtt.client as mqtt
 
 # Configuration
+# Public demo credentials: see SECURITY.md ("Intentionally public credentials").
+# The password for this shared, read/write-anything *test* broker is published in
+# the AC Microcourses docs; it protects nothing. Use your own broker for real work.
 HIVEMQ_HOST = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 HIVEMQ_USERNAME = "sgbaird"
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = "<public demo password, see SECURITY.md>"
 PORT = 8883  # default port for MQTT over TLS
 
 # Initialize MQTT client

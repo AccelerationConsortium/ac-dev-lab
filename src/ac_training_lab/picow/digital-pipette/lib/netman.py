@@ -24,7 +24,7 @@
 # https://peppe8o.com
 
 # modified by @sgbaird from source:
-# https://peppe8o.com/getting-started-with-wifi-on-<REDACTED>-pi-pico-w-and-micropython/
+# https://peppe8o.com/getting-started-with-wifi-on-raspberry-pi-pico-w-and-micropython/
 
 import time
 

@@ -15,10 +15,12 @@ Useful for debugging and testing the MQTT broker.
 Author: Enrui (Edison) Lin
 """
 
+# Default credentials of a Pioreactor on the local network (pio1.local is not
+# reachable from the internet). Real values belong in the git-ignored lookhere.py.
 broker = "pio1.local"
 port = 1883
 username = "pioreactor"
-password = \"<REDACTED>\"
+password = "<pioreactor MQTT password>"
 
 
 # The callback for when the client receives a CONNACK response from the server.

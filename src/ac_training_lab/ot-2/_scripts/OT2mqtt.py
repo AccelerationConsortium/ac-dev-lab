@@ -11,9 +11,12 @@ OT2_SERIAL = "OT2CEP20240218R04"
 PICO_ID = "e66130100f895134"
 
 # MQTT Broker Configuration
+# Public demo credentials: see SECURITY.md ("Intentionally public credentials").
+# The password for this shared, read/write-anything *test* broker is published in
+# the AC Microcourses docs; it protects nothing. Use your own broker for real work.
 host = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 username = "sgbaird"
-password = \"<REDACTED>\"
+password = "<public demo password, see SECURITY.md>"
 port = 8883
 
 OT2_COMMAND_TOPIC = f"command/ot2/{OT2_SERIAL}/pipette"
