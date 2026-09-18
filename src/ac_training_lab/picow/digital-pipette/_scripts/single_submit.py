@@ -7,7 +7,7 @@ import paho.mqtt.client as mqtt
 # MQTT Configuration
 HIVEMQ_HOST = ""
 HIVEMQ_USERNAME = ""
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = ""
 PORT = 8883
 
 # User input for the Pico ID

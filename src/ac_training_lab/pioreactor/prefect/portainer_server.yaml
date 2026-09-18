@@ -3,6 +3,20 @@
 # location as well as the network to your desired network.
 # This was run on portainer on truenas scale.
 # Author: Enrui (Edison) Lin
+#
+# Security notes (see SECURITY.md):
+# - POSTGRES_PASSWORD is read from the Portainer stack environment (or a
+#   git-ignored .env file). An earlier revision hardcoded a tutorial-style
+#   placeholder here, like the `prefect`/`prefect` pair in Prefect's own
+#   docker-compose guide:
+#   https://docs.prefect.io/v3/how-to-guides/self-hosted/docker-compose
+# - The postgres service publishes no `ports:`, so the database is reachable
+#   only from containers on `prefect-network`, never from the LAN or internet.
+#   Its password is therefore not what protects this deployment.
+# - What IS exposed is the Prefect API/UI on port 4200, which has no
+#   authentication by default. 192.168.2.144 is a private (RFC 1918) address,
+#   so this is LAN-only as written. Do not port-forward or host it publicly
+#   without enabling auth (PREFECT_SERVER_API_AUTH_STRING) or a VPN/Tailscale.
 
 version: "3.9"
 
@@ -13,7 +27,7 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: prefect
-      POSTGRES_PASSWORD: <REDACTED>
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in Portainer stack env}
       POSTGRES_DB: prefect
     volumes:
       - /mnt/HDDs/tank/prefect-postgres:/var/lib/postgresql/data
@@ -27,7 +41,7 @@ services:
     depends_on:
       - prefect-postgres
     environment:
-      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:<REDACTED>@prefect-postgres:5432/prefect"
+      PREFECT_API_DATABASE_CONNECTION_URL: "postgresql+asyncpg://prefect:${POSTGRES_PASSWORD}@prefect-postgres:5432/prefect"
       PREFECT_SERVER_HOST: "0.0.0.0"
       PREFECT_API_URL: "http://192.168.2.144:4200/api"
       PREFECT_LOGGING_LEVEL: INFO

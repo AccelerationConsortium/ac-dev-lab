@@ -39,6 +39,10 @@ conda activate ac-training-lab
 pip install -e .
 ``` -->
 
+## Credentials in this repository
+
+This is a teaching repository. A few credentials (e.g., a shared HiveMQ Cloud sandbox broker used in the [AC Microcourses](https://ac-microcourses.readthedocs.io/en/latest/courses/hello-world/1.4-hardware-software-communication.html)) are **intentionally public**, in the same way public MQTT test brokers are. They are listed and explained in [SECURITY.md](SECURITY.md). Anything not listed there should be treated as a real secret and reported privately.
+
 <!-- pyscaffold-notes -->
 
 ## Note

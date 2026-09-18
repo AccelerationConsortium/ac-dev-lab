@@ -15,7 +15,7 @@ st.title("Actuator Control Panel")
 # MQTT Configuration
 HIVEMQ_HOST = st.text_input("Enter your HiveMQ host:", "", type="password")
 HIVEMQ_USERNAME = st.text_input("Enter your HiveMQ username:", "")
-HIVEMQ_PASSWORD = st.text_input("Enter your HiveMQ password:<REDACTED>
+HIVEMQ_PASSWORD = st.text_input("Enter your HiveMQ password:", "", type="password")
 PORT = st.number_input(
     "Enter the port number:", min_value=1, max_value=65535, value=8883
 )
@@ -75,7 +75,7 @@ def send_command(client, pico_id, position):
 # Publish button
 if st.button("Send Command"):
     if not pico_id or not HIVEMQ_HOST or not HIVEMQ_USERNAME or not HIVEMQ_PASSWORD:
-        <REDACTED>
+        st.error("Please enter all required fields.")
     else:
         client = get_paho_client(
             HIVEMQ_HOST,

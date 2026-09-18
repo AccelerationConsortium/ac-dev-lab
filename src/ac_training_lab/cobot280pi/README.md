@@ -40,7 +40,7 @@ pip install -r requirements.txt
 11. Create a file in the `ac-training-lab/src/ac_training_lab/cobot280pi/` directory named `my_secrets.py`. Paste the following contents into the file. Replace the <...> attributes with your own values as noted above. Make sure to keep these credentials secret!
 ```
 HIVEMQ_USERNAME = "<HiveMQ credential username>"
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = "<HiveMQ credential password>"
 HIVEMQ_HOST = "<host URL from HiveMQ>"
 DEVICE_PORT = <port from HiveMQ>
 DEVICE_ENDPOINT = "cobot280pi/cobot1"

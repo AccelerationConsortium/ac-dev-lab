@@ -1,8 +1,8 @@
 """Rename this file to my_secrets.py"""
 
 SSID = ""
-PASSWORD = \"<REDACTED>\"
+PASSWORD = ""
 
 HIVEMQ_USERNAME = ""
-HIVEMQ_PASSWORD = \"<REDACTED>\"
+HIVEMQ_PASSWORD = ""
 HIVEMQ_HOST = ""

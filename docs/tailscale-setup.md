@@ -29,9 +29,9 @@ For running commands on your device during setup, you have two options:
    - You need to perform initial WiFi setup on the device (and couldn't when flashing using the Raspberry Pi Imager tool)
    - In case SSH'ing via the hostname doesn't work, and you want to try SSH'ing directly with the IP address, which you can find by running `hostname -I` on a Raspberry Pi for example
 
-You can see which RPi OS version you have (assuming you're using RPi OS) [by running](https://www.cyberciti.biz/faq/linux-command-print-<REDACTED>-pi-os-version-on-<REDACTED>-pi/) `hostnamectl` or using `cat /etc/os-release`. However, if you're using Ubuntu OS on your RPi, you'll [need to run](https://www.google.com/search?q=check+ubuntu+version) `lsb_release -a`.
+You can see which RPi OS version you have (assuming you're using RPi OS) [by running](https://www.cyberciti.biz/faq/linux-command-print-raspberry-pi-os-version-on-raspberry-pi/) `hostnamectl` or using `cat /etc/os-release`. However, if you're using Ubuntu OS on your RPi, you'll [need to run](https://www.google.com/search?q=check+ubuntu+version) `lsb_release -a`.
 
-On the device, [enable SSH](https://tailscale.com/kb/1193/tailscale-ssh), as mentioned in [How to SSH into a Raspberry Pi](https://tailscale.com/learn/how-to-ssh-into-a-<REDACTED>-pi):
+On the device, [enable SSH](https://tailscale.com/kb/1193/tailscale-ssh), as mentioned in [How to SSH into a Raspberry Pi](https://tailscale.com/learn/how-to-ssh-into-a-raspberry-pi):
 ```
 sudo tailscale up --ssh
 ```
@@ -67,9 +67,9 @@ Within the tailscale sidebar interface, I found it useful to try to connect to t
 Additional resources:
 - https://www.reddit.com/r/Tailscale/comments/11c69q5/how_can_i_authenticate_a_headless_device/
 - https://tailscale.com/kb/1174/install-debian-bookworm
-- https://forums.<REDACTED>pi.com/viewtopic.php?t=374609
+- https://forums.raspberrypi.com/viewtopic.php?t=374609
 - https://tailscale.com/kb/1265/vscode-extension
-- https://tailscale.com/learn/how-to-ssh-into-a-<REDACTED>-pi
+- https://tailscale.com/learn/how-to-ssh-into-a-raspberry-pi
 
 ---
 ## Remote Desktop and SSH on Windows

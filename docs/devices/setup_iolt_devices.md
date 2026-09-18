@@ -122,9 +122,11 @@ The AC Training Lab has recently become virtual 😎. After running the [Bayesia
 
 You can check the space out yourself by clicking on the invite link below. If you find something not working or have a suggestion, please feel free to [open an issue](https://github.com/AccelerationConsortium/ac-training-lab/issues/new).
 
-Invite link: <REDACTED>
-
-Password: <REDACTED>
+```{note}
+The public Gather Town demo space has been retired. Its invite link and password
+were shared here on purpose (it was an open demo anyone could join), and both have
+since expired. See the repository's `SECURITY.md` for details.
+```
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/DIYvp_6L4kY?si=lKFYES5GAIW7_fuB" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 

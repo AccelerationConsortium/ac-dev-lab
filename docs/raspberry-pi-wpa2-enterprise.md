@@ -156,7 +156,7 @@ Navigate to: **Localisation Options** > **WLAN Country** and select your country
 ### Additional Resources
 
 Various resources during troubleshooting (see list in comment):
-- https://www.reddit.com/r/<REDACTED>_pi/comments/18n47zi/comment/mhq1wdq/
+- https://www.reddit.com/r/raspberry_pi/comments/18n47zi/comment/mhq1wdq/
 
 ## Integration with AC Training Lab Devices
 

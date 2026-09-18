@@ -6,7 +6,7 @@ HF_TOKEN = os.environ["HF_TOKEN"]
 
 client = Client(
     "AccelerationConsortium/cobot280pi-gradio",
-    hf_token=<REDACTED>
+    hf_token=HF_TOKEN,
 )
 
 # fmt: off

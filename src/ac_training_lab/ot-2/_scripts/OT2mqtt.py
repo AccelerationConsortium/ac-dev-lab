@@ -11,9 +11,15 @@ OT2_SERIAL = "OT2CEP20240218R04"
 PICO_ID = "e66130100f895134"
 
 # MQTT Broker Configuration
+# Public demo credentials: see SECURITY.md ("Intentionally public credentials").
+# This host/username belong to a shared HiveMQ Cloud *test* broker, in the same spirit
+# as Mosquitto's public test broker. Public test credentials you can use with it are
+# given, with the reasoning for exposing them, in the AC Microcourses:
+# https://ac-microcourses.readthedocs.io/en/latest/courses/hello-world/1.4-hardware-software-communication.html#onboard-led-using-mqtt
+# They protect nothing; create your own free HiveMQ cluster for real work.
 host = "248cc294c37642359297f75b7b023374.s2.eu.hivemq.cloud"
 username = "sgbaird"
-password = \"<REDACTED>\"
+password = "<public demo password, see SECURITY.md>"
 port = 8883
 
 OT2_COMMAND_TOPIC = f"command/ot2/{OT2_SERIAL}/pipette"

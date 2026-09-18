@@ -3,7 +3,7 @@
 An example of equipment monitoring happening at the Acceleration Consortium is available at https://www.youtube.com/@ac-hardware-streams.
 
 This is intended to be run on a Raspberry Pi Zero 2W Raspberry Pi Camera
-Module 3 running [RPi OS Lite (bookworm, 64-bit)](https://www.<REDACTED>pi.com/software/operating-systems/).
+Module 3 running [RPi OS Lite (bookworm, 64-bit)](https://www.raspberrypi.com/software/operating-systems/).
 
 ```{include} ../../docs/_snippets/network-setup-note.md
 ```
@@ -21,16 +21,16 @@ There is a [standalone DigiKey cart](https://www.digikey.ca/short/pwmfm83t) avai
 ```
 
 ### Core Hardware
-- [Raspberry Pi Zero 2W](https://www.pishop.ca/product/<REDACTED>-pi-zero-2-w/) (or [Zero 2WH](https://www.digikey.ca/en/products/detail/<REDACTED>-pi/SC0721/24627135)) - $21.50 CAD
-- [MicroSD Card 32GB Class 10](https://www.pishop.ca/product/<REDACTED>-pi-sd-card-32gb/) - $13.95 CAD
+- [Raspberry Pi Zero 2W](https://www.pishop.ca/product/raspberry-pi-zero-2-w/) (or [Zero 2WH](https://www.digikey.ca/en/products/detail/raspberry-pi/SC0721/24627135)) - $21.50 CAD
+- [MicroSD Card 32GB Class 10](https://www.pishop.ca/product/raspberry-pi-sd-card-32gb/) - $13.95 CAD
 - [MicroSD Card Reader](https://www.pishop.ca/product/usb-2-0-keychain-micro-sd-card-reader/) - $2.95 CAD
-- [Aluminum Heatsink for Raspberry Pi B+/2/3 (2-Pack)](https://www.pishop.ca/product/aluminum-heatsink-for-<REDACTED>-pi-b2-2-pack/) - $2.45 CAD
-  - Alternative: [Heat Sink Kit for RPi Zero](https://www.pishop.ca/product/dedicated-aluminum-heatsink-for-<REDACTED>-pi-zero-series-zero-zero-2-w/) - $5.95 CAD **[OPTIONAL - better cooling]**
+- [Aluminum Heatsink for Raspberry Pi B+/2/3 (2-Pack)](https://www.pishop.ca/product/aluminum-heatsink-for-raspberry-pi-b2-2-pack/) - $2.45 CAD
+  - Alternative: [Heat Sink Kit for RPi Zero](https://www.pishop.ca/product/dedicated-aluminum-heatsink-for-raspberry-pi-zero-series-zero-zero-2-w/) - $5.95 CAD **[OPTIONAL - better cooling]**
   - *Note: The cheaper heat sink is the default as it doesn't require additional hardware. The more expensive one provides better cooling.*
 
 ### Camera Components
-- [Raspberry Pi Camera Module 3](https://www.pishop.ca/product/<REDACTED>-pi-camera-module-3/) - $35.00 CAD
-- [Raspberry Pi Zero Camera Cable](https://www.pishop.ca/product/<REDACTED>-pi-zero-mini-camera-cable-38mm/) - $3.95 CAD **[OPTIONAL]**
+- [Raspberry Pi Camera Module 3](https://www.pishop.ca/product/raspberry-pi-camera-module-3/) - $35.00 CAD
+- [Raspberry Pi Zero Camera Cable](https://www.pishop.ca/product/raspberry-pi-zero-mini-camera-cable-38mm/) - $3.95 CAD **[OPTIONAL]**
   - *Note: The RPi Camera Module 3 comes with a long cable you can use, but you can replace it with this shorter cable for cleaner mounting*
 
 ### Power
@@ -54,7 +54,7 @@ These items are optional and don't factor into the final price shown. They're us
 
 ### Mounting Hardware
 **Option A:** Off-the-shelf mount kit
-- [Pro Mini Camera Mount for Raspberry Pi Zero](https://www.pishop.ca/product/pro-mini-camera-mount-for-<REDACTED>-pi-zero/) - $7.95 CAD
+- [Pro Mini Camera Mount for Raspberry Pi Zero](https://www.pishop.ca/product/pro-mini-camera-mount-for-raspberry-pi-zero/) - $7.95 CAD
 - *Note: Off-the-shelf mount works but might need to be secured so the two laser cut pieces don't wobble relative to each other*
 
 **Option B:** DIY mounting solution (recommended):
@@ -65,7 +65,7 @@ These items are optional and don't factor into the final price shown. They're us
 - **M2.5 Hardware (4 pieces needed):**
   - [White Nylon Screw and Stand-off Set - M2.5 - 420 pieces](https://www.pishop.ca/product/white-nylon-screw-and-stand-off-set-m2-5-420-pieces/) - $18.95 CAD - PiShop.ca
   - *Note: This kit contains 420+ pieces including screws, nuts, and standoffs. You only need 4 M2.5×8mm screws, 4 M2.5 nuts, and 4 M2.5×8mm standoffs from this kit.*
-- *Note: Assembly instructions available at [ThePiHut](https://thepihut.com/blogs/<REDACTED>-pi-tutorials/pro-mini-camera-mount-assembly-guide)*
+- *Note: Assembly instructions available at [ThePiHut](https://thepihut.com/blogs/raspberry-pi-tutorials/pro-mini-camera-mount-assembly-guide)*
 
 ### Rod Clamp Assembly & Mounting
 - [Camera Desk Mount Table Stand](https://www.primecables.ca/p-407778-cab-lsd01-1s-camera-desk-mount-table-stand) - Prime Cables (~$20-30 CAD)
@@ -207,7 +207,7 @@ Adjust these based on your camera mounting orientation to ensure the video appea
 
 ## Dependencies
 
-If not already installed (not pre-installed on RPi OS Lite), install [`picamera2`](https://github.com/<REDACTED>pi/picamera2) via:
+If not already installed (not pre-installed on RPi OS Lite), install [`picamera2`](https://github.com/raspberrypi/picamera2) via:
 
 ```bash
 sudo apt install python3-picamera2 --no-install-recommends

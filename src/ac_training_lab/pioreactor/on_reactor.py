@@ -13,7 +13,7 @@ starting/stopping stirring, setting LED intensity, etc.
 
 lookhere.py contains the following variables:
 - username: Username for the PioReactor
-- password: <REDACTED>
+- password: Password for the PioReactor
 - broker: MQTT broker address
 - port: MQTT broker port
 - username_pio: Username for the PioReactor

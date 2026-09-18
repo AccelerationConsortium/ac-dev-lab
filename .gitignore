@@ -51,7 +51,7 @@ MANIFEST
 docs/devices/*.md
 !docs/devices/setup_iolt_devices.md
 !docs/devices/cudy.md
-!docs/devices/<REDACTED>-pi-wpa2-enterprise.md
+!docs/devices/raspberry-pi-wpa2-enterprise.md
 
 # Per-project virtualenvs
 .venv*/
@@ -72,3 +72,4 @@ src/ac_training_lab/apriltag_demo/tag25_09_00000.png
 src/ac_training_lab/apriltag_demo/tag36_11_00000.png
 src/ac_training_lab/apriltag_demo/tag49_12_00000.png
 scripts/playwright/sem-open-close/chat.json
+transcript.txt

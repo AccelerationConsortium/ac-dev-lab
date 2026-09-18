@@ -1,7 +1,7 @@
 MQTT_HOST = "your-mqtt-host"
 MQTT_PORT = 8883  # or 1883
 MQTT_USERNAME = "your-username"
-MQTT_PASSWORD = \"<REDACTED>\"
+MQTT_PASSWORD = "your-password"
 DEVICE_SERIAL = "your-device-serial"
 CAMERA_READ_TOPIC = f"rpi-zero2w/still-camera/request/{DEVICE_SERIAL}"
 CAMERA_WRITE_TOPIC = f"rpi-zero2w/still-camera/response/{DEVICE_SERIAL}"

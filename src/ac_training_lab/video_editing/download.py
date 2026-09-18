@@ -63,8 +63,8 @@ def list_videos_in_playlist(youtube, playlist_id):
 
 def setup_youtube_client():
     credentials = Credentials(
-        token=<REDACTED>
-        refresh_token=<REDACTED>
+        token=YOUTUBE_TOKEN,
+        refresh_token=YOUTUBE_REFRESH_TOKEN,
         token_uri=YOUTUBE_TOKEN_URI,
         client_id=YOUTUBE_CLIENT_ID,
         client_secret=YOUTUBE_CLIENT_SECRET,
