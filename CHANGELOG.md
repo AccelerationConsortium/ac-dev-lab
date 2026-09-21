@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 ### Added
+- Zaber linear rail control module with Prefect workflow orchestration in `src/ac_training_lab/zaber_linear_rail/`:
+  - `config.py` - Configuration settings for serial port, motion parameters, and safety limits
+  - `rail_controller.py` - Core controller with connect, home, move_to_position, move_relative, get_position, stop
+  - `prefect_flows.py` - Prefect flows for remote orchestration (move_to_position_flow, home_flow, sequence_flow)
 - Support for both `rpicam-vid` (Raspberry Pi OS Trixie) and `libcamera-vid` (Raspberry Pi OS Bookworm) camera commands in `src/ac_training_lab/picam/device.py` to ensure compatibility across different OS versions.
 - Comprehensive Unit Operations section in `docs/index.md` documenting all available capabilities including dispensing, synthesis, characterization, and robotics operations.
 - Expanded Training Workflows section in `docs/index.md` with 10 educational workflows including RGB/RYB color matching, titration, yeast growth optimization, vision-enabled 3D printing optimization, microscopy image stitching, and AprilTag robot path planning.
