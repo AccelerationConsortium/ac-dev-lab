@@ -71,6 +71,129 @@ Additional resources:
 - https://tailscale.com/kb/1265/vscode-extension
 - https://tailscale.com/learn/how-to-ssh-into-a-raspberry-pi
 
+### Troubleshooting VS Code Remote SSH with Tailscale
+
+When working with VS Code Remote SSH over Tailscale, you may encounter connection issues that require troubleshooting. Here are common problems and their solutions:
+
+#### Common Issues and Solutions
+
+**1. VS Code Server Hanging or Connection Failures**
+
+If VS Code Remote SSH gets stuck or fails to connect, the remote VS Code server process may be corrupted or hung. Try these steps in order:
+
+1. **Kill the VS Code Server on the remote host**: 
+   - Open the Command Palette in VS Code (`Ctrl+Shift+P` or `Cmd+Shift+P`)
+   - Run: `Remote-SSH: Kill VS Code Server on Host`
+   - Try connecting again
+
+2. **Uninstall the VS Code Server** (if killing doesn't help):
+   - Open the Command Palette
+   - Run: `Remote-SSH: Uninstall VS Code Server from Host`
+   - Reconnect (VS Code will reinstall the server automatically)
+
+3. **Check the Remote-SSH output logs**:
+   - Go to `View > Output`
+   - Select `Remote-SSH` from the dropdown
+   - Look for specific error messages that can guide troubleshooting
+
+**2. Network and Tailscale-Specific Issues**
+
+If connections drop frequently or fail after the remote device has been running for a while:
+
+1. **Ensure Tailscale has high uptime**:
+   - On Windows devices, enable "Run unattended" in the Tailscale system tray icon (see [Remote Desktop section](#remote-desktop-and-ssh-on-windows))
+   - On Linux/macOS, ensure Tailscale is set to start on boot: `sudo tailscale up --ssh`
+   - Disable key expiry for devices to prevent authentication issues (see [machine settings](https://login.tailscale.com/admin/machines))
+
+2. **Check Tailscale connection status**:
+   ```bash
+   tailscale status
+   ```
+   If the device shows as offline or has connectivity issues, restart Tailscale:
+   ```bash
+   sudo systemctl restart tailscaled  # Linux
+   # or on macOS/Windows, use the system tray to disconnect and reconnect
+   ```
+
+3. **Test raw SSH connectivity**:
+   Before trying VS Code, verify basic SSH works:
+   ```bash
+   ssh user@device-name.tailnet-id.ts.net echo "Connection successful"
+   ```
+
+**3. SSH Configuration for Stability**
+
+Add these settings to your SSH config file (`~/.ssh/config` on macOS/Linux, or `C:\Users\YourUsername\.ssh\config` on Windows) to improve connection stability:
+
+```
+Host *.ts.net
+    ServerAliveInterval 30
+    ServerAliveCountMax 5
+    TCPKeepAlive yes
+```
+
+These settings:
+- Send keepalive packets every 30 seconds to prevent timeouts
+- Allow up to 5 failed keepalive attempts before disconnecting
+- Enable TCP-level keepalive for additional resilience
+
+**4. Long Uptime and System Stability**
+
+If the remote device has been running for extended periods without reboots:
+
+1. **Clean up VS Code Server files** on the remote device:
+   ```bash
+   # SSH into the remote device
+   rm -rf ~/.vscode-server/.*.log ~/.vscode-server/.*.pid
+   ```
+
+2. **Reboot the remote device periodically** to clear accumulated state and prevent zombie processes
+
+3. **Check for disk space issues**:
+   ```bash
+   df -h
+   ```
+   The VS Code server requires adequate disk space in the home directory
+
+**5. File System Mount Issues**
+
+If the remote home directory is on a network mount (NFS, SMB), VS Code may hang. Solutions:
+
+1. **Change the VS Code server install location** to a local directory:
+   - Add to VS Code settings (File > Preferences > Settings):
+   ```json
+   "remote.SSH.serverInstallPath": {
+       "your-host": "/tmp/.vscode-server"
+   }
+   ```
+
+2. **Or specify via SSH config**:
+   ```
+   Host device-name
+       RemoteCommand cd /tmp && exec $SHELL
+   ```
+
+**6. VS Code Remote-SSH Settings to Try**
+
+If you continue experiencing issues, try toggling these settings in VS Code:
+
+- `remote.SSH.useLocalServer`: Try both enabled and disabled
+- `remote.SSH.useExecServer`: Try disabling for legacy compatibility
+- `remote.SSH.enableRemoteCommand`: May help with certain shell configurations
+
+#### Automated Maintenance Tips
+
+- **Set up SSH key-based authentication** instead of passwords for reliability
+- **Monitor connection health**: Use `ping` or `mtr` to check for network instability
+- **Keep everything updated**: Regularly update VS Code, Remote-SSH extension, SSH server, and Tailscale
+- **Use connection profiles**: Save frequently-used SSH configurations in your `~/.ssh/config` file
+
+#### Additional Troubleshooting Resources
+
+- [VS Code Remote SSH Troubleshooting Guide](https://code.visualstudio.com/docs/remote/troubleshooting)
+- [Microsoft's Remote-SSH Wiki](https://github.com/microsoft/vscode-remote-release/wiki/Remote-SSH-troubleshooting)
+- [Tailscale SSH Documentation](https://tailscale.com/kb/1193/tailscale-ssh)
+
 ---
 ## Remote Desktop and SSH on Windows
 

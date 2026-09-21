@@ -7,6 +7,7 @@
 - Expanded Training Workflows section in `docs/index.md` with 10 educational workflows including RGB/RYB color matching, titration, yeast growth optimization, vision-enabled 3D printing optimization, microscopy image stitching, and AprilTag robot path planning.
 - Research Workflows section in `docs/index.md` documenting alkaline catalysis lifecycle testing and battery slurry viscosity optimization.
 - Direct links from unit operations and workflows to relevant code locations in the repository for easier navigation.
+- Comprehensive troubleshooting section for VS Code Remote SSH with Tailscale in `docs/tailscale-setup.md`, including solutions for server hanging, network issues, SSH stability configuration, long uptime problems, and file system mount issues.
 
 ### Fixed
 - Ctrl+C interrupt handling in `src/ac_training_lab/picam/device.py` now properly exits the streaming loop instead of restarting.
